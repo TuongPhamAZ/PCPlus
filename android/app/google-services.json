@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "604682309294",
+    "project_id": "pcplus-305c6",
+    "storage_bucket": "pcplus-305c6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:604682309294:android:5d08606bb9d2e36d19a73f",
+        "android_client_info": {
+          "package_name": "com.example.pcplus"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCX7thSf10rFXEcoMt2YNEPf70n6cxkAOY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
