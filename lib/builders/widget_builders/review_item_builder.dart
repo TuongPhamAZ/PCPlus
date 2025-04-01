@@ -1,7 +1,8 @@
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:pcplus/builders/widget_builders/widget_builder_interface.dart';
 import 'package:pcplus/objects/review_data.dart';
-import 'package:pcplus/views/widgets/listItem/review_item.dart';
+
+import '../../pages/widgets/listItem/review_item.dart';
 
 class ReviewItemBuilder implements WidgetBuilderInterface {
   ReviewData? reviewData;

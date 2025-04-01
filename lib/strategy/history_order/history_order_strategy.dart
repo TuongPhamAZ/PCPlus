@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import '../../models/orders/order_model.dart';
-import '../../presenter/history_order_presenter.dart';
-import '../../views/widgets/listItem/history_item.dart';
+import '../../pages/history_order/history_order_presenter.dart';
+import '../../pages/widgets/listItem/history_item.dart';
 
 abstract class HistoryOrderBuildListStrategy {
   HistoryOrderPresenter? presenter;
