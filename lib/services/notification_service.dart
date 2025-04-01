@@ -15,7 +15,7 @@ class NotificationService {
   Future<void> createOrderingNotification(OrderModel order) async {
     NotificationModel notification = NotificationModel(
       title: "Đơn hàng mới",
-      content: "${order.receiverName} đã đặt hàng từ bạn. Mã order: ${order.orderID!}",
+      content: "${order.receiverName} đã đặt hàng từ bạn. Mã history_order: ${order.orderID!}",
       isRead: false,
       date: DateTime.now(),
       productImage: order.itemModel!.image,
@@ -29,7 +29,7 @@ class NotificationService {
   Future<void> createCancelOrderingNotification(OrderModel order, String reason) async {
     NotificationModel notification = NotificationModel(
       title: "Đơn hàng đã bị hủy",
-      content: "${order.receiverName} đã hủy đơn (Mã order: ${order.orderID!}) với lý do: $reason",
+      content: "${order.receiverName} đã hủy đơn (Mã history_order: ${order.orderID!}) với lý do: $reason",
       isRead: false,
       date: DateTime.now(),
       productImage: order.itemModel!.image,
@@ -43,7 +43,7 @@ class NotificationService {
   Future<void> createReceivedOrderNotification(OrderModel order) async {
     NotificationModel notification = NotificationModel(
       title: "Khách hàng đã nhận đơn",
-      content: "${order.receiverName} đã nhận được đơn hàng. Mã order: ${order.orderID!}",
+      content: "${order.receiverName} đã nhận được đơn hàng. Mã history_order: ${order.orderID!}",
       isRead: false,
       date: DateTime.now(),
       productImage: order.itemModel!.image,
@@ -59,7 +59,7 @@ class NotificationService {
   Future<void> createShopCancelOrderingNotification(OrderModel order, String reason) async {
     NotificationModel notification = NotificationModel(
       title: "Đơn hàng đã bị hủy",
-      content: "${order.shopName} đã hủy đơn (Mã order: ${order.orderID!}) với lý do: $reason",
+      content: "${order.shopName} đã hủy đơn (Mã history_order: ${order.orderID!}) với lý do: $reason",
       isRead: false,
       date: DateTime.now(),
       productImage: order.itemModel!.image,
@@ -73,7 +73,7 @@ class NotificationService {
   Future<void> createShopConfirmOrderNotification(OrderModel order) async {
     NotificationModel notification = NotificationModel(
       title: "Shop đã nhận đơn",
-      content: "${order.shopName} đã đồng ý đơn hàng của bạn. Mã order: ${order.orderID!}",
+      content: "${order.shopName} đã đồng ý đơn hàng của bạn. Mã history_order: ${order.orderID!}",
       isRead: false,
       date: DateTime.now(),
       productImage: order.itemModel!.image,
@@ -87,7 +87,7 @@ class NotificationService {
   Future<void> createShopSentOrderNotification(OrderModel order) async {
     NotificationModel notification = NotificationModel(
       title: "Đơn hàng đang được giao",
-      content: "${order.shopName} đã gửi đơn hàng đến bạn. Mã order: ${order.orderID!}",
+      content: "${order.shopName} đã gửi đơn hàng đến bạn. Mã history_order: ${order.orderID!}",
       isRead: false,
       date: DateTime.now(),
       productImage: order.itemModel!.image,

@@ -5,7 +5,7 @@ import 'package:pcplus/commands/shop_home_command.dart';
 import '../../commands/command_interface.dart';
 import '../../models/items/item_model.dart';
 import '../../models/users/user_model.dart';
-import '../../views/widgets/listItem/shop_item.dart';
+import '../../pages/widgets/listItem/shop_item.dart';
 
 class ShopItemBuilder implements WidgetBuilderInterface {
   ItemModel? _product;

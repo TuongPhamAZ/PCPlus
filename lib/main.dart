@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:pcplus/component/dependency_injection.dart';
 import 'package:pcplus/firebase_options.dart';
 import 'package:pcplus/route.dart';
-import 'package:pcplus/views/splash.dart';
+import 'package:pcplus/pages/splash/splash.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -4,7 +4,7 @@ import 'package:pcplus/commands/command_interface.dart';
 import 'package:pcplus/models/items/item_model.dart';
 
 import '../../models/users/user_model.dart';
-import '../../views/widgets/listItem/suggest_item.dart';
+import '../../pages/widgets/listItem/suggest_item.dart';
 
 class SuggestItemBuilder implements WidgetBuilderInterface {
   ItemModel? _product;

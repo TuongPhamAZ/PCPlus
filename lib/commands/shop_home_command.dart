@@ -1,5 +1,5 @@
 import '../objects/suggest_item_data.dart';
-import '../presenter/shop_home_presenter.dart';
+import '../pages/home/shop_home/shop_home_presenter.dart';
 import 'command_interface.dart';
 
 class ShopHomeItemEditCommand implements CommandInterface {

@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:pcplus/strategy/history_order/history_order_strategy.dart';
 
 import '../../models/orders/order_model.dart';
-import '../../views/widgets/listItem/history_item.dart';
+import '../../pages/widgets/listItem/history_item.dart';
 
 class NormalOrdersBuildStrategy extends HistoryOrderBuildListStrategy {
 

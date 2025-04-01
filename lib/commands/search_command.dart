@@ -1,4 +1,4 @@
-import 'package:pcplus/presenter/search_screen_presenter.dart';
+import 'package:pcplus/pages/search/search_screen_presenter.dart';
 
 import '../objects/suggest_item_data.dart';
 import 'command_interface.dart';

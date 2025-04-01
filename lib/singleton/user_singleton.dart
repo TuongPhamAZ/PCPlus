@@ -28,19 +28,19 @@ class UserSingleton {
 
   Future<void> loadUser(UserModel user) async {
     ShopSingleton shopSingleton = ShopSingleton.getInstance();
-    CartSingleton cartSingleton = CartSingleton.getInstance();
+    // CartSingleton cartSingleton = CartSingleton.getInstance();
 
     currentUser = user;
     firstEnter = true;
-    if (user.isSeller!) {
-      shopSingleton.changeShop(user);
-    } else {
-      await cartSingleton.initCart();
-    }
+    // if (user.isSeller!) {
+    //   shopSingleton.changeShop(user);
+    // } else {
+    //   await cartSingleton.initCart();
+    // }
   }
 
   Future<void> signOut() async {
-    CartSingleton cartSingleton = CartSingleton.getInstance();
-    cartSingleton.clearData();
+    // CartSingleton cartSingleton = CartSingleton.getInstance();
+    // cartSingleton.clearData();
   }
 }
