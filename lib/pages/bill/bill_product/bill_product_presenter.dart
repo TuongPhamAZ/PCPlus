@@ -32,7 +32,7 @@ class BillProductPresenter {
 
   void handleChangeLocation(OrderAddressModel address) {
     // _cartSingleton.address = address;
-    _pref.saveLocationData(addressData: address);
+    PrefService.saveLocationData(addressData: address);
   }
 
   Future<void> handleOrder(OrderAddressModel address) async {

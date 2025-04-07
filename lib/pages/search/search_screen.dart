@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:gap/gap.dart';
-import 'package:pcplus/builders/widget_builders/suggest_item_builder.dart';
 import 'package:pcplus/builders/widget_builders/widget_builder_director.dart';
 import 'package:pcplus/commands/search_command.dart';
+import 'package:pcplus/component/item_argument.dart';
 import 'package:pcplus/const/item_filter.dart';
+import 'package:pcplus/factories/widget_factories/suggest_item_factory.dart';
 import 'package:pcplus/pages/search/search_screen_contract.dart';
 import 'package:pcplus/pages/search/search_screen_presenter.dart';
 import 'package:pcplus/singleton/search_singleton.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 
+import '../../models/items/item_with_seller.dart';
 import '../../objects/suggest_item_data.dart';
 import '../manage_product/detail_product/detail_product.dart';
 import '../widgets/util_widgets.dart';
@@ -25,9 +27,6 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> implements SearchScreenContract {
   SearchScreenPresenter? _presenter;
   final WidgetBuilderDirector director = WidgetBuilderDirector();
-  final SearchSingleton _searchSingleton = SearchSingleton.getInstance();
-
-  List<ItemData> _items = [];
 
   bool lienQuan = true;
   bool moiNhat = false;
@@ -38,20 +37,26 @@ class _SearchScreenState extends State<SearchScreen> implements SearchScreenCont
 
   final TextEditingController _searchController = TextEditingController();
 
+  List<ItemWithSeller> sortedItems = [];
+
   @override
   void initState() {
     _presenter = SearchScreenPresenter(this);
-    _searchController.text = _searchSingleton.storedSearchInput;
     super.initState();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_searchSingleton.needSearch) {
-      loadData();
-      _searchSingleton.needSearch = false;
+
+    final args = ModalRoute.of(context)!.settings.arguments as ItemArgument;
+
+    if ((args.data['searchQuery'] as String).isEmpty == false) {
+      _searchController.text = args.data['searchQuery'];
+      args.data['searchQuery'] = '';
     }
+
+    loadData();
   }
 
   Future<void> loadData() async {
@@ -280,37 +285,40 @@ class _SearchScreenState extends State<SearchScreen> implements SearchScreenCont
                 ],
               ),
               const Gap(10),
-              isSearching ?
-                UtilWidgets.getLoadingWidgetWithContainer(
-                    width: size.width,
-                    height: size.height * 3/4
-                )
-              : _items.isEmpty ?
-                  UtilWidgets.getCenterTextWithContainer(
-                    width: size.width,
-                    height: size.height * 3/4,
-                    text: "No result"
-                  )
-                :
-                ListView.builder(
-                  shrinkWrap: true,
-                  padding: EdgeInsets.zero,
-                  physics: const NeverScrollableScrollPhysics(),
-                  scrollDirection: Axis.vertical,
-                  itemCount: _items.length,
-                  itemBuilder: (context, index) {
-                    SuggestItemBuilder builder = SuggestItemBuilder();
-                    director.makeSuggestItem(
-                        builder: builder,
-                        data: _items[index],
-                        command: SearchItemPressedCommand(
-                            presenter: _presenter!,
-                            item: _items[index]
-                        ),
+              StreamBuilder<List<ItemWithSeller>>(
+                  stream: _presenter!.searchItemStream,
+                  builder: (context, snapshot) {
+                    Widget? result = UtilWidgets.createSnapshotResultWidget(context, snapshot);
+                    if (result != null) {
+                      return result;
+                    }
+
+                    final itemsWithSeller = snapshot.data ?? [];
+
+                    sortedItems = itemsWithSeller;
+
+                    if (itemsWithSeller.isEmpty) {
+                      return const Center(child: Text('No data'));
+                    }
+
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      padding: EdgeInsets.zero,
+                      physics: const NeverScrollableScrollPhysics(),
+                      scrollDirection: Axis.vertical,
+                      itemCount: sortedItems.length,
+                      itemBuilder: (context, index) {
+                        return SuggestItemFactory.create(
+                            itemWithSeller: sortedItems[index],
+                            command: SearchItemPressedCommand(
+                                presenter: _presenter!,
+                                item: itemsWithSeller[index]
+                            )
+                        );
+                      },
                     );
-                    return builder.createWidget();
-                  },
-                ),
+                  }
+              ),
             ],
           ),
         ),
@@ -324,9 +332,9 @@ class _SearchScreenState extends State<SearchScreen> implements SearchScreenCont
   }
 
   @override
-  Future<void> onChangeFilter(List<ItemData> result) async {
+  Future<void> onChangeFilter() async {
     setState(() {
-      _items = result;
+      sortedItems = _presenter!.filter(sortedItems);
     });
   }
 

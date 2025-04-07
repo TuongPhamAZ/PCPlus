@@ -15,7 +15,6 @@ class ProfileScreenPresenter {
   UserModel? user;
 
   final AuthenticationService _auth = AuthenticationService();
-  final PrefService _pref = PrefService();
   final OrderRepository _orderRepository = OrderRepository();
 
   int awaitConfirm = 0;
@@ -25,7 +24,7 @@ class ProfileScreenPresenter {
 
 
   Future<void> getData() async {
-    user = UserSingleton.getInstance().currentUser;
+    user = await PrefService.loadUserData();
     await calculateOrderType();
     _view.onLoadDataSucceeded();
   }
@@ -57,7 +56,7 @@ class ProfileScreenPresenter {
   Future<void> signOut() async {
     _view.onWaitingProgressBar();
     await _auth.signOut();
-    await _pref.clearUserData();
+    await PrefService.clearUserData();
     await UserSingleton.getInstance().signOut();
     _view.onPopContext();
     _view.onSignOut();

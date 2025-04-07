@@ -167,6 +167,20 @@ class ItemRepository {
     });
   }
 
+  Stream<List<ItemModel>> getNewestItemsStream(int limit) {
+    return _storage
+        .collection(ItemModel.collectionName)
+        .orderBy('addDate', descending: false)
+        .limit(limit)
+        .snapshots()
+        .map((snapshot) {
+      print("Số lượng tài liệu: ${snapshot.docs.length}");
+      return snapshot.docs
+          .map((doc) => ItemModel.fromJson(doc.id, doc.data()))
+          .toList();
+    });
+  }
+
   Stream<List<ItemWithSeller>> getItemsWithSeller({String searchQuery = ''}) {
     return FirebaseFirestore.instance
         .collection(ItemModel.collectionName)
@@ -210,5 +224,84 @@ class ItemRepository {
     });
   }
 
+  Stream<List<ItemWithSeller>> getNewestItemsWithSeller(int limit) {
+    return FirebaseFirestore.instance
+        .collection(ItemModel.collectionName)
+        .orderBy('addDate', descending: false)
+        .limit(limit)
+        .snapshots()
+        .asyncMap((itemsSnapshot) async {
+      // Lấy danh sách ItemModel
+      List<ItemModel> items = itemsSnapshot.docs
+          .map((doc) => ItemModel.fromJson(doc.id, doc.data()))
+          .toList();
 
+      // Lấy danh sách các sellerID (loại bỏ trùng)
+      Set<String?> sellerIds = items.map((item) => item.sellerID).toSet();
+
+      // Truy vấn tất cả UserModel cùng lúc
+      List<UserModel> sellers = await Future.wait(
+        sellerIds.map((id) async {
+          return UserRepository().getUserById(id!);
+        }),
+      );
+
+      // Tạo Map sellerId -> UserModel để tra cứu nhanh
+      Map<String, UserModel> sellerMap = {
+        for (var seller in sellers.where((s) => s != null)) seller.userID!: seller
+      };
+
+      // Ghép dữ liệu UserModel vào ItemModel
+      List<ItemWithSeller> itemsWithSeller = items
+          .map((item) => ItemWithSeller(item: item, seller: sellerMap[item.sellerID]!))
+          .toList();
+
+      return itemsWithSeller;
+    });
+  }
+
+  Stream<List<ItemWithSeller>> getItemsWithSellerStreamByIdList(List<String> ids) {
+    if (ids.isEmpty) return Stream.value([]);
+
+    List<Stream<List<ItemModel>>> streams = [];
+
+    for (int i = 0; i < ids.length; i += 10) {
+      List<String> subList = ids.sublist(i, i + 10 > ids.length ? ids.length : i + 10);
+
+      Stream<List<ItemModel>> stream = FirebaseFirestore.instance
+          .collection('items')
+          .where(FieldPath.documentId, whereIn: subList)
+          .snapshots()
+          .map((snapshot) => snapshot.docs
+          .map((doc) => ItemModel.fromJson(doc.id, doc.data()))
+          .toList());
+
+      streams.add(stream);
+    }
+
+    return StreamGroup.merge<List<ItemModel>>(streams).asyncMap((listOfLists) async {
+      // Gộp tất cả ItemModel lại
+      final items = listOfLists.expand((x) => x as Iterable<ItemModel>).toList();
+
+      // Lấy danh sách sellerId
+      final sellerIds = items.map((item) => item.sellerID).toSet();
+
+      // Lấy thông tin từng seller
+      final sellers = await Future.wait(
+        sellerIds.map((id) => UserRepository().getUserById(id!)),
+      );
+
+      final sellerMap = {
+        for (var s in sellers.where((e) => e != null)) s.userID!: s
+      };
+
+      // Gắn seller vào từng item
+      return items
+          .map((item) => ItemWithSeller(
+        item: item,
+        seller: sellerMap[item.sellerID]!,
+      ))
+          .toList();
+    });
+  }
 }

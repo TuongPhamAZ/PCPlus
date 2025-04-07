@@ -13,14 +13,13 @@ class EditProfileScreenPresenter {
   EditProfileScreenPresenter(this._view);
 
   final UserRepository _userRepo = UserRepository();
-  final PrefService _pref = PrefService();
   final ImageStorageService _imageStore = ImageStorageService();
 
   UserModel? user;
   File? avatarFile;
 
   Future<void> getData() async {
-    user = await _pref.loadUserData();
+    user = await PrefService.loadUserData();
     _view.onLoadDataSucceeded();
   }
 
@@ -49,7 +48,7 @@ class EditProfileScreenPresenter {
     user!.gender = isMale ? "Male" : "Female";
 
     await _userRepo.updateUser(user!);
-    await _pref.saveUserData(userData: user!);
+    await PrefService.saveUserData(userData: user!);
     UserSingleton.getInstance().currentUser = user;
     _view.onPopContext();
     _view.onSaveSucceeded();

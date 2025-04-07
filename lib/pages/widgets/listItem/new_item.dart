@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
-import 'package:pcplus/commands/command_interface.dart';
 import 'package:pcplus/services/utility.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
+
+import '../../../interfaces/command.dart';
 
 class NewItem extends StatelessWidget {
   final String itemName;
@@ -12,7 +13,7 @@ class NewItem extends StatelessWidget {
   final double rating;
   final int price;
   final int sold;
-  final CommandInterface? command;
+  final ICommand? command;
 
   const NewItem(
       {super.key,

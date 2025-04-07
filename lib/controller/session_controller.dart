@@ -23,4 +23,8 @@ class SessionController {
   Future<void> signOut() async {
 
   }
+
+  bool isShop() {
+    return isSeller;
+  }
 }

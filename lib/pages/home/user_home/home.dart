@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:gap/gap.dart';
-import 'package:pcplus/builders/widget_builders/new_item_builder.dart';
-import 'package:pcplus/builders/widget_builders/suggest_item_builder.dart';
 import 'package:pcplus/builders/widget_builders/widget_builder_director.dart';
 import 'package:pcplus/commands/home_command.dart';
+import 'package:pcplus/component/item_argument.dart';
 import 'package:pcplus/config/asset_helper.dart';
+import 'package:pcplus/factories/widget_factories/new_item_factory.dart';
+import 'package:pcplus/factories/widget_factories/suggest_item_factory.dart';
+import 'package:pcplus/models/items/item_with_seller.dart';
 import 'package:pcplus/pages/home/user_home/home_contract.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 import 'package:pcplus/pages/manage_product/detail_product/detail_product.dart';
 import 'package:pcplus/pages/search/search_screen.dart';
-
-import '../../../objects/suggest_item_data.dart';
 import '../../widgets/bottom/bottom_bar_custom.dart';
 import '../../widgets/util_widgets.dart';
 import 'home_presenter.dart';
@@ -145,26 +145,72 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
               SizedBox(
                 height: 285,
                 width: size.width,
-                child: newProducts.isEmpty ? null : ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: newProducts.length,
-                  itemBuilder: (context, index) {
-                    return newProducts[index];
-                  },
-                ),
+                child: StreamBuilder<List<ItemWithSeller>>(
+                    stream: _presenter!.newestItemStream,
+                    builder: (context, snapshot) {
+                      Widget? result = UtilWidgets.createSnapshotResultWidget(context, snapshot);
+                      if (result != null) {
+                        return result;
+                      }
+
+                      final itemsWithSeller = snapshot.data ?? [];
+
+                      if (itemsWithSeller.isEmpty) {
+                        return const Center(child: Text('No data'));
+                      }
+
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        padding: EdgeInsets.zero,
+                        scrollDirection: Axis.horizontal,
+                        itemCount: itemsWithSeller.length,
+                        itemBuilder: (context, index) {
+                          return NewItemFactory.create(
+                              itemWithSeller: itemsWithSeller[index],
+                              command: HomeItemPressedCommand(
+                                  presenter: _presenter!,
+                                  item: itemsWithSeller[index]
+                              )
+                          );
+                        },
+                      );
+                    }
+                  ),
               ),
               const Gap(30),
               Text('Suggestions for you', style: TextDecor.robo18Bold),
               const Gap(10),
-              recommendedProducts.isEmpty ? const Gap(30) : ListView.builder(
-                shrinkWrap: true,
-                padding: EdgeInsets.zero,
-                physics: const NeverScrollableScrollPhysics(),
-                scrollDirection: Axis.vertical,
-                itemCount: recommendedProducts.length,
-                itemBuilder: (context, index) {
-                  return recommendedProducts[index];
-                },
+              StreamBuilder<List<ItemWithSeller>>(
+                  stream: _presenter!.recommendedItemStream,
+                  builder: (context, snapshot) {
+                    Widget? result = UtilWidgets.createSnapshotResultWidget(context, snapshot);
+                    if (result != null) {
+                      return result;
+                    }
+
+                    final itemsWithSeller = snapshot.data ?? [];
+
+                    if (itemsWithSeller.isEmpty) {
+                      return const Center(child: Text('No data'));
+                    }
+
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      padding: EdgeInsets.zero,
+                      physics: const NeverScrollableScrollPhysics(),
+                      scrollDirection: Axis.vertical,
+                      itemCount: itemsWithSeller.length,
+                      itemBuilder: (context, index) {
+                        return SuggestItemFactory.create(
+                            itemWithSeller: itemsWithSeller[index],
+                            command: HomeItemPressedCommand(
+                                presenter: _presenter!,
+                                item: itemsWithSeller[index]
+                            )
+                        );
+                      },
+                    );
+                  }
               ),
             ],
           ),
@@ -176,26 +222,6 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
 
   @override
   Future<void> onLoadDataSucceed() async {
-    NewItemBuilder newItemBuilder = NewItemBuilder();
-    for (ItemData item in _presenter!.newestItems) {
-      director.makeNewItem(
-        builder: newItemBuilder,
-        data: item,
-        command: HomeItemPressedCommand(presenter: _presenter!, item: item),
-      );
-      newProducts.add(newItemBuilder.createWidget()!);
-    }
-
-    SuggestItemBuilder suggestItemBuilder = SuggestItemBuilder();
-    for (ItemData item in _presenter!.recommendedItems) {
-      director.makeSuggestItem(
-          builder: suggestItemBuilder,
-          data: item,
-          command: HomeItemPressedCommand(presenter: _presenter!, item: item),
-      );
-      recommendedProducts.add(suggestItemBuilder.createWidget()!);
-    }
-
     setState(() {
       isLoading = false;
     });
@@ -208,7 +234,12 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
 
   @override
   void onSearch() {
-    Navigator.of(context).pushNamed(SearchScreen.routeName);
+    Navigator.of(context).pushNamed(
+        SearchScreen.routeName,
+        arguments: ItemArgument(data: {
+          'searchQuery' : _searchController.text.trim()
+        })
+    );
   }
 
   @override

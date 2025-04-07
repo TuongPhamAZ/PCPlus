@@ -118,7 +118,7 @@ class UserInformationPresenter {
       UserModel user = builder.createModel();
       //await _apiController.callApiAddUserData(user);
       _userRepo.addUserToFirestore(user);
-      await _prefService.saveUserData(userData: user, password: password);
+      await PrefService.saveUserData(userData: user, password: password);
       UserSingleton.getInstance().loadUser(user);
       _view.onPopContext();
       _view.onConfirmSucceeded();

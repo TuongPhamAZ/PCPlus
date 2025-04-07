@@ -8,6 +8,7 @@ import 'package:pcplus/singleton/user_singleton.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 
+import '../../../component/item_argument.dart';
 import '../../../models/users/user_model.dart';
 import '../../widgets/button/accept_button.dart';
 import '../../widgets/button/cancel_button.dart';
@@ -38,9 +39,16 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> implements 
 
   @override
   void initState() {
-    user = _userSingleton.currentUser;
-    _userAvatarUrl = user!.avatarUrl ?? "";
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Lấy arguments từ route
+    final args = ModalRoute.of(context)?.settings.arguments as ItemArgument?;
+    user = args?.data['userModel'] as UserModel;
+    _userAvatarUrl = user!.avatarUrl ?? "";
   }
 
   @override

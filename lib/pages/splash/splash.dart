@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pcplus/config/asset_helper.dart';
+import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/models/users/user_model.dart';
 import 'package:pcplus/services/authentication_service.dart';
 import 'package:pcplus/services/pref_service.dart';
@@ -52,23 +53,23 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _getUserData() async {
-    UserModel? loggedUser = await _pref.loadUserData();
+    UserModel? loggedUser = await PrefService.loadUserData();
     if (loggedUser == null) {
       return;
     }
-    String password = await _pref.getPassword();
+    String password = await PrefService.getPassword();
     UserCredential? userCredential =
-        await _auth.signInWithEmailAndPassword(loggedUser.email!, password);
+        await _auth.signInWithEmailAndPassword(loggedUser.email!, password, AuthResult());
     if (userCredential != null) {
       loginSucceeded = true;
-      UserSingleton.getInstance().loadUser(loggedUser);
+      SessionController.getInstance().loadUser(loggedUser);
     }
   }
 
   // Hàm chuyển sang màn hình Login
   void _navigateToHome() {
     if (loginSucceeded) {
-      if (UserSingleton.getInstance().isShop()) {
+      if (SessionController.getInstance().isShop()) {
         Navigator.of(context).pushNamed(ShopHome.routeName);
       } else {
         Navigator.of(context).pushNamed(HomeScreen.routeName);

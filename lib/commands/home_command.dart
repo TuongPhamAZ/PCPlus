@@ -1,11 +1,11 @@
-import 'package:pcplus/commands/command_interface.dart';
 import 'package:pcplus/pages/home/user_home/home_presenter.dart';
 
-import '../objects/suggest_item_data.dart';
+import '../interfaces/command.dart';
+import '../models/items/item_with_seller.dart';
 
-class HomeItemPressedCommand implements CommandInterface {
+class HomeItemPressedCommand implements ICommand {
   final HomePresenter presenter;
-  final ItemData item;
+  final ItemWithSeller item;
 
   HomeItemPressedCommand({
     required this.presenter,

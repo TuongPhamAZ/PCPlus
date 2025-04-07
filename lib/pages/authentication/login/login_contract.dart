@@ -1,7 +1,7 @@
 abstract class LoginViewContract {
   void onLoginFailed();
   void onLoginSucceeded();
-  void onError();
+  void onError(String message);
   void onWaitingProgressBar();
   void onPopContext();
 }

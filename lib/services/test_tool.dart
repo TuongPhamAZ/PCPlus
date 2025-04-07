@@ -37,7 +37,9 @@ class TestTool {
         reviewImages: testImages,
         colors: testColor,
         description: randomTool.generateRandomString(20),
-        sold: randomTool.generateRandomNumber(100, 1000));
+        sold: randomTool.generateRandomNumber(100, 1000),
+        rating: randomTool.generateRandomNumber(1, 5).toDouble()
+    );
   }
 
   List<ItemModel> getRandomItemModelList(int length) {

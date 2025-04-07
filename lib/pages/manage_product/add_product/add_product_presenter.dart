@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/pages/manage_product/add_product/add_product_contract.dart';
 import 'package:pcplus/models/items/item_model.dart';
 import 'package:pcplus/models/items/item_repo.dart';
@@ -14,8 +15,7 @@ class AddProductPresenter {
   AddProductPresenter(this._view);
 
   final ShopSingleton _shopSingleton = ShopSingleton.getInstance();
-  final UserSingleton _userSingleton = UserSingleton.getInstance();
-  final ItemRepository _itemRepository = ItemRepository();
+  final SessionController _sessionController = SessionController.getInstance();
 
   final ImageStorageService _imageStorageService = ImageStorageService();
 
@@ -51,7 +51,7 @@ class AddProductPresenter {
     ItemModel model = ItemModel(
         name: name,
         itemType: "Product",
-        sellerID: _userSingleton.currentUser!.userID,
+        sellerID: _sessionController.userID,
         addDate: DateTime.now(),
         price: price,
         status: ProductStatus.BUYABLE,
@@ -60,7 +60,9 @@ class AddProductPresenter {
         detail: detail,
         description: description,
         sold: 0,
-        colors: ["black, grey, white"]);
+        colors: ["black, grey, white"],
+        rating: 0
+    );
 
     await _shopSingleton.addData(model);
     _view.onPopContext();
