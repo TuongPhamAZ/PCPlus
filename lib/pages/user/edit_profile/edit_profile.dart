@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:gap/gap.dart';
+import 'package:pcplus/component/item_argument.dart';
 import 'package:pcplus/pages/user/edit_profile/edit_profile_screen_contract.dart';
 import 'package:pcplus/pages/user/edit_profile/edit_profile_screen_presenter.dart';
 import 'package:pcplus/themes/palette/palette.dart';
@@ -254,8 +255,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> implements EditPr
               ),
               InkWell(
                 onTap: () {
-                  Navigator.of(context)
-                      .pushNamed(ChangePasswordScreen.routeName);
+                  Navigator.of(context).pushNamed(
+                    ChangePasswordScreen.routeName,
+                    arguments: ItemArgument(data: {
+                      'userModel' : _presenter!.user
+                    }),
+                  );
                 },
                 child: Text(
                   'Change Password',
@@ -297,6 +302,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> implements EditPr
       _birthDate = _presenter!.user!.dateOfBirth;
       _email = _presenter!.user!.email!;
       _userName = _presenter!.user!.name!;
+      _fullNameController.text = _presenter!.user!.name!;
+      _isMale = _presenter!.user!.gender! == 'male';
+      _phoneController.text = _presenter!.user!.phone!;
+      _birthDateController.text = '${_birthDate!.day}/${_birthDate!.month}/${_birthDate!.year}';
       isLoading = false;
     });
   }

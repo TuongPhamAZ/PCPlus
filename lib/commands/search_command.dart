@@ -1,11 +1,10 @@
+import 'package:pcplus/interfaces/command.dart';
+import 'package:pcplus/models/items/item_with_seller.dart';
 import 'package:pcplus/pages/search/search_screen_presenter.dart';
 
-import '../objects/suggest_item_data.dart';
-import 'command_interface.dart';
-
-class SearchItemPressedCommand implements CommandInterface {
+class SearchItemPressedCommand implements ICommand {
   final SearchScreenPresenter presenter;
-  final ItemData item;
+  final ItemWithSeller item;
 
   SearchItemPressedCommand({
     required this.presenter,

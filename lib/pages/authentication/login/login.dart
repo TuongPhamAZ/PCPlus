@@ -157,8 +157,8 @@ class _LoginScreenState extends State<LoginScreen> implements LoginViewContract 
   }
 
   @override
-  void onError() {
-    UtilWidgets.createSnackBar(context, "Login failed!");
+  void onError(String message) {
+    UtilWidgets.createSnackBar(context, message);
     setState(() {
       error = "";
     });

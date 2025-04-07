@@ -4,7 +4,7 @@ import '../models/users/user_model.dart';
 
 class PrefService {
 
-  Future<void> saveUserData({required UserModel userData, String? password}) async {
+  static Future<void> saveUserData({required UserModel userData, String? password}) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     prefs.setString('userID', userData.userID!);
@@ -25,7 +25,7 @@ class PrefService {
     }
   }
 
-  Future<void> clearUserData() async {
+  static Future<void> clearUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('name');
     await prefs.remove('email');
@@ -37,7 +37,7 @@ class PrefService {
     await prefs.remove('money');
   }
 
-  Future<UserModel?> loadUserData() async {
+  static Future<UserModel?> loadUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (prefs.getString('dateOfBirth') == null) {
       return null;
@@ -62,12 +62,12 @@ class PrefService {
     return model;
   }
 
-  Future<String> getPassword() async {
+  static Future<String> getPassword() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('password') ?? "";
   }
 
-  Future<void> saveLocationData({
+  static Future<void> saveLocationData({
     required OrderAddressModel addressData,
   }) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -93,7 +93,7 @@ class PrefService {
     );
   }
 
-  Future<void> clearLocationData() async {
+  static Future<void> clearLocationData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('receiverName');
     await prefs.remove('phone');

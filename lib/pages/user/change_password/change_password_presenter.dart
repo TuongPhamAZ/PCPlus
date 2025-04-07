@@ -7,7 +7,6 @@ class ChangePasswordPresenter {
   ChangePasswordPresenter(this._view);
 
   final AuthenticationService _auth = AuthenticationService();
-  final PrefService _prefService = PrefService();
 
   Future<void> handleChange({
     required String oldPass,
@@ -21,7 +20,7 @@ class ChangePasswordPresenter {
       _view.onChangedFailed("Passwords do not match");
     }
 
-    String password = await _prefService.getPassword();
+    String password = await PrefService.getPassword();
     if (oldPass != password) {
       _view.onChangedFailed("Incorrect old password");
       return;

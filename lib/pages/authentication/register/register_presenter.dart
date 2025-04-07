@@ -23,7 +23,8 @@ class RegisterPresenter {
   Future<void> register(String email) async {
     email = email.trim();
     _view?.onWaitingProgressBar();
-    bool? result = await _authService.checkIfEmailExists(email);
+    AuthResult authResult = AuthResult();
+    bool? result = await _authService.checkIfEmailExists(email, authResult);
     _view?.onPopContext();
 
     if (result == true) {

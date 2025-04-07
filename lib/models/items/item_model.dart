@@ -15,6 +15,7 @@ class ItemModel {
   int? price;
   int? stock;
   int? sold = 0;
+  double? rating;
   String? status;
   List<String>? reviewImages = [];
   List<String>? colors = [];
@@ -33,6 +34,7 @@ class ItemModel {
       required this.price,
       required this.stock,
       required this.status,
+      required this.rating,
       this.reviewImages,
       required this.colors,
       this.sold
@@ -53,7 +55,8 @@ class ItemModel {
     'sold': sold,
     'status': status,
     'reviewImages': reviewImages,
-    'colors': colors
+    'colors': colors,
+    'rating': rating
   };
 
   static ItemModel fromJson(String key, Map<String, dynamic> json) {
@@ -74,6 +77,7 @@ class ItemModel {
       status: json['status'] as String,
       reviewImages: List.castFrom(reviewImagesData!),
       colors: List.castFrom(colorsData!),
+      rating: (json['rating'] ?? 0.0) as double
     );
   }
 

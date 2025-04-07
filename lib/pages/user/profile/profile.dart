@@ -3,6 +3,7 @@ import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:gap/gap.dart';
 import 'package:pcplus/config/asset_helper.dart';
 import 'package:pcplus/const/order_status.dart';
+import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/pages/user/profile/profile_screen_contract.dart';
 import 'package:pcplus/pages/user/profile/profile_screen_presenter.dart';
 import 'package:pcplus/themes/palette/palette.dart';
@@ -32,7 +33,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   ProfileScreenPresenter? _presenter;
   String _userAvatarUrl = "";
   String _userName = "";
-  bool _isLoading = false;
+  bool _isLoading = true;
   bool isShop = false;
 
   int awaitConfirm = 0;
@@ -74,7 +75,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   @override
   void initState() {
     _presenter = ProfileScreenPresenter(this);
-    isShop = UserSingleton.getInstance().isShop();
+    isShop = SessionController.getInstance().isShop();
 
     super.initState();
   }

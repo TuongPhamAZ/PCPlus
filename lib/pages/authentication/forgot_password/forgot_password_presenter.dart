@@ -8,8 +8,8 @@ class ForgotPasswordPresenter {
 
   Future<void> resetPassword(String email) async {
     _view.onWaitingProgressBar();
-
-    bool? result = await _auth.checkIfEmailExists(email);
+    AuthResult authResult = AuthResult();
+    bool? result = await _auth.checkIfEmailExists(email, authResult);
 
     if (result == null || result == false){
       _view.onPopContext();
