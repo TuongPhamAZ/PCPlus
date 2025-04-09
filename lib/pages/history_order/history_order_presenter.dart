@@ -1,17 +1,12 @@
+import 'package:flutter/cupertino.dart';
 import 'package:pcplus/const/order_status.dart';
+import 'package:pcplus/controller/session_controller.dart';
+import 'package:pcplus/factories/widget_factories/history_order_item_factory.dart';
 import 'package:pcplus/models/orders/order_model.dart';
 import 'package:pcplus/models/orders/order_repo.dart';
 import 'package:pcplus/services/notification_service.dart';
-import 'package:pcplus/singleton/user_singleton.dart';
-import 'package:pcplus/strategy/history_order/confirm_received_order_build_strategy.dart';
-import 'package:pcplus/strategy/history_order/history_order_strategy.dart';
-import 'package:pcplus/strategy/history_order/need_confirm_order_build_strategy.dart';
-import 'package:pcplus/strategy/history_order/normal_order_build_strategy.dart';
-import 'package:pcplus/strategy/history_order/sent_order_build_strategy.dart';
-
+import 'package:pcplus/services/pref_service.dart';
 import '../../models/users/user_model.dart';
-import '../../strategy/history_order/can_cancel_order_build_strategy.dart';
-import '../../strategy/history_order/mix_order_build_strategy.dart';
 import 'history_order_contract.dart';
 
 class HistoryOrderPresenter {
@@ -23,68 +18,59 @@ class HistoryOrderPresenter {
   });
 
   final OrderRepository _orderRepo = OrderRepository();
-  final UserSingleton _userSingleton = UserSingleton.getInstance();
+  final SessionController _sessionController = SessionController.getInstance();
   final NotificationService _notificationService = NotificationService();
-  UserModel? get user => _userSingleton.currentUser;
+  UserModel? user;
 
   List<OrderModel> orders = [];
-  bool get isShop => _userSingleton.isShop();
+
+  bool get isShop => _sessionController.isShop();
+
+  Stream<List<OrderModel>>? orderStream;
 
   Future<void> getData() async {
+    user = await PrefService.loadUserData();
+
     if (orderType.isEmpty) {
-      orders = await _orderRepo.getAllOrdersFromUser(user!.userID!);
+      orderStream = _orderRepo.getAllOrdersFromUserStream(user!.userID!);
     } else {
-      orders = await _orderRepo.getAllOrdersFromUserByStatus(user!.userID!, orderType);
+      orderStream = _orderRepo.getAllOrdersFromUserByStatusStream(user!.userID!, orderType);
     }
     _view.onLoadDataSucceeded();
   }
 
-  HistoryOrderBuildListStrategy? createBuildOrderStrategy() {
-    HistoryOrderBuildListStrategy? strategy;
+  Widget createHistoryOrderItem(OrderModel order) {
     if (isShop) {
       switch (orderType) {
         case OrderStatus.PENDING_CONFIRMATION:
-          strategy = NeedConfirmOrdersBuildStrategy(this);
-          break;
+          return FactoryOrderItemFactory.createNeedConfirmOrderWidget(this, order);
         case OrderStatus.AWAIT_PICKUP:
-          strategy = SentOrdersBuildStrategy(this);
-          break;
+          return FactoryOrderItemFactory.createSentOrderWidget(this, order);
         case OrderStatus.AWAIT_DELIVERY:
-          strategy = NormalOrdersBuildStrategy(this);
-          break;
+          return FactoryOrderItemFactory.createNormalOrderWidget(this, order);
         case OrderStatus.AWAIT_RATING:
-          strategy = NormalOrdersBuildStrategy(this);
-          break;
+          return FactoryOrderItemFactory.createNormalOrderWidget(this, order);
         case OrderStatus.COMPLETED:
-          strategy = NormalOrdersBuildStrategy(this);
-          break;
+          return FactoryOrderItemFactory.createNormalOrderWidget(this, order);
         default:
-          strategy = MixOrdersBuildStrategy(this);
-          break;
+          return FactoryOrderItemFactory.createNormalOrderWidget(this, order);
       }
     } else {
       switch (orderType) {
         case OrderStatus.PENDING_CONFIRMATION:
-          strategy = NormalOrdersBuildStrategy(this);
-          break;
+          return FactoryOrderItemFactory.createNormalOrderWidget(this, order);
         case OrderStatus.AWAIT_PICKUP:
-          strategy = CanCancelOrdersBuildStrategy(this);
-          break;
+          return FactoryOrderItemFactory.createCanCancelOrderWidget(this, order);
         case OrderStatus.AWAIT_DELIVERY:
-          strategy = ConfirmReceivedOrdersBuildStrategy(this);
-          break;
+          return FactoryOrderItemFactory.createConfirmReceivedOrderWidget(this, order);         break;
         case OrderStatus.AWAIT_RATING:
-          strategy = NormalOrdersBuildStrategy(this);
-          break;
+          return FactoryOrderItemFactory.createNormalOrderWidget(this, order);
         case OrderStatus.COMPLETED:
-          strategy = NormalOrdersBuildStrategy(this);
-          break;
+          return FactoryOrderItemFactory.createNormalOrderWidget(this, order);
         default:
-          strategy = MixOrdersBuildStrategy(this);
-          break;
+          return FactoryOrderItemFactory.createNormalOrderWidget(this, order);
       }
     }
-    return strategy;
   }
 
   void updateOrder(OrderModel model, String status) {

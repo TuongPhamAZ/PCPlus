@@ -61,25 +61,24 @@ class _NotificationScreenState extends State<NotificationScreen> implements Noti
           color: Colors.grey.withOpacity(0.0),
         ),
         child:
-          isLoading ?
-            UtilWidgets.getLoadingWidgetWithContainer(
-                width: size.width,
-                height: size.height * 0.8
-            )
-          :
-            _presenter!.notifications.isEmpty ?
-              UtilWidgets.getCenterTextWithContainer(
-                width: size.width,
-                height: size.height * 0.8,
-                text: "Nothing here",
-                color: Palette.primaryColor,
-                fontSize: 16
-              )
-              :
-              ListView.builder(
-                itemCount: _presenter!.notifications.length,
+        StreamBuilder<List<NotificationModel>>(
+            stream: _presenter!.notificationStream,
+            builder: (context, snapshot) {
+              Widget? result = UtilWidgets.createSnapshotResultWidget(context, snapshot);
+              if (result != null) {
+                return result;
+              }
+
+              final notifications = snapshot.data ?? [];
+
+              if (notifications.isEmpty) {
+                return const Center(child: Text('No data'));
+              }
+
+              return ListView.builder(
+                itemCount: notifications.length,
                 itemBuilder: (context, index) {
-                  NotificationModel model = _presenter!.notifications[index];
+                  NotificationModel model = notifications[index];
                   return ConfirmNoti(
                     title: model.title!,
                     image: model.productImage!,
@@ -88,7 +87,9 @@ class _NotificationScreenState extends State<NotificationScreen> implements Noti
                     isView: model.isRead!,
                   );
                 },
-              ),
+              );
+            }
+        ),
       ),
       bottomNavigationBar: isShop ? const ShopBottomBar(currentIndex: 2) : const BottomBarCustom(currentIndex: 2),
     );

@@ -1,8 +1,5 @@
 import 'package:pcplus/interfaces/command.dart';
 import 'package:pcplus/models/items/item_with_seller.dart';
-
-import '../../models/items/item_model.dart';
-import '../../models/users/user_model.dart';
 import '../../pages/widgets/listItem/new_item.dart';
 
 class NewItemFactory {

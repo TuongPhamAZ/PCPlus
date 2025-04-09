@@ -70,12 +70,12 @@ class _SplashScreenState extends State<SplashScreen>
   void _navigateToHome() {
     if (loginSucceeded) {
       if (SessionController.getInstance().isShop()) {
-        Navigator.of(context).pushNamed(ShopHome.routeName);
+        Navigator.of(context).pushReplacementNamed(ShopHome.routeName);
       } else {
-        Navigator.of(context).pushNamed(HomeScreen.routeName);
+        Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
       }
     } else {
-      Navigator.of(context).pushNamed(LoginScreen.routeName);
+      Navigator.of(context).pushReplacementNamed(LoginScreen.routeName);
     }
   }
 

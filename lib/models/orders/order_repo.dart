@@ -73,6 +73,33 @@ class OrderRepository {
     }
   }
 
+  Stream<List<OrderModel>> getAllOrdersFromUserStream(String userID) {
+    return _storage
+        .collection(UserModel.collectionName)
+        .doc(userID)
+        .collection(OrderModel.collectionName)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs
+          .map((doc) => OrderModel.fromJson(doc.data()))
+          .toList();
+    });
+  }
+
+  Stream<List<OrderModel>> getAllOrdersFromUserByStatusStream(String userID, String status) {
+    return _storage
+        .collection(UserModel.collectionName)
+        .doc(userID)
+        .collection(OrderModel.collectionName)
+        .where('status', isEqualTo: status)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs
+          .map((doc) => OrderModel.fromJson(doc.data()))
+          .toList();
+    });
+  }
+
   Future<String?> generateID() async {
     ParamStoreRepository paramStoreRepository = ParamStoreRepository();
     final int id = await paramStoreRepository.getOrderIdIndex();
