@@ -36,8 +36,8 @@ class HomePresenter {
   Stream<List<ItemWithSeller>>? recommendedItemStream;
 
   Future<void> getData() async {
-    newestItemStream = _itemRepo.getNewestItemsWithSeller(MAX_NEWEST_ITEMS);
-    recommendedItemStream = _itemRepo.getNewestItemsWithSeller(MAX_NEWEST_ITEMS);
+    newestItemStream = _itemRepo.getNewestItemsWithSellerStream(MAX_NEWEST_ITEMS);
+    recommendedItemStream = _itemRepo.getNewestItemsWithSellerStream(MAX_NEWEST_ITEMS);
 
     // final ListItemDataBuilder builder = ListItemDataBuilder();
     // final Map<String, UserModel> cacheShops = {};
@@ -76,7 +76,7 @@ class HomePresenter {
     _view.onWaitingProgressBar();
     //await _itemSingleton.storeItemData(item);
     _view.onPopContext();
-    _view.onItemPressed();
+    _view.onItemPressed(item);
   }
 
   void handleSearch(String input) {

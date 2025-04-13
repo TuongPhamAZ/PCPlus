@@ -44,7 +44,7 @@ class NotificationRepository {
         .collection(UserModel.collectionName)
         .doc(userID)
         .collection(NotificationModel.collectionName)
-        .orderBy('date')
+        .orderBy('date', descending: true)
         .snapshots()
         .map((querySnapshot) {
       return querySnapshot.docs

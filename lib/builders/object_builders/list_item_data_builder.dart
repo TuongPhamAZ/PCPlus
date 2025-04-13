@@ -48,7 +48,7 @@ class ListItemDataBuilder implements ListObjectBuilderInterface {
   }
 
   @override
-  List<DataObjectInterface> createList() {
+  List<IDataObject> createList() {
     if (result == null) {
       return [];
     }

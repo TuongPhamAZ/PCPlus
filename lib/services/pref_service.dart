@@ -1,3 +1,4 @@
+import 'package:pcplus/models/in_cart_items/in_cart_item_model.dart';
 import 'package:pcplus/models/orders/order_address_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/users/user_model.dart';
@@ -78,7 +79,7 @@ class PrefService {
     prefs.setString('address2', addressData.address2!);
   }
 
-  Future<OrderAddressModel?> loadLocationData() async {
+  static Future<OrderAddressModel?> loadLocationData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     if (prefs.containsKey('receiverName') == false) {
@@ -100,4 +101,23 @@ class PrefService {
     await prefs.remove('address1');
     await prefs.remove('address2');
   }
+
+  // // CART SERVICE
+  // static Future<void> storeNewCart(List<InCartItemModel> items) async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   List<String> itemStrings = [];
+  //   for (InCartItemModel model in items) {
+  //     itemStrings.add('${model.itemID!}_false');
+  //   }
+  //   prefs.setStringList("Carts", itemStrings);
+  // }
+  //
+  // static Future<void> updateLocalCart(Map<String, bool> inCartItemMap) async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   List<String> itemStrings = [];
+  //   for (String key in inCartItemMap.keys) {
+  //     itemStrings.add('${key}_${inCartItemMap[key]! ? "true" : "false"}');
+  //   }
+  //   await prefs.setStringList("Carts", itemStrings);
+  // }
 }

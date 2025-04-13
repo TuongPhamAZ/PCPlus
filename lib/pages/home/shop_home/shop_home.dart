@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:pcplus/commands/shop_home_command.dart';
 import 'package:pcplus/config/asset_helper.dart';
+import 'package:pcplus/const/navigator_arguments.dart';
+import 'package:pcplus/controller/session_controller.dart';
+import 'package:pcplus/factories/widget_factories/shop_item_factory.dart';
+import 'package:pcplus/models/items/item_with_seller.dart';
 import 'package:pcplus/pages/home/shop_home/shop_home_contract.dart';
 import 'package:pcplus/pages/home/shop_home/shop_home_presenter.dart';
-import 'package:pcplus/singleton/shop_singleton.dart';
-import 'package:pcplus/singleton/user_singleton.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 import 'package:pcplus/pages/manage_product/add_product/add_product.dart';
 import 'package:pcplus/pages/manage_product/detail_product/detail_product.dart';
 
-import '../../../builders/widget_builders/shop_item_builder.dart';
 import '../../../builders/widget_builders/widget_builder_director.dart';
 import '../../../models/users/user_model.dart';
-import '../../../objects/suggest_item_data.dart';
 import '../../manage_product/edit_product/edit_product.dart';
 import '../../widgets/bottom/shop_bottom_bar.dart';
 import '../../widgets/util_widgets.dart';
@@ -30,7 +30,6 @@ class ShopHome extends StatefulWidget {
 
 class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
   ShopHomePresenter? _presenter;
-  final UserSingleton _userSingleton = UserSingleton.getInstance();
   WidgetBuilderDirector director = WidgetBuilderDirector();
 
   UserModel? shop;
@@ -39,14 +38,13 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
   bool isShop = true;
   bool isLoading = true;
   String avatarUrl = "";
-
-  List<Widget> productWidgets = [];
+  String shopName = "";
+  String shopPhone = "";
+  String location = "";
 
   @override
   void initState() {
-    isShop = _userSingleton.isShop();
-    shop = ShopSingleton.getInstance().shop;
-    avatarUrl = shop!.avatarUrl ?? "";
+    isShop = SessionController.getInstance().isShop();
     _presenter = ShopHomePresenter(this);
     super.initState();
   }
@@ -54,6 +52,12 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
+    if (SessionController.getInstance().isShop() == false) {
+      final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+      _presenter!.userId = args[NavigatorArgs.shopID];
+    }
+
     loadData();
   }
 
@@ -64,7 +68,6 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
   @override
   void dispose() {
     super.dispose();
-    _presenter?.dispose();
   }
 
   @override
@@ -125,7 +128,7 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Text(
-                        shop!.getShopName(),
+                        shopName,
                         style: TextDecor.robo24Bold.copyWith(
                           color: Palette.primaryColor,
                         ),
@@ -139,7 +142,7 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
                           ),
                           const Gap(10),
                           Text(
-                            shop!.phone!,
+                            shopPhone,
                             style: TextDecor.robo18.copyWith(
                               color: Colors.black,
                             ),
@@ -155,7 +158,7 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
                           ),
                           const Gap(5),
                           Text(
-                            shop!.getLocation(),
+                            location,
                             style: TextDecor.robo18.copyWith(
                               color: Colors.black,
                             ),
@@ -169,28 +172,44 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
               const Gap(20),
               Text('Danh mục sản phẩm', style: TextDecor.robo18Bold),
               const Gap(10),
-              if (isLoading)
-                UtilWidgets.getLoadingWidgetWithContainer(
-                    width: size.width,
-                    height: size.height * 0.5
-                )
-              else if (productWidgets.isEmpty)
-                UtilWidgets.getCenterTextWithContainer(
-                    width: size.width,
-                    height: size.height * 0.5,
-                    text: "Không có sản phẩm nào",
-                    color: Palette.primaryColor)
-              else
-                ListView.builder(
-                  shrinkWrap: true,
-                  padding: EdgeInsets.zero,
-                  physics: const NeverScrollableScrollPhysics(),
-                  scrollDirection: Axis.vertical,
-                  itemCount: productWidgets.length,
-                  itemBuilder: (context, index) {
-                    return productWidgets[index];
-                  },
+              SizedBox(
+                height: 585,
+                width: size.width,
+                child: StreamBuilder<List<ItemWithSeller>>(
+                    stream: _presenter!.userItemsStream,
+                    builder: (context, snapshot) {
+                      Widget? result = UtilWidgets.createSnapshotResultWidget(context, snapshot);
+                      if (result != null) {
+                        return result;
+                      }
+
+                      final itemsWithSeller = snapshot.data ?? [];
+
+                      if (itemsWithSeller.isEmpty) {
+                        return const Center(child: Text('No data'));
+                      }
+
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        padding: EdgeInsets.zero,
+                        scrollDirection: Axis.vertical,
+                        itemCount: itemsWithSeller.length,
+                        itemBuilder: (context, index) {
+                          return ShopItemFactory.create(
+                              data: itemsWithSeller[index],
+                              editCommand:
+                              ShopHomeItemEditCommand(presenter: _presenter!, item: itemsWithSeller[index]),
+                              deleteCommand:
+                              ShopHomeItemDeleteCommand(presenter: _presenter!, item: itemsWithSeller[index]),
+                              pressedCommand:
+                              ShopHomeItemPressedCommand(presenter: _presenter!, item: itemsWithSeller[index]),
+                              isShop: isShop
+                          );
+                        },
+                      );
+                    }
                 ),
+              ),
             ],
           ),
         ),
@@ -210,42 +229,32 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
     );
   }
 
-  Future<void> buildItemList() async {
-    productWidgets.clear();
-    ShopItemBuilder shopItemBuilder = ShopItemBuilder();
-    for (ItemData item in _presenter!.itemsData) {
-      director.makeShopItem(
-          builder: shopItemBuilder,
-          data: item,
-          isShop: isShop,
-          editCommand:
-              ShopHomeItemEditCommand(presenter: _presenter!, item: item),
-          deleteCommand:
-              ShopHomeItemDeleteCommand(presenter: _presenter!, item: item),
-          pressedCommand:
-              ShopHomeItemPressedCommand(presenter: _presenter!, item: item)
-      );
-      productWidgets.add(shopItemBuilder.createWidget()!);
-    }
-    setState(() {});
-  }
-
   @override
-  void onItemEdit() {
-    Navigator.of(context).pushNamed(EditProduct.routeName);
+  void onItemEdit(ItemWithSeller item) {
+    Navigator.of(context).pushNamed(
+        EditProduct.routeName,
+        arguments: {NavigatorArgs.itemData : item}
+    );
   }
 
   @override
   void onItemDelete() {
-    setState(() {
-      buildItemList();
-    });
+    // setState(() {
+    //   buildItemList();
+    // });
   }
 
   @override
   void onLoadDataSucceeded() {
-    buildItemList();
+    // buildItemList();
+    if (!mounted) return;
+
     setState(() {
+      shop = _presenter!.seller;
+      avatarUrl = shop!.avatarUrl ?? "";
+      shopName = shop!.getShopName();
+      shopPhone = shop!.phone!;
+      location = shop!.getLocation();
       isLoading = false;
     });
   }
@@ -260,16 +269,19 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
     UtilWidgets.createLoadingWidget(context);
   }
 
-  @override
-  void onFetchDataSucceeded() {
-    setState(() {
-      buildItemList();
-    });
-  }
+  // @override
+  // void onFetchDataSucceeded() {
+  //   setState(() {
+  //     buildItemList();
+  //   });
+  // }
 
   @override
-  void onItemPressed() {
-    Navigator.of(context).pushNamed(DetailProduct.routeName);
+  void onItemPressed(ItemWithSeller item) {
+    Navigator.of(context).pushNamed(
+        DetailProduct.routeName,
+        arguments: {NavigatorArgs.itemData : item}
+    );
   }
 
   @override

@@ -1,57 +1,60 @@
+import 'package:pcplus/controller/session_controller.dart';
+import 'package:pcplus/models/in_cart_items/in_cart_item_model.dart';
+import 'package:pcplus/models/in_cart_items/in_cart_item_repo.dart';
+import 'package:pcplus/models/in_cart_items/item_in_cart_with_seller.dart';
 import 'package:pcplus/pages/cart/cart_shopping_screen_contract.dart';
-import 'package:pcplus/objects/in_cart_item_data.dart';
-import 'package:pcplus/singleton/cart_singleton.dart';
 import 'package:pcplus/singleton/view_item_singleton.dart';
-
-import '../../objects/suggest_item_data.dart';
 import '../../services/utility.dart';
 
 class CartShoppingScreenPresenter {
   final CartShoppingScreenContract _view;
   CartShoppingScreenPresenter(this._view);
 
-  // final CartSingleton _cartSingleton = CartSingleton.getInstance();
-  final ViewItemSingleton _itemSingleton = ViewItemSingleton.getInstance();
+  final InCartItemRepo _inCartItemRepo = InCartItemRepo();
+
+  final SessionController _sessionController = SessionController.getInstance();
+  Stream<List<ItemInCartWithSeller>>? inCartItemsStream;
+  List<ItemInCartWithSeller>? inCartItems;
+
+  bool initCart = false;
 
   Future<void> getData() async {
-    // _cartSingleton.deselectAllItemsInCart();
-    // _cartSingleton.resetAmount();
-    // await _cartSingleton.fetchData();
+    String userId = _sessionController.userID!;
+    inCartItemsStream = _inCartItemRepo.getAllItemsInCartStream(userId);
     _view.onLoadDataSucceeded();
   }
 
-  void handleDelete(int index) {
-    // _cartSingleton.removeInCartItem(_cartSingleton.inCartItems[index]);
+  Future<void> handleDelete(InCartItemModel model) async {
+    _view.onWaitingProgressBar();
+    await _inCartItemRepo.deleteItemInCart(_sessionController.userID!, model);
+    _view.onPopContext();
     _view.onDeleteItem();
   }
 
-  Future<void> handleItemPressed(InCartItemData item) async {
-    _view.onWaitingProgressBar();
-    ItemData itemData = ItemData(
-      product: item.item,
-      shop: item.shop,
-    );
-    await itemData.loadRating();
-    await _itemSingleton.storeItemData(itemData);
-    _view.onPopContext();
-    _view.onItemPressed();
+  Future<void> handleItemPressed(InCartItemModel model) async {
+    _view.onItemPressed(model.itemID!);
   }
 
-  void handleSelectItem(int index, bool check) {
+  Future<void> handleSelectItem(InCartItemModel model, bool check) async {
     // _cartSingleton.inCartItems[index].isCheck = check;
+    // _view.onWaitingProgressBar();
+    model.isSelected = check;
+    await _inCartItemRepo.updateItemInCart(_sessionController.userID!, model);
+    // _view.onPopContext();
     _view.onSelectItem();
   }
 
-  void handleSelectAll(bool value) {
-    // if (value) {
-    //   _cartSingleton.selectAllItemsInCart();
-    // } else {
-    //   _cartSingleton.deselectAllItemsInCart();
-    // }
+  Future<void> handleSelectAll(bool value) async {
+    // _view.onWaitingProgressBar();
+    await _inCartItemRepo.selectAllItemInCart(_sessionController.userID!, value);
+    _view.onSelectAll();
+    // _view.onPopContext();
   }
 
-  void handleChangeItemAmount(int index, int value) {
-    // _cartSingleton.inCartItems[index].amount = value;
+  Future<void> handleChangeItemAmount(InCartItemModel model, int value) async {
+    // _view.onWaitingProgressBar();
+    model.amount = value;
+    await _inCartItemRepo.updateItemInCart(_sessionController.userID!, model);
     _view.onChangeItemAmount();
   }
 
@@ -60,29 +63,46 @@ class CartShoppingScreenPresenter {
       return;
     }
     _view.onWaitingProgressBar();
-    // if (await _cartSingleton.validateIfSelectedItemsBuyable()) {
-    //   await _cartSingleton.prepareForPayment();
-    //   _view.onPopContext();
-    //   _view.onBuy();
-    // } else {
-    //   _view.onPopContext();
-    //   _view.onLoadDataSucceeded();
-    //   _view.onBuyFailed("Có mặt hàng không thể mua được");
-    // }
+
+    // Check if all items are buyable
+
+    for (ItemInCartWithSeller item in inCartItems!) {
+      if (item.item.stock! < item.inCart.amount!) {
+        _view.onPopContext();
+        _view.onBuyFailed("Có mặt hàng không thể mua được");
+        return;
+      }
+    }
+
+    _view.onPopContext();
+    _view.onBuy();
   }
 
   int getCheckedCount() {
-    // return _cartSingleton.inCartItems.where((element) => element.isCheck).length;
-    return 0;
+    if (inCartItems == null) {
+      return 0;
+    }
+
+    int count = 0;
+    for (ItemInCartWithSeller item in inCartItems!) {
+      if (item.inCart.isSelected!) {
+        count ++;
+      }
+    }
+    return count;
   }
 
   String calculateTotalPrice() {
+    if (inCartItems == null) {
+      return "-";
+    }
+
     int total = 0;
-    // for (var element in _cartSingleton.inCartItems) {
-    //   if (element.isCheck) {
-    //     total += element.item!.price! * element.amount;
-    //   }
-    // }
+    for (ItemInCartWithSeller item in inCartItems!) {
+      if (item.inCart.isSelected!) {
+        total += item.item.price! * item.inCart.amount!;
+      }
+    }
     return Utility.formatCurrency(total);
   }
 }

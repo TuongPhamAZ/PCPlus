@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pcplus/commands/notification/notification_pressed_command.dart';
+import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/pages/notification/notification_screen_contract.dart';
 import 'package:pcplus/models/notification/notification_model.dart';
 import 'package:pcplus/pages/notification/notification_screen_presenter.dart';
@@ -29,7 +31,7 @@ class _NotificationScreenState extends State<NotificationScreen> implements Noti
   @override
   void initState() {
     _presenter = NotificationScreenPresenter(this);
-    isShop = UserSingleton.getInstance().isShop();
+    isShop = SessionController.getInstance().isShop();
     super.initState();
   }
 
@@ -85,6 +87,10 @@ class _NotificationScreenState extends State<NotificationScreen> implements Noti
                     date: model.date!,
                     content: model.content!,
                     isView: model.isRead!,
+                    onPressed: NotificationPressedCommand(
+                      presenter: _presenter!,
+                      model: model,
+                    ),
                   );
                 },
               );

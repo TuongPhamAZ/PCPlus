@@ -51,6 +51,35 @@ class UserRepository {
         .toList();
     return shops;
   }
+
+  Future<List<UserModel>> getAllUsersByIdList(List<String> idList) async {
+    if (idList.isEmpty) return [];
+
+    // Firestore chỉ cho phép tối đa 10 phần tử trong 'whereIn'
+    const int batchSize = 10;
+    List<UserModel> users = [];
+
+    for (var i = 0; i < idList.length; i += batchSize) {
+      final batchIds = idList.sublist(
+        i,
+        i + batchSize > idList.length ? idList.length : i + batchSize,
+      );
+
+      final querySnapshot = await _storage
+          .collection(UserModel.collectionName)
+          .where(FieldPath.documentId, whereIn: batchIds)
+          .get();
+
+      final batchUsers = querySnapshot.docs
+          .map((doc) => UserModel.fromJson(doc.data() as Map<String, dynamic>))
+          .toList();
+
+      users.addAll(batchUsers);
+    }
+
+    return users;
+  }
+
   // Future<String> generateUserID() async {
   //   List<UserModel> users = await getAllUsers();
   //   int count = users.length;

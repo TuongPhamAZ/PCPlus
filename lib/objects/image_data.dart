@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:pcplus/objects/data_object_interface.dart';
 
-class ImageData extends DataObjectInterface {
+class ImageData extends IDataObject {
   String path;
   File? file;
   bool isNew;

@@ -62,6 +62,7 @@ class OrderRepository {
           .doc(userID)
           .collection(OrderModel.collectionName)
           .where('status', isEqualTo: status)
+          .orderBy('orderDate', descending: true)
           .get();
       final orders = querySnapshot
           .docs
@@ -78,6 +79,7 @@ class OrderRepository {
         .collection(UserModel.collectionName)
         .doc(userID)
         .collection(OrderModel.collectionName)
+        .orderBy('orderDate', descending: true)
         .snapshots()
         .map((snapshot) {
       return snapshot.docs

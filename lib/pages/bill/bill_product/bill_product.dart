@@ -8,6 +8,8 @@ import 'package:pcplus/pages/delivery/delivery_infor.dart';
 import 'package:pcplus/models/orders/order_address_model.dart';
 import 'package:pcplus/pages/home/user_home/home.dart';
 
+import '../../../models/in_cart_items/item_in_cart_with_seller.dart';
+import '../../widgets/listItem/payment_product.dart';
 import '../../widgets/util_widgets.dart';
 import 'bill_product_presenter.dart';
 
@@ -23,6 +25,8 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
   BillProductPresenter? _presenter;
   // final CartSingleton _cartSingleton = CartSingleton.getInstance();
 
+  bool isLoading = true;
+
   int productCount = 2;
   bool isFirst = true;
   OrderAddressModel address = OrderAddressModel(
@@ -32,14 +36,24 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
     address2: "",
   );
 
+  String? _productCost = "0";
+  String? _shippingFee = "0";
+  String? _totalCost = "0";
+
   @override
   void initState() {
-    // if (_cartSingleton.address != null) {
-    //   address = _cartSingleton.address!;
-    //   isFirst = false;
-    // }
     _presenter = BillProductPresenter(this);
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    await _presenter?.getData();
   }
 
   @override
@@ -174,32 +188,69 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
                 },
               ),
             ),
-            ListView.builder(
-              // itemCount: _cartSingleton.onPaymentItems.length,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemBuilder: (context, index) {
-                // InCartItemData data = _cartSingleton.onPaymentItems[index];
-                return null;
-                // return PaymentProductItem(
-                //   productName: data.item!.name!,
-                //   shopName: data.shop!.getShopName(),
-                //   price: data.item!.price!,
-                //   amount: data.amount,
-                //   imageUrl: data.item!.image!,
-                //   onChangeNote: (text) {
-                //     _presenter?.handleNoteForShop(data: data, text: text);
-                //   },
-                //   onChangeDeliveryMethod: (method, price) {
-                //     _presenter?.handleChangeDelivery(
-                //         data: data,
-                //         deliveryMethod: method,
-                //         cost: price
-                //     );
-                //   },
-                //   color: "Black",
-                // );
-              },
+            StreamBuilder<List<ItemInCartWithSeller>>(
+                stream: _presenter!.inCartItemsStream,
+                builder: (context, snapshot) {
+                  Widget? result = UtilWidgets.createSnapshotResultWidget(context, snapshot);
+                  if (result != null) {
+                    return result;
+                  }
+
+                  final itemsWithSeller = snapshot.data ?? [];
+
+                  _presenter!.onPaymentItems = itemsWithSeller;
+
+                  String remoteProductCost = _presenter!.getProductCost();
+                  String remoteShippingFee = _presenter!.getShippingFee();
+                  String remoteTotalCost = _presenter!.getTotalCost();
+
+                  if (_productCost != remoteProductCost
+                      || _shippingFee != remoteShippingFee
+                      || _totalCost != remoteTotalCost
+                  ) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      setState(() {
+                        _productCost = remoteProductCost;
+                        _shippingFee = remoteShippingFee;
+                        _totalCost = remoteTotalCost;
+                      });
+                    });
+                  }
+
+                  if (itemsWithSeller.isEmpty) {
+                    return const Center(child: Text('Nothing here'));
+                  }
+
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    padding: EdgeInsets.zero,
+                    physics: const NeverScrollableScrollPhysics(),
+                    scrollDirection: Axis.vertical,
+                    itemCount: itemsWithSeller.length,
+                    itemBuilder: (context, index) {
+                      ItemInCartWithSeller data = itemsWithSeller[index];
+
+                      return PaymentProductItem(
+                        productName: data.item.name!,
+                        shopName: data.seller.getShopName(),
+                        price: data.item.price!,
+                        amount: data.inCart.amount!,
+                        imageUrl: data.item.image!,
+                        onChangeNote: (text) {
+                          _presenter?.handleNoteForShop(data: data, text: text);
+                        },
+                        onChangeDeliveryMethod: (method, price) {
+                          _presenter?.handleChangeDelivery(
+                              data: data,
+                              deliveryMethod: method,
+                              cost: price
+                          );
+                        },
+                        color: "Black",
+                      );
+                    },
+                  );
+                }
             ),
             const Gap(10),
             Padding(
@@ -240,9 +291,9 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                Text(_presenter!.getProductCost(), style: TextDecor.robo16),
+                                Text(_productCost ?? "0", style: TextDecor.robo16),
                                 const Gap(5),
-                                Text(_presenter!.getShippingFee(), style: TextDecor.robo16),
+                                Text(_shippingFee ?? "0", style: TextDecor.robo16),
                               ],
                             ),
                           ],
@@ -256,7 +307,7 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
                           children: [
                             Text('Total:', style: TextDecor.robo18Semi),
                             Expanded(child: Container()),
-                            Text(_presenter!.getTotalCost(), style: TextDecor.robo18Semi),
+                            Text(_totalCost ?? "0", style: TextDecor.robo18Semi),
                           ],
                         ),
                       ],
@@ -389,5 +440,18 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
       return;
     }
     setState(() {});
+  }
+
+  @override
+  void onLoadDataSucceeded() {
+    if (!mounted) return;
+
+    setState(() {
+      if (_presenter!.address != null) {
+        address = _presenter!.address!;
+        isFirst = false;
+      }
+      isLoading = false;
+    });
   }
 }

@@ -5,4 +5,6 @@ abstract class BillProductContract {
   void onBuyFailed(String message);
   void onBack();
   void onChangeData();
+
+  void onLoadDataSucceeded();
 }

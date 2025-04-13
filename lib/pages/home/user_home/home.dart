@@ -5,6 +5,7 @@ import 'package:pcplus/builders/widget_builders/widget_builder_director.dart';
 import 'package:pcplus/commands/home_command.dart';
 import 'package:pcplus/component/item_argument.dart';
 import 'package:pcplus/config/asset_helper.dart';
+import 'package:pcplus/const/navigator_arguments.dart';
 import 'package:pcplus/factories/widget_factories/new_item_factory.dart';
 import 'package:pcplus/factories/widget_factories/suggest_item_factory.dart';
 import 'package:pcplus/models/items/item_with_seller.dart';
@@ -228,8 +229,11 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
   }
 
   @override
-  void onItemPressed() {
-    Navigator.of(context).pushNamed(DetailProduct.routeName);
+  void onItemPressed(ItemWithSeller itemData) {
+    Navigator.of(context).pushNamed(
+        DetailProduct.routeName,
+        arguments: {NavigatorArgs.itemData : itemData}
+    );
   }
 
   @override
@@ -237,7 +241,7 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
     Navigator.of(context).pushNamed(
         SearchScreen.routeName,
         arguments: ItemArgument(data: {
-          'searchQuery' : _searchController.text.trim()
+          NavigatorArgs.searchQuery : _searchController.text.trim()
         })
     );
   }

@@ -5,6 +5,9 @@ import 'package:gap/gap.dart';
 import 'package:pcplus/builders/widget_builders/review_item_builder.dart';
 import 'package:pcplus/builders/widget_builders/widget_builder_director.dart';
 import 'package:pcplus/config/asset_helper.dart';
+import 'package:pcplus/const/navigator_arguments.dart';
+import 'package:pcplus/controller/session_controller.dart';
+import 'package:pcplus/models/items/item_with_seller.dart';
 import 'package:pcplus/pages/manage_product/detail_product/detail_product_contract.dart';
 import 'package:pcplus/pages/manage_product/detail_product/detail_product_presenter.dart';
 import 'package:pcplus/services/utility.dart';
@@ -32,7 +35,8 @@ class _DetailProductState extends State<DetailProduct> implements DetailProductC
   List<String> images = [];
   bool isShop = false;
 
-  final ViewItemSingleton _itemSingleton = ViewItemSingleton.getInstance();
+  bool isLoading = true;
+
   final WidgetBuilderDirector director = WidgetBuilderDirector();
 
   final PageController _pageController = PageController();
@@ -66,22 +70,19 @@ class _DetailProductState extends State<DetailProduct> implements DetailProductC
   @override
   void initState() {
     _presenter = DetailProductPresenter(this);
-    isShop = UserSingleton.getInstance().isShop();
-    productName = _itemSingleton.itemData!.product!.name!;
-    description = _itemSingleton.itemData!.product!.description!;
-    detail = _itemSingleton.itemData!.product!.detail!;
-    stock = _itemSingleton.itemData!.product!.stock!;
-    price = _itemSingleton.itemData!.product!.price!;
-    sold = _itemSingleton.itemData!.product!.sold!;
-    rating = _itemSingleton.itemData!.rating ?? 0;
-    shopName = _itemSingleton.itemData!.shop!.getShopName();
-    location = _itemSingleton.itemData!.shop!.getLocation();
-    shopAvatar = _itemSingleton.itemData!.shop!.avatarUrl ?? "";
-    productsCount = _itemSingleton.shopProductsCount;
-    reviews = _itemSingleton.reviewsData;
-    images = _itemSingleton.itemData!.product!.reviewImages!;
-
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    _presenter!.itemWithSeller = args[NavigatorArgs.itemData] as ItemWithSeller;
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    await _presenter?.getData();
   }
 
   void _onPageChanged(int index) {
@@ -141,7 +142,7 @@ class _DetailProductState extends State<DetailProduct> implements DetailProductC
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-      body: SingleChildScrollView(
+      body: isLoading ? UtilWidgets.getLoadingWidget() : SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -598,7 +599,7 @@ class _DetailProductState extends State<DetailProduct> implements DetailProductC
           ],
         ),
       ),
-      bottomNavigationBar: isShop ? null : Container(
+      bottomNavigationBar: isShop || isLoading ? null : Container(
         height: 55,
         decoration: const BoxDecoration(
           borderRadius: BorderRadius.only(
@@ -1126,8 +1127,11 @@ class _DetailProductState extends State<DetailProduct> implements DetailProductC
   }
 
   @override
-  void onViewShop() {
-    Navigator.of(context).pushNamed(ShopHome.routeName);
+  void onViewShop(String sellerID) {
+    Navigator.of(context).pushNamed(
+        ShopHome.routeName,
+        arguments: {NavigatorArgs.shopID : sellerID}
+    );
   }
 
   @override
@@ -1143,5 +1147,29 @@ class _DetailProductState extends State<DetailProduct> implements DetailProductC
   @override
   void onError(String message) {
     UtilWidgets.createSnackBar(context, message);
+  }
+
+  @override
+  void onLoadDataSucceeded() {
+    if (!mounted) return;
+
+    setState(() {
+      isShop = SessionController.getInstance().isShop();
+      productName = _presenter!.itemWithSeller!.item.name!;
+      description = _presenter!.itemWithSeller!.item.description!;
+      detail = _presenter!.itemWithSeller!.item.detail!;
+      stock = _presenter!.itemWithSeller!.item.stock!;
+      price = _presenter!.itemWithSeller!.item.price!;
+      sold = _presenter!.itemWithSeller!.item.sold!;
+      rating = _presenter!.itemWithSeller!.item.rating ?? 0;
+      shopName = _presenter!.itemWithSeller!.seller.getShopName();
+      location = _presenter!.itemWithSeller!.seller.getLocation();
+      shopAvatar = _presenter!.itemWithSeller!.seller.avatarUrl ?? "";
+      productsCount = _presenter!.shopProductsCount;
+      reviews = _presenter!.ratingsData;
+      images = _presenter!.itemWithSeller!.item.reviewImages!;
+
+      isLoading = false;
+    });
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:pcplus/config/asset_helper.dart';
+import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/pages/authentication/login/login_contract.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
@@ -139,11 +140,10 @@ class _LoginScreenState extends State<LoginScreen> implements LoginViewContract 
   @override
   void onLoginSucceeded() {
     // TODO: implement onLoginSucceeded
-    if (UserSingleton.getInstance().isShop()) {
-      Navigator.of(context).pushNamed(ShopHome.routeName);
-    } else {
-      Navigator.of(context).pushNamed(HomeScreen.routeName);
-    }
+    Navigator.of(context).pushNamedAndRemoveUntil(
+      SessionController.getInstance().isShop() ? LoginScreen.routeName : HomeScreen.routeName,
+      (Route<dynamic> route) => false,
+    );
   }
 
   @override

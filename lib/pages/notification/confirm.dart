@@ -4,19 +4,24 @@ import 'package:pcplus/services/utility.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 
+import '../../interfaces/command.dart';
+
 class ConfirmNoti extends StatefulWidget {
   final String image;
   final String title;
   final String content;
   final DateTime date;
   final bool isView;
+  final ICommand onPressed;
+
   const ConfirmNoti({
     super.key,
     required this.image,
     required this.title,
     required this.content,
     required this.date,
-    required this.isView
+    required this.isView,
+    required this.onPressed,
   });
 
   @override
@@ -38,7 +43,10 @@ class _ConfirmNotiState extends State<ConfirmNoti> {
     return InkWell(
       onTap: () {
         setState(() {
-          isViewed = true;
+          if (!isViewed) {
+            widget.onPressed.execute();
+            isViewed = true;
+          }
         });
       },
       child: Container(
