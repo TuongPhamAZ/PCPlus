@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pcplus/models/ratings/rating_model.dart';
 import 'package:pcplus/services/utility.dart';
-
+import 'package:async/async.dart';
 import '../items/item_model.dart';
 
 class RatingRepository {
   final FirebaseFirestore _storage = FirebaseFirestore.instance;
 
-  void addRatingToFirestore(String itemID, RatingModel model) async {
+  Future<void> addRatingToFirestore(String itemID, RatingModel model) async {
     try {
       DocumentReference docRef =
         _storage.collection(ItemModel.collectionName)
@@ -97,4 +97,30 @@ class RatingRepository {
       return 0;
     }
   }
+
+  Stream<List<RatingModel>> getUserRatingsStream(String userID) async* {
+    final itemSnapshot = await FirebaseFirestore.instance
+        .collection('items')
+        .get();
+
+    // Tạo list stream từ mỗi subcollection 'ratings'
+    List<Stream<List<RatingModel>>> streams = itemSnapshot.docs.map((itemDoc) {
+      return FirebaseFirestore.instance
+          .collection('items')
+          .doc(itemDoc.id)
+          .collection('ratings')
+          .where('userID', isEqualTo: userID)
+          .snapshots()
+          .map((snapshot) => snapshot.docs
+          .map((doc) =>
+          RatingModel.fromJson(doc.id, doc.data()))
+          .toList());
+    }).toList();
+
+    // Gộp tất cả stream lại thành một stream duy nhất
+    yield* StreamGroup.merge<List<RatingModel>>(streams).map((list) {
+      return list.expand((x) => x as Iterable<RatingModel>).toList();
+    });
+  }
+
 }

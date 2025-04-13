@@ -3,7 +3,7 @@ import 'package:pcplus/models/users/user_model.dart';
 import 'package:pcplus/models/users/user_repo.dart';
 import 'package:pcplus/objects/data_object_interface.dart';
 
-class ReviewData extends DataObjectInterface {
+class ReviewData extends IDataObject {
   RatingModel? rating;
   UserModel? user;
 

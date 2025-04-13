@@ -123,7 +123,7 @@ class ItemModel {
   }
 
   OrderItemModel toOrderItemModel({
-    required int colorIndex
+    required String color
   }) {
     return OrderItemModel(
       itemID: itemID,
@@ -132,7 +132,7 @@ class ItemModel {
       sellerID: sellerID,
       addDate: addDate,
       price: price,
-      color: colors!.firstOrNull ?? "",
+      color: color,
       description: description,
       image: image,
       detail: detail

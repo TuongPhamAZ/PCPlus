@@ -1,7 +1,6 @@
 import 'package:pcplus/pages/notification/notification_screen_contract.dart';
 import 'package:pcplus/models/notification/notification_repo.dart';
 import 'package:pcplus/services/pref_service.dart';
-import 'package:pcplus/singleton/user_singleton.dart';
 
 import '../../models/notification/notification_model.dart';
 import '../../models/users/user_model.dart';
@@ -10,20 +9,24 @@ class NotificationScreenPresenter {
   final NotificationScreenContract _view;
   NotificationScreenPresenter(this._view);
 
-  final PrefService _pref = PrefService();
-
   final NotificationRepository _notificationRepo = NotificationRepository();
-  final UserSingleton _userSingleton = UserSingleton.getInstance();
 
-  UserModel? get user => _userSingleton.currentUser;
+  UserModel? user;
   bool isShop = false;
 
-  List<NotificationModel> notifications = [];
+  Stream<List<NotificationModel>>? notificationStream;
 
   Future<void> getData() async {
+    user = await PrefService.loadUserData();
+
     isShop = user!.isSeller!;
-    notifications = await _notificationRepo.getAllNotificationsFromUser(user!.userID!);
+    notificationStream = _notificationRepo.getAllNotificationsFromUserStream(user!.userID!);
 
     _view.onLoadDataSucceeded();
+  }
+
+  Future<void> onNotificationPressed(NotificationModel model) async {
+    model.isRead = true;
+    await _notificationRepo.updateNotification(user!.userID!, model);
   }
 }

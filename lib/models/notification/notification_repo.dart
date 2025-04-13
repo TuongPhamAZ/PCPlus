@@ -39,21 +39,17 @@ class NotificationRepository {
     return isSuccess;
   }
 
-  Future<List<NotificationModel>> getAllNotificationsFromUser(String userID) async {
-    try {
-      final QuerySnapshot querySnapshot =
-      await _storage.collection(UserModel.collectionName)
-          .doc(userID)
-          .collection(NotificationModel.collectionName)
-          .orderBy('date')
-          .get();
-      final models = querySnapshot
-          .docs
+  Stream<List<NotificationModel>> getAllNotificationsFromUserStream(String userID) {
+    return _storage
+        .collection(UserModel.collectionName)
+        .doc(userID)
+        .collection(NotificationModel.collectionName)
+        .orderBy('date', descending: true)
+        .snapshots()
+        .map((querySnapshot) {
+      return querySnapshot.docs
           .map((doc) => NotificationModel.fromJson(doc.id, doc.data() as Map<String, dynamic>))
           .toList();
-      return models;
-    } catch (e) {
-      return [];
-    }
+    });
   }
 }

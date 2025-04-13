@@ -4,14 +4,36 @@ import 'package:gap/gap.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 
+import '../../../commands/rating_item/rating_item_on_submit_command.dart';
+
 class RatingItem extends StatefulWidget {
-  const RatingItem({super.key});
+  final String shopName;
+  final String productName;
+  final String color;
+  final String image;
+  final int dayRemain;
+  final int buyAmount;
+  final RatingItemOnSubmitCommand onSubmit;
+
+  const RatingItem({
+    super.key,
+    required this.shopName,
+    required this.productName,
+    required this.color,
+    required this.image,
+    required this.dayRemain,
+    required this.buyAmount,
+    required this.onSubmit,
+  });
 
   @override
   State<RatingItem> createState() => _RatingItemState();
 }
 
 class _RatingItemState extends State<RatingItem> {
+  final TextEditingController _commentController = TextEditingController();
+  double? _rating = 3;
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -48,7 +70,7 @@ class _RatingItemState extends State<RatingItem> {
                 ),
                 const Gap(5),
                 Text(
-                  'Shop Name',
+                  widget.shopName,
                   style: TextDecor.robo17Medi,
                 ),
               ],
@@ -58,7 +80,7 @@ class _RatingItemState extends State<RatingItem> {
                 ClipRRect(
                   borderRadius: const BorderRadius.all(Radius.circular(10)),
                   child: Image.network(
-                    "https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1wMWtv.img?w=730&h=487&m=6",
+                    widget.image,
                     width: 125,
                     height: 140,
                     fit: BoxFit.cover,
@@ -78,7 +100,7 @@ class _RatingItemState extends State<RatingItem> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "PTT",
+                        widget.productName,
                         maxLines: 2,
                         textAlign: TextAlign.justify,
                         style: TextDecor.robo16Medi,
@@ -86,7 +108,7 @@ class _RatingItemState extends State<RatingItem> {
                       Row(
                         children: [
                           Text(
-                            "Phan loai: Black",
+                            "Phan loai: ${widget.color}",
                             textAlign: TextAlign.justify,
                             maxLines: 2,
                             style: TextDecor.robo14.copyWith(
@@ -105,7 +127,7 @@ class _RatingItemState extends State<RatingItem> {
                         ],
                       ),
                       Text(
-                        "Còn 25 ngày để đánh giá!",
+                        "Còn ${widget.dayRemain} ngày để đánh giá!",
                         style: TextDecor.robo16.copyWith(
                           color: Colors.grey,
                         ),
@@ -133,6 +155,7 @@ class _RatingItemState extends State<RatingItem> {
                   ),
                   onRatingUpdate: (rating) {
                     print(rating);
+                    _rating = rating;
                   },
                 ),
                 Expanded(child: Container()),
@@ -155,7 +178,11 @@ class _RatingItemState extends State<RatingItem> {
             ),
             const Gap(10),
             InkWell(
-              onTap: () {},
+              onTap: () {
+                widget.onSubmit.rating = _rating;
+                widget.onSubmit.comment = _commentController.text;
+                widget.onSubmit.execute();
+              },
               child: Container(
                 alignment: Alignment.center,
                 height: 45,

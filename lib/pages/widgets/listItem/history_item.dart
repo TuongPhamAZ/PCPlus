@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:pcplus/commands/history_order_item/cancel_order_command.dart';
+import 'package:pcplus/commands/history_order_item/received_order_command.dart';
+import 'package:pcplus/commands/history_order_item/sent_order_command.dart';
+import 'package:pcplus/commands/history_order_item/validate_order_command.dart';
 import 'package:pcplus/const/order_status.dart';
 import 'package:pcplus/services/utility.dart';
 import 'package:pcplus/themes/palette/palette.dart';
@@ -20,10 +24,10 @@ class HistoryItem extends StatefulWidget {
   final bool isShop;
   final HistoryOrderPresenter? presenter;
   final OrderModel? order;
-  final Function()? onValidateOrder;
-  final Function(String)? onCancelOrder;
-  final Function()? onReceivedOrder;
-  final Function()? onSentOrder;
+  final ValidateOrderCommand? onValidateOrder;
+  final CancelOrderCommand? onCancelOrder;
+  final ReceivedOrderCommand? onReceivedOrder;
+  final SentOrderCommand? onSentOrder;
   const HistoryItem(
       {super.key,
       required this.shopName,
@@ -237,7 +241,8 @@ class _HistoryItemState extends State<HistoryItem> {
                 String reason = reasonController.text;
                 Navigator.of(context).pop(); // Đóng dialog
                 // Thực hiện logic với lý do huỷ
-                widget.onCancelOrder!(reason);
+                widget.onCancelOrder!.reason = reason;
+                widget.onCancelOrder!.execute();
                 print("Lý do huỷ đơn: $reason");
               },
               child: const Text("Confirm"),
@@ -426,7 +431,7 @@ class _HistoryItemState extends State<HistoryItem> {
                         ),
                         InkWell(
                           onTap: () {
-                            widget.onValidateOrder!();
+                            widget.onValidateOrder!.execute();
                           },
                           child: Container(
                             alignment: Alignment.center,
@@ -451,8 +456,7 @@ class _HistoryItemState extends State<HistoryItem> {
                     alignment: Alignment.centerRight,
                     child: InkWell(
                       onTap: () {
-                        widget.onSentOrder;
-                        widget.presenter?.handleSentOrder(widget.order!);
+                        widget.onSentOrder!.execute();
                       },
                       child: Container(
                         alignment: Alignment.center,
@@ -498,8 +502,7 @@ class _HistoryItemState extends State<HistoryItem> {
                     alignment: Alignment.centerRight,
                     child: InkWell(
                       onTap: () {
-                        // widget.onReceivedOrder!;
-                        widget.presenter!.handleAlreadyReceivedOrder(widget.order!);
+                        widget.onReceivedOrder!.execute();
                       },
                       child: Container(
                         alignment: Alignment.center,

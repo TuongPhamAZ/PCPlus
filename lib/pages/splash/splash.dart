@@ -22,7 +22,6 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
-  final PrefService _pref = PrefService();
   final AuthenticationService _auth = AuthenticationService();
   AnimationController? _controller;
   Animation<double>? _animation;
@@ -70,12 +69,21 @@ class _SplashScreenState extends State<SplashScreen>
   void _navigateToHome() {
     if (loginSucceeded) {
       if (SessionController.getInstance().isShop()) {
-        Navigator.of(context).pushNamed(ShopHome.routeName);
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          ShopHome.routeName,
+          (Route<dynamic> route) => false,
+        );
       } else {
-        Navigator.of(context).pushNamed(HomeScreen.routeName);
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          HomeScreen.routeName,
+          (Route<dynamic> route) => false,
+        );
       }
     } else {
-      Navigator.of(context).pushNamed(LoginScreen.routeName);
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        LoginScreen.routeName,
+        (Route<dynamic> route) => false,
+      );
     }
   }
 

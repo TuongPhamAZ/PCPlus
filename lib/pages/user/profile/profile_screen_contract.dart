@@ -3,4 +3,5 @@ abstract class ProfileScreenContract {
   void onSignOut();
   void onWaitingProgressBar();
   void onPopContext();
+  void onUpdateOrdersCount();
 }

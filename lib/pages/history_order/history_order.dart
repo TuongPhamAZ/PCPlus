@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pcplus/strategy/history_order/history_order_strategy.dart';
 import 'package:pcplus/themes/text_decor.dart';
 
+import '../../models/orders/order_model.dart';
 import '../widgets/util_widgets.dart';
 import 'history_order_contract.dart';
 import 'history_order_presenter.dart';
@@ -19,15 +19,12 @@ class _HistoryOrderState extends State<HistoryOrder>
     implements HistoryOrderContract {
   HistoryOrderPresenter? _presenter;
 
-  late HistoryOrderBuildListStrategy _buildListStrategy;
-
   List<Widget> orders = [];
   bool isLoading = true;
 
   @override
   void initState() {
     _presenter = HistoryOrderPresenter(this, orderType: widget.orderType);
-    _buildListStrategy = _presenter!.createBuildOrderStrategy()!;
     super.initState();
   }
 
@@ -65,20 +62,31 @@ class _HistoryOrderState extends State<HistoryOrder>
           color: Colors.grey.withOpacity(0.5),
         ),
         child:
-          isLoading ?
-            UtilWidgets.getLoadingWidget()
-          :
-            SingleChildScrollView(
-              child: ListView.builder(
+          StreamBuilder<List<OrderModel>>(
+            stream: _presenter!.orderStream,
+            builder: (context, snapshot) {
+              Widget? result = UtilWidgets.createSnapshotResultWidget(context, snapshot);
+              if (result != null) {
+              return result;
+              }
+
+              final orders = snapshot.data ?? [];
+
+              if (orders.isEmpty) {
+              return const Center(child: Text('No data'));
+              }
+
+              return ListView.builder(
                 itemCount: orders.length,
                 shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
+                // physics: const Scroas(),
                 itemBuilder: (context, index) {
-                  return orders[index];
+                  return _presenter!.createHistoryOrderItem(orders[index]);
                 },
-              ),
-            ),
-      ),
+              );
+            },
+          )
+        ),
     );
   }
 
@@ -94,7 +102,6 @@ class _HistoryOrderState extends State<HistoryOrder>
     }
     setState(() {
       isLoading = false;
-      orders = _buildListStrategy.execute();
     });
   }
 

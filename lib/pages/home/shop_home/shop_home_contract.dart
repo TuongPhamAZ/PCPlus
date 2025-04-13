@@ -1,11 +1,13 @@
 
+import 'package:pcplus/models/items/item_with_seller.dart';
+
 abstract class ShopHomeContract {
   void onLoadDataSucceeded();
-  void onFetchDataSucceeded();
+  // void onFetchDataSucceeded();
   void onWaitingProgressBar();
   void onPopContext();
-  void onItemEdit();
+  void onItemEdit(ItemWithSeller item);
   void onItemDelete();
-  void onItemPressed();
+  void onItemPressed(ItemWithSeller item);
   void onBack();
 }

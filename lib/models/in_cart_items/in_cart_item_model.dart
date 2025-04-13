@@ -5,6 +5,10 @@ class InCartItemModel {
   String? itemID;
   int? amount;
   String? color;
+  bool? isSelected;
+  String? noteForShop = "";
+  String? deliveryMethod = "";
+  int? deliveryCost = 0;
 
   InCartItemModel(
       {
@@ -12,6 +16,10 @@ class InCartItemModel {
         required this.itemID,
         required this.amount,
         this.color,
+        this.isSelected,
+        this.noteForShop,
+        this.deliveryMethod,
+        this.deliveryCost,
       });
 
   static String collectionName = 'InCartItems';
@@ -20,6 +28,10 @@ class InCartItemModel {
     'itemID': itemID,
     'amount': amount,
     'color': color,
+    'isSelected': isSelected,
+    'noteForShop': noteForShop ?? "",
+    'deliveryMethod': deliveryMethod ?? "",
+    'deliveryCost': deliveryCost ?? "",
   };
 
   static InCartItemModel fromJson(String key, Map<String, dynamic> json) {
@@ -29,6 +41,10 @@ class InCartItemModel {
       itemID: json['itemID'] as String,
       amount: json['amount'] as int,
       color: json['color'] as String,
+      isSelected: json['isSelected'] as bool,
+      noteForShop: (json['noteForShop'] ?? "") as String,
+      deliveryMethod: (json['deliveryMethod'] ?? "") as String,
+      deliveryCost:  (json['deliveryCost'] ?? 0) as int,
     );
   }
 

@@ -22,19 +22,25 @@ class ProfileScreenPresenter {
   int awaitDelivery = 0;
   int awaitRating = 0;
 
+  Stream<List<OrderModel>>? orderStream;
 
   Future<void> getData() async {
     user = await PrefService.loadUserData();
-    await calculateOrderType();
+
+    orderStream = _orderRepository.getAllOrdersFromUserStream(user!.userID!);
+
+    orderStream?.listen((snapshot) {
+      calculateOrderType(snapshot);
+    });
+
     _view.onLoadDataSucceeded();
   }
 
-  Future<void> calculateOrderType() async {
+  Future<void> calculateOrderType(List<OrderModel> orders) async {
     awaitRating = 0;
     awaitPickup = 0;
     awaitConfirm = 0;
     awaitDelivery = 0;
-    List<OrderModel> orders = await _orderRepository.getAllOrdersFromUser(user!.userID!);
     for (OrderModel order in orders) {
       switch (order.status!) {
         case OrderStatus.PENDING_CONFIRMATION:
@@ -51,6 +57,7 @@ class ProfileScreenPresenter {
           break;
       }
     }
+    _view.onUpdateOrdersCount();
   }
 
   Future<void> signOut() async {

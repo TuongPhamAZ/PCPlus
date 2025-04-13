@@ -1,9 +1,9 @@
 import 'package:pcplus/builders/widget_builders/review_item_builder.dart';
 import 'package:pcplus/builders/widget_builders/shop_item_builder.dart';
 import 'package:pcplus/builders/widget_builders/widget_builder_interface.dart';
-import 'package:pcplus/commands/command_interface.dart';
 import 'package:pcplus/commands/shop_home_command.dart';
 
+import '../../interfaces/command.dart';
 import '../../objects/review_data.dart';
 import '../../objects/suggest_item_data.dart';
 
@@ -24,8 +24,8 @@ class WidgetBuilderDirector {
   void makeShopItem({
     required WidgetBuilderInterface builder,
     required ItemData data,
-    required CommandInterface editCommand,
-    required CommandInterface deleteCommand,
+    required ICommand editCommand,
+    required ICommand deleteCommand,
     required ShopHomeItemPressedCommand pressedCommand,
     required bool isShop
   }) {

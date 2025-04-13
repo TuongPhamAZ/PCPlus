@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:pcplus/pages/cart/cart_shopping_screen_contract.dart';
-import 'package:pcplus/objects/in_cart_item_data.dart';
 import 'package:pcplus/pages/cart/cart_shopping_screen_presenter.dart';
-import 'package:pcplus/singleton/cart_singleton.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 import 'package:pcplus/pages/manage_product/detail_product/detail_product.dart';
 
+import 'package:pcplus/models/in_cart_items/item_in_cart_with_seller.dart';
+import 'package:pcplus/models/in_cart_items/in_cart_item_model.dart';
 import '../bill/bill_product/bill_product.dart';
 import '../widgets/bottom/bottom_bar_custom.dart';
 import '../widgets/util_widgets.dart';
+import '../widgets/listItem/cart_item.dart';
 
 class CartShoppingScreen extends StatefulWidget {
   const CartShoppingScreen({super.key});
@@ -25,8 +26,10 @@ class _CartShoppingScreenState extends State<CartShoppingScreen> implements Cart
   CartShoppingScreenPresenter? _presenter;
 
   bool _selectAll = false;
-  int soluong = 10;
+  int soluong = 0;
+  int checkedCount = 0;
   String totalPrice = "";
+
 
   @override
   void initState() {
@@ -53,12 +56,12 @@ class _CartShoppingScreenState extends State<CartShoppingScreen> implements Cart
     });
   }
 
-  void _toggleItemChecked(int index, bool? value) {
-    _presenter?.handleSelectItem(index, value ?? false);
+  void _toggleItemChecked(InCartItemModel model, bool? value) {
+    _presenter?.handleSelectItem(model, value ?? false);
   }
 
-  void _deleteItem(int index) {
-    _presenter?.handleDelete(index);
+  void _deleteItem(InCartItemModel model) {
+    _presenter?.handleDelete(model);
   }
 
   @override
@@ -91,43 +94,67 @@ class _CartShoppingScreenState extends State<CartShoppingScreen> implements Cart
           Expanded(
             child:
               // _cartSingleton.inCartItems.isEmpty ?
-              true ?
-                UtilWidgets.getCenterTextWithContainer(
-                  width: size.width,
-                  height: size.height * 0.7,
-                  text: "Nothing here",
-                  color: Palette.primaryColor,
-                  fontSize: 16
-                )
-                :
-                UtilWidgets.getCenterTextWithContainer(
-                    width: size.width,
-                    height: size.height * 0.7,
-                    text: "Nothing here",
-                    color: Palette.primaryColor,
-                    fontSize: 16
-                )
-                // ListView.builder(
-                //   itemCount: _cartSingleton.inCartItems.length,
-                //   itemBuilder: (context, index) {
-                //     InCartItemData itemData = _cartSingleton.inCartItems[index];
-                //     return CartItem(
-                //         shopName: itemData.shop!.getShopName(),
-                //         itemName: itemData.item!.name!,
-                //         description: itemData.item!.description!,
-                //         rating: itemData.rating,
-                //         location: itemData.shop!.getLocation(),
-                //         imageUrl: itemData.item!.image!,
-                //         onChanged: (value) => _toggleItemChecked(index, value),
-                //         isCheck: _cartSingleton.inCartItems[index].isCheck,
-                //         price: itemData.item!.price!,
-                //         stock: itemData.item!.stock!,
-                //         onDelete: () => _deleteItem(index),
-                //         onPressed: () => _presenter?.handleItemPressed(_cartSingleton.inCartItems[index]),
-                //         onChangeAmount: (value) => _presenter?.handleChangeItemAmount(index, value),
-                //     );
-                //   },
-                // ),
+                StreamBuilder<List<ItemInCartWithSeller>>(
+                    stream: _presenter!.inCartItemsStream,
+                    builder: (context, snapshot) {
+                      Widget? result = UtilWidgets.createSnapshotResultWidget(context, snapshot);
+                      if (result != null) {
+                        return result;
+                      }
+
+                      final itemsWithSeller = snapshot.data ?? [];
+
+                      _presenter!.inCartItems = itemsWithSeller;
+
+                      String remoteTotalPrice = _presenter!.calculateTotalPrice();
+                      int remoteAmount = itemsWithSeller.length;
+                      int remoteCheckedCount = _presenter!.getCheckedCount();
+
+                      if (soluong != remoteAmount
+                        || totalPrice != remoteTotalPrice
+                        || checkedCount != remoteCheckedCount
+                      ) {
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            setState(() {
+                              soluong = remoteAmount;
+                              totalPrice = remoteTotalPrice;
+                              checkedCount = remoteCheckedCount;
+                            });
+                          });
+                      }
+
+                      if (itemsWithSeller.isEmpty) {
+                        return const Center(child: Text('Nothing here'));
+                      }
+
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        padding: EdgeInsets.zero,
+                        physics: const NeverScrollableScrollPhysics(),
+                        scrollDirection: Axis.vertical,
+                        itemCount: itemsWithSeller.length,
+                        itemBuilder: (context, index) {
+                          ItemInCartWithSeller itemData = itemsWithSeller[index];
+
+                          return CartItem(
+                            shopName: itemData.seller.getShopName(),
+                            itemName: itemData.item.name!,
+                            description: itemData.item.description!,
+                            rating: itemData.item.rating!,
+                            location: itemData.seller.getLocation(),
+                            imageUrl: itemData.item.image!,
+                            onChanged: (value) => _toggleItemChecked(itemData.inCart, value),
+                            isCheck: itemData.inCart.isSelected!,
+                            price: itemData.item.price!,
+                            stock: itemData.item.stock!,
+                            onDelete: () => _deleteItem(itemData.inCart),
+                            onPressed: () => _presenter?.handleItemPressed(itemData.inCart),
+                            onChangeAmount: (value) => _presenter?.handleChangeItemAmount(itemData.inCart, value),
+                          );
+                        },
+                      );
+                    }
+                ),
           ),
           Container(
             height: 60,
@@ -169,7 +196,7 @@ class _CartShoppingScreenState extends State<CartShoppingScreen> implements Cart
                       color: Palette.primaryColor,
                     ),
                     child: Text(
-                      'Mua hàng (${_presenter?.getCheckedCount()})',
+                      'Mua hàng (${checkedCount.toString()})',
                       style: TextDecor.robo16Semi,
                     ),
                   ),
@@ -216,15 +243,25 @@ class _CartShoppingScreenState extends State<CartShoppingScreen> implements Cart
   }
 
   @override
-  void onLoadDataSucceeded() {
+  void onSelectAll() {
     setState(() {
       totalPrice = _presenter!.calculateTotalPrice();
     });
   }
 
   @override
-  void onItemPressed() {
-    Navigator.of(context).pushNamed(DetailProduct.routeName);
+  void onLoadDataSucceeded() {
+    setState(() {
+      // totalPrice = _presenter!.calculateTotalPrice();
+      // totalPrice = "0";
+    });
+  }
+
+  @override
+  void onItemPressed(String itemID) {
+    Navigator.of(context).pushNamed(DetailProduct.routeName, arguments: {
+      "itemID" : itemID,
+    });
   }
 
   @override

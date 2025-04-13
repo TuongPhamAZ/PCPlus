@@ -22,7 +22,7 @@ class ItemRepository {
     return "";
   }
 
-  void deleteItemById(String id) async => _storage.collection(ItemModel.collectionName).doc(id).delete();
+  Future<void> deleteItemById(String id) async => _storage.collection(ItemModel.collectionName).doc(id).delete();
 
   Future<bool> updateItem(ItemModel model) async {
     bool isSuccess = false;
@@ -51,7 +51,7 @@ class ItemRepository {
   Future<List<ItemModel>> getTopItems(int limit) async {
     try {
       final QuerySnapshot querySnapshot = await _storage.collection(ItemModel.collectionName)
-          .orderBy('addDate', descending: false)
+          .orderBy('addDate', descending: true)
           .limit(limit)
           .get();
       final items = querySnapshot
@@ -170,7 +170,7 @@ class ItemRepository {
   Stream<List<ItemModel>> getNewestItemsStream(int limit) {
     return _storage
         .collection(ItemModel.collectionName)
-        .orderBy('addDate', descending: false)
+        .orderBy('addDate', descending: true)
         .limit(limit)
         .snapshots()
         .map((snapshot) {
@@ -224,10 +224,10 @@ class ItemRepository {
     });
   }
 
-  Stream<List<ItemWithSeller>> getNewestItemsWithSeller(int limit) {
+  Stream<List<ItemWithSeller>> getNewestItemsWithSellerStream(int limit) {
     return FirebaseFirestore.instance
         .collection(ItemModel.collectionName)
-        .orderBy('addDate', descending: false)
+        .orderBy('addDate', descending: true)
         .limit(limit)
         .snapshots()
         .asyncMap((itemsSnapshot) async {
@@ -302,6 +302,42 @@ class ItemRepository {
         seller: sellerMap[item.sellerID]!,
       ))
           .toList();
+    });
+  }
+
+  Stream<List<ItemWithSeller>> getItemsWithSellerStreamBySellerID(String sellerID) {
+    return FirebaseFirestore.instance
+        .collection(ItemModel.collectionName)
+        .where('sellerID', isEqualTo: sellerID)
+        .orderBy('addDate', descending: true)
+        .snapshots()
+        .asyncMap((itemsSnapshot) async {
+      // Lấy danh sách ItemModel
+      List<ItemModel> items = itemsSnapshot.docs
+          .map((doc) => ItemModel.fromJson(doc.id, doc.data()))
+          .toList();
+      
+      // Lấy danh sách các sellerID (loại bỏ trùng)
+      Set<String?> sellerIds = items.map((item) => item.sellerID).toSet();
+
+      // Truy vấn tất cả UserModel cùng lúc
+      List<UserModel> sellers = await Future.wait(
+        sellerIds.map((id) async {
+          return UserRepository().getUserById(id!);
+        }),
+      );
+
+      // Tạo Map sellerId -> UserModel để tra cứu nhanh
+      Map<String, UserModel> sellerMap = {
+        for (var seller in sellers.where((s) => s != null)) seller.userID!: seller
+      };
+
+      // Ghép dữ liệu UserModel vào ItemModel
+      List<ItemWithSeller> itemsWithSeller = items
+          .map((item) => ItemWithSeller(item: item, seller: sellerMap[item.sellerID]!))
+          .toList();
+
+      return itemsWithSeller;
     });
   }
 }

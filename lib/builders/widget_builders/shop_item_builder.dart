@@ -1,8 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:pcplus/builders/widget_builders/widget_builder_interface.dart';
-import 'package:pcplus/commands/shop_home_command.dart';
-
-import '../../commands/command_interface.dart';
+import '../../interfaces/command.dart';
 import '../../models/items/item_model.dart';
 import '../../models/users/user_model.dart';
 import '../../pages/widgets/listItem/shop_item.dart';
@@ -10,9 +8,9 @@ import '../../pages/widgets/listItem/shop_item.dart';
 class ShopItemBuilder implements WidgetBuilderInterface {
   ItemModel? _product;
   UserModel? _shop;
-  CommandInterface? _deleteCommand;
-  CommandInterface? _editCommand;
-  CommandInterface? _pressedCommand;
+  ICommand? _deleteCommand;
+  ICommand? _editCommand;
+  ICommand? _pressedCommand;
   double? _rating = 4.5;
   bool _isShop = false;
 
@@ -20,15 +18,15 @@ class ShopItemBuilder implements WidgetBuilderInterface {
     _product = product;
   }
 
-  void setDeleteCommand(CommandInterface command) {
+  void setDeleteCommand(ICommand command) {
     _deleteCommand = command;
   }
 
-  void setEditCommand(CommandInterface command) {
+  void setEditCommand(ICommand command) {
     _editCommand = command;
   }
 
-  void setPressedCommand(CommandInterface command) {
+  void setPressedCommand(ICommand command) {
     _pressedCommand = command;
   }
 

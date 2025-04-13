@@ -1,12 +1,15 @@
-import 'package:flutter/cupertino.dart';
+import 'package:pcplus/commands/history_order_item/cancel_order_command.dart';
+import 'package:pcplus/commands/history_order_item/received_order_command.dart';
+import 'package:pcplus/commands/history_order_item/sent_order_command.dart';
+import 'package:pcplus/commands/history_order_item/validate_order_command.dart';
+
 import '../../models/orders/order_model.dart';
 import '../../pages/history_order/history_order_presenter.dart';
 import '../../pages/widgets/listItem/history_item.dart';
 
-abstract class HistoryOrderBuildListStrategy {
-  HistoryOrderPresenter? presenter;
+class FactoryOrderItemFactory {
 
-  HistoryItem createCanCancelOrderWidget(OrderModel order) {
+  static HistoryItem createCanCancelOrderWidget(HistoryOrderPresenter? presenter, OrderModel order) {
     return HistoryItem(
       shopName: order.shopName!,
       isShop: presenter!.isShop,
@@ -17,13 +20,14 @@ abstract class HistoryOrderBuildListStrategy {
       price: order.itemModel!.price!,
       status: order.status!,
       address: order.address!.getFullAddress(),
-      onCancelOrder: (reason) {
-        presenter?.handleCancelOrder(order, reason);
-      },
+      onCancelOrder: CancelOrderCommand(
+        presenter: presenter,
+        model: order,
+      ),
     );
   }
 
-  HistoryItem createConfirmReceivedOrderWidget(OrderModel order) {
+  static HistoryItem createConfirmReceivedOrderWidget(HistoryOrderPresenter? presenter, OrderModel order) {
     return HistoryItem(
       shopName: order.shopName!,
       isShop: presenter!.isShop,
@@ -34,15 +38,16 @@ abstract class HistoryOrderBuildListStrategy {
       price: order.itemModel!.price!,
       status: order.status!,
       address: order.address!.getFullAddress(),
-      onReceivedOrder: () {
-        presenter?.handleAlreadyReceivedOrder(order);
-      },
+      onReceivedOrder: ReceivedOrderCommand(
+        presenter: presenter,
+        model: order,
+      ),
       presenter: presenter,
       order: order,
     );
   }
 
-  HistoryItem createNeedConfirmOrderWidget(OrderModel order) {
+  static HistoryItem createNeedConfirmOrderWidget(HistoryOrderPresenter? presenter, OrderModel order) {
     return HistoryItem(
       shopName: order.shopName!,
       isShop: presenter!.isShop,
@@ -53,16 +58,18 @@ abstract class HistoryOrderBuildListStrategy {
       price: order.itemModel!.price!,
       status: order.status!,
       address: order.address!.getFullAddress(),
-      onValidateOrder: () {
-        presenter?.handleConfirmOrder(order);
-      },
-      onCancelOrder: (reason) {
-        presenter?.handleCancelOrder(order, reason);
-      },
+      onValidateOrder: ValidateOrderCommand(
+        presenter: presenter,
+        model: order,
+      ),
+      onCancelOrder: CancelOrderCommand(
+        presenter: presenter,
+        model: order,
+      ),
     );
   }
 
-  HistoryItem createNormalOrderWidget(OrderModel order) {
+  static HistoryItem createNormalOrderWidget(HistoryOrderPresenter? presenter, OrderModel order) {
     return HistoryItem(
       shopName: order.shopName!,
       isShop: presenter!.isShop,
@@ -76,7 +83,7 @@ abstract class HistoryOrderBuildListStrategy {
     );
   }
 
-  HistoryItem createSentOrderWidget(OrderModel order) {
+  static HistoryItem createSentOrderWidget(HistoryOrderPresenter? presenter, OrderModel order) {
     return HistoryItem(
       shopName: order.shopName!,
       isShop: presenter!.isShop,
@@ -87,13 +94,13 @@ abstract class HistoryOrderBuildListStrategy {
       price: order.itemModel!.price!,
       status: order.status!,
       address: order.address!.getFullAddress(),
-      onSentOrder: () {
-        presenter!.handleSentOrder(order);
-      },
+      onSentOrder: SentOrderCommand(
+        presenter: presenter,
+        model: order,
+      ),
       presenter: presenter,
       order: order,
     );
   }
 
-  List<Widget> execute();
 }

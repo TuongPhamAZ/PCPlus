@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:gap/gap.dart';
-import 'package:pcplus/commands/command_interface.dart';
 import 'package:pcplus/services/utility.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
+
+import '../../../interfaces/command.dart';
 
 class ShopItem extends StatelessWidget {
   final String itemName;
@@ -15,9 +16,9 @@ class ShopItem extends StatelessWidget {
   final int price;
   final int sold;
   final int quantity;
-  final CommandInterface? deleteCommand;
-  final CommandInterface? editCommand;
-  final CommandInterface? pressedCommand;
+  final ICommand? deleteCommand;
+  final ICommand? editCommand;
+  final ICommand? pressedCommand;
   final bool isShop;
 
   const ShopItem({

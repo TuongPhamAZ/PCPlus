@@ -1,10 +1,12 @@
+import 'package:pcplus/models/items/item_with_seller.dart';
+
+import '../interfaces/command.dart';
 import '../objects/suggest_item_data.dart';
 import '../pages/home/shop_home/shop_home_presenter.dart';
-import 'command_interface.dart';
 
-class ShopHomeItemEditCommand implements CommandInterface {
+class ShopHomeItemEditCommand implements ICommand {
   final ShopHomePresenter presenter;
-  final ItemData item;
+  final ItemWithSeller item;
 
   ShopHomeItemEditCommand({
     required this.presenter,
@@ -17,9 +19,9 @@ class ShopHomeItemEditCommand implements CommandInterface {
   }
 }
 
-class ShopHomeItemDeleteCommand implements CommandInterface {
+class ShopHomeItemDeleteCommand implements ICommand {
   final ShopHomePresenter presenter;
-  final ItemData item;
+  final ItemWithSeller item;
 
   ShopHomeItemDeleteCommand({
     required this.presenter,
@@ -32,9 +34,9 @@ class ShopHomeItemDeleteCommand implements CommandInterface {
   }
 }
 
-class ShopHomeItemPressedCommand implements CommandInterface {
+class ShopHomeItemPressedCommand implements ICommand {
   final ShopHomePresenter presenter;
-  final ItemData item;
+  final ItemWithSeller item;
 
   ShopHomeItemPressedCommand({
     required this.presenter,

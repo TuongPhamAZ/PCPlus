@@ -101,6 +101,10 @@ abstract class Utility {
     }
     return true;
   }
+
+  static Duration calculateDuration(DateTime start, DateTime end) {
+    return end.difference(start);
+  }
 }
 
 abstract class TestData {

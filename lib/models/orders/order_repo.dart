@@ -62,6 +62,7 @@ class OrderRepository {
           .doc(userID)
           .collection(OrderModel.collectionName)
           .where('status', isEqualTo: status)
+          .orderBy('orderDate', descending: true)
           .get();
       final orders = querySnapshot
           .docs
@@ -71,6 +72,34 @@ class OrderRepository {
     } catch (e) {
       return [];
     }
+  }
+
+  Stream<List<OrderModel>> getAllOrdersFromUserStream(String userID) {
+    return _storage
+        .collection(UserModel.collectionName)
+        .doc(userID)
+        .collection(OrderModel.collectionName)
+        .orderBy('orderDate', descending: true)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs
+          .map((doc) => OrderModel.fromJson(doc.data()))
+          .toList();
+    });
+  }
+
+  Stream<List<OrderModel>> getAllOrdersFromUserByStatusStream(String userID, String status) {
+    return _storage
+        .collection(UserModel.collectionName)
+        .doc(userID)
+        .collection(OrderModel.collectionName)
+        .where('status', isEqualTo: status)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs
+          .map((doc) => OrderModel.fromJson(doc.data()))
+          .toList();
+    });
   }
 
   Future<String?> generateID() async {

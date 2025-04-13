@@ -91,6 +91,11 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
@@ -612,20 +617,21 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   @override
   void onLoadDataSucceeded() {
+    if (!mounted) return;
+
     setState(() {
       _userName = _presenter!.user!.name!;
       _userAvatarUrl = _presenter!.user!.avatarUrl!;
       _isLoading = false;
-      awaitDelivery = _presenter!.awaitDelivery;
-      awaitConfirm = _presenter!.awaitConfirm;
-      awaitPickUp = _presenter!.awaitPickup;
-      awaitRating = _presenter!.awaitRating;
     });
   }
 
   @override
   void onSignOut() {
-    Navigator.of(context).pushNamed(LoginScreen.routeName);
+    Navigator.of(context).pushNamedAndRemoveUntil(
+        LoginScreen.routeName,
+        (Route<dynamic> route) => false,
+    );
   }
 
   @override
@@ -636,5 +642,18 @@ class _ProfileScreenState extends State<ProfileScreen>
   @override
   void onWaitingProgressBar() {
     UtilWidgets.createLoadingWidget(context);
+  }
+
+  @override
+  void onUpdateOrdersCount() {
+    // TODO: implement onUpdateOrdersCount
+    if (!mounted) return;
+
+    setState(() {
+      awaitDelivery = _presenter!.awaitDelivery;
+      awaitConfirm = _presenter!.awaitConfirm;
+      awaitPickUp = _presenter!.awaitPickup;
+      awaitRating = _presenter!.awaitRating;
+    });
   }
 }

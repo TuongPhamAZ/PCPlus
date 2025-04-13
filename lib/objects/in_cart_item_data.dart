@@ -3,7 +3,7 @@ import 'package:pcplus/objects/data_object_interface.dart';
 
 import '../models/items/item_model.dart';
 
-class InCartItemData extends DataObjectInterface {
+class InCartItemData extends IDataObject {
   ItemModel? item;
   UserModel? shop;
   double rating = 0;

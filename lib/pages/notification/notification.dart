@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pcplus/commands/notification/notification_pressed_command.dart';
+import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/pages/notification/notification_screen_contract.dart';
 import 'package:pcplus/models/notification/notification_model.dart';
 import 'package:pcplus/pages/notification/notification_screen_presenter.dart';
@@ -29,7 +31,7 @@ class _NotificationScreenState extends State<NotificationScreen> implements Noti
   @override
   void initState() {
     _presenter = NotificationScreenPresenter(this);
-    isShop = UserSingleton.getInstance().isShop();
+    isShop = SessionController.getInstance().isShop();
     super.initState();
   }
 
@@ -61,34 +63,39 @@ class _NotificationScreenState extends State<NotificationScreen> implements Noti
           color: Colors.grey.withOpacity(0.0),
         ),
         child:
-          isLoading ?
-            UtilWidgets.getLoadingWidgetWithContainer(
-                width: size.width,
-                height: size.height * 0.8
-            )
-          :
-            _presenter!.notifications.isEmpty ?
-              UtilWidgets.getCenterTextWithContainer(
-                width: size.width,
-                height: size.height * 0.8,
-                text: "Nothing here",
-                color: Palette.primaryColor,
-                fontSize: 16
-              )
-              :
-              ListView.builder(
-                itemCount: _presenter!.notifications.length,
+        StreamBuilder<List<NotificationModel>>(
+            stream: _presenter!.notificationStream,
+            builder: (context, snapshot) {
+              Widget? result = UtilWidgets.createSnapshotResultWidget(context, snapshot);
+              if (result != null) {
+                return result;
+              }
+
+              final notifications = snapshot.data ?? [];
+
+              if (notifications.isEmpty) {
+                return const Center(child: Text('No data'));
+              }
+
+              return ListView.builder(
+                itemCount: notifications.length,
                 itemBuilder: (context, index) {
-                  NotificationModel model = _presenter!.notifications[index];
+                  NotificationModel model = notifications[index];
                   return ConfirmNoti(
                     title: model.title!,
                     image: model.productImage!,
                     date: model.date!,
                     content: model.content!,
                     isView: model.isRead!,
+                    onPressed: NotificationPressedCommand(
+                      presenter: _presenter!,
+                      model: model,
+                    ),
                   );
                 },
-              ),
+              );
+            }
+        ),
       ),
       bottomNavigationBar: isShop ? const ShopBottomBar(currentIndex: 2) : const BottomBarCustom(currentIndex: 2),
     );

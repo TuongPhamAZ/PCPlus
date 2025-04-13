@@ -14,8 +14,9 @@ class AddProductPresenter {
   final AddProductContract _view;
   AddProductPresenter(this._view);
 
-  final ShopSingleton _shopSingleton = ShopSingleton.getInstance();
+  // final ShopSingleton _shopSingleton = ShopSingleton.getInstance();
   final SessionController _sessionController = SessionController.getInstance();
+  final ItemRepository _itemRepo = ItemRepository();
 
   final ImageStorageService _imageStorageService = ImageStorageService();
 
@@ -64,7 +65,7 @@ class AddProductPresenter {
         rating: 0
     );
 
-    await _shopSingleton.addData(model);
+    await _itemRepo.addItemToFirestore(model);
     _view.onPopContext();
     _view.onAddSucceeded();
   }
