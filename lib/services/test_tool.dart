@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:pcplus/models/interactions/interaction_repo.dart';
 import 'package:pcplus/models/items/item_model.dart';
 import 'package:pcplus/models/items/item_repo.dart';
 import 'package:pcplus/models/users/user_model.dart';
@@ -10,6 +11,7 @@ import '../const/product_status.dart';
 import '../const/test_image.dart';
 import '../const/test_item_name.dart';
 import '../const/test_shop.dart';
+import '../models/interactions/interaction_model.dart';
 import '../models/ratings/rating_model.dart';
 import '../models/ratings/rating_repo.dart';
 
@@ -39,6 +41,17 @@ class TestTool {
         description: randomTool.generateRandomString(20),
         sold: randomTool.generateRandomNumber(100, 1000),
         rating: randomTool.generateRandomNumber(1, 5).toDouble()
+    );
+  }
+
+  InteractionModel createInteractionModel(String userID, String itemID) {
+    return InteractionModel(
+        userID: userID,
+        itemID: itemID,
+        clickTimes: randomTool.generateRandomNumber(1, 20),
+        buyTimes: randomTool.generateRandomNumber(1, 10),
+        rating: randomTool.generateRandomNumber(1, 5),
+        isFavor: randomTool.generateRandomNumber(0, 100) < 50 ? true : false,
     );
   }
 
@@ -100,6 +113,27 @@ class TestTool {
               date: randomTool.generateRandomDate(startDate, endDate),
             );
             ratingRepo.addRatingToFirestore(item.itemID!, rating);
+          }
+        }
+      });
+    });
+  }
+
+  void createRandomInteraction() {
+    final InteractionRepository interactionRepo = InteractionRepository();
+    final UserRepository userRepo = UserRepository();
+    final ItemRepository itemRepo = ItemRepository();
+
+    itemRepo.getAllItems().then((items) {
+      userRepo.getAllUsers().then((users) {
+        for (ItemModel item in items) {
+          for (UserModel user in users) {
+            if (user.isSeller!) continue;
+            if (randomTool.generateRandomNumber(0, 100) < 60) continue;
+
+            InteractionModel interactionModel = createInteractionModel(user.userID!, item.itemID!);
+
+            interactionRepo.addInteractionToFirestore(interactionModel);
           }
         }
       });

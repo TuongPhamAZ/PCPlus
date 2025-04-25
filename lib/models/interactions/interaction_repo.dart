@@ -35,7 +35,7 @@ class InteractionRepository {
         .get();
     final items = querySnapshot
         .docs
-        .map((doc) => InteractionModel.fromJson(doc as Map<String, dynamic>))
+        .map((doc) => InteractionModel.fromJson(doc.id, doc as Map<String, dynamic>))
         .toList();
     return items.first;
   }
@@ -45,7 +45,7 @@ class InteractionRepository {
         .where('userID', isEqualTo: id).get();
     final items = querySnapshot
         .docs
-        .map((doc) => InteractionModel.fromJson(doc as Map<String, dynamic>))
+        .map((doc) => InteractionModel.fromJson(doc.id, doc as Map<String, dynamic>))
         .toList();
     return items;
   }
@@ -55,7 +55,7 @@ class InteractionRepository {
         .where('itemID', isEqualTo: id).get();
     final items = querySnapshot
         .docs
-        .map((doc) => InteractionModel.fromJson(doc as Map<String, dynamic>))
+        .map((doc) => InteractionModel.fromJson(doc.id, doc as Map<String, dynamic>))
         .toList();
     int count = 0;
     for (InteractionModel item in items) {
@@ -70,7 +70,7 @@ class InteractionRepository {
           .where('itemID', isEqualTo: id).get();
       final items = querySnapshot
           .docs
-          .map((doc) => InteractionModel.fromJson(doc as Map<String, dynamic>))
+          .map((doc) => InteractionModel.fromJson(doc.id, doc as Map<String, dynamic>))
           .toList();
       if (items.isEmpty) {
         return 0;

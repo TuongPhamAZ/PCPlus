@@ -5,6 +5,7 @@ import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/models/users/user_model.dart';
 import 'package:pcplus/services/authentication_service.dart';
 import 'package:pcplus/services/pref_service.dart';
+import 'package:pcplus/services/random_tool.dart';
 import 'package:pcplus/services/test_tool.dart';
 import 'package:pcplus/singleton/user_singleton.dart';
 import 'package:pcplus/themes/palette/palette.dart';
