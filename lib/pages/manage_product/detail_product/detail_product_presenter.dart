@@ -3,6 +3,8 @@ import 'dart:collection';
 import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/models/in_cart_items/in_cart_item_model.dart';
 import 'package:pcplus/models/in_cart_items/in_cart_item_repo.dart';
+import 'package:pcplus/models/interactions/interaction_model.dart';
+import 'package:pcplus/models/interactions/interaction_repo.dart';
 import 'package:pcplus/models/items/item_repo.dart';
 import 'package:pcplus/models/items/item_with_seller.dart';
 import 'package:pcplus/models/ratings/rating_repo.dart';
@@ -23,11 +25,12 @@ class DetailProductPresenter {
 
   // final ViewItemSingleton _itemSingleton = ViewItemSingleton.getInstance();
   // final CartSingleton _cartSingleton = CartSingleton.getInstance();
-  final ShopSingleton _shopSingleton = ShopSingleton.getInstance();
   final RatingRepository _ratingRepo = RatingRepository();
   final ItemRepository _itemRepo = ItemRepository();
   final UserRepository _userRepo = UserRepository();
   final InCartItemRepo _inCartItemRepo = InCartItemRepo();
+  final InteractionRepository _interactionRepo = InteractionRepository();
+  final SessionController _sessionController = SessionController.getInstance();
 
   ItemWithSeller? itemWithSeller;
   List<RatingModel> ratings = [];
@@ -60,6 +63,12 @@ class DetailProductPresenter {
         rating: rating,
         user: users[rating.userID!]
       ));
+    }
+
+    if (!_sessionController.isSeller) {
+      InteractionModel interaction = await _sessionController.getInteractionModel(itemWithSeller!.item.itemID!);
+      interaction.clickTimes = interaction.clickTimes! + 1;
+      await _interactionRepo.updateInteraction(interaction);
     }
 
     _view.onLoadDataSucceeded();

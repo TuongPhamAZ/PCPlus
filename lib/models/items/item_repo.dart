@@ -139,7 +139,7 @@ class ItemRepository {
       List<String> subList = ids.sublist(i, i + 10 > ids.length ? ids.length : i + 10);
 
       Stream<List<ItemModel>> stream = FirebaseFirestore.instance
-          .collection('items')
+          .collection(ItemModel.collectionName)
           .where(FieldPath.documentId, whereIn: subList)
           .snapshots()
           .map((snapshot) => snapshot.docs
@@ -269,7 +269,7 @@ class ItemRepository {
       List<String> subList = ids.sublist(i, i + 10 > ids.length ? ids.length : i + 10);
 
       Stream<List<ItemModel>> stream = FirebaseFirestore.instance
-          .collection('items')
+          .collection(ItemModel.collectionName)
           .where(FieldPath.documentId, whereIn: subList)
           .snapshots()
           .map((snapshot) => snapshot.docs
@@ -279,14 +279,11 @@ class ItemRepository {
       streams.add(stream);
     }
 
-    return StreamGroup.merge<List<ItemModel>>(streams).asyncMap((listOfLists) async {
-      // Gộp tất cả ItemModel lại
-      final items = listOfLists.expand((x) => x as Iterable<ItemModel>).toList();
+    return StreamZip<List<ItemModel>>(streams).asyncMap((listOfLists) async {
+      final items = listOfLists.expand((x) => x).toList();
 
-      // Lấy danh sách sellerId
       final sellerIds = items.map((item) => item.sellerID).toSet();
 
-      // Lấy thông tin từng seller
       final sellers = await Future.wait(
         sellerIds.map((id) => UserRepository().getUserById(id!)),
       );
@@ -295,7 +292,6 @@ class ItemRepository {
         for (var s in sellers.where((e) => e != null)) s.userID!: s
       };
 
-      // Gắn seller vào từng item
       return items
           .map((item) => ItemWithSeller(
         item: item,

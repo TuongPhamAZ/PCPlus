@@ -53,6 +53,9 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _getUserData() async {
+    // TestTool testTool = TestTool();
+    // await testTool.calculateRating();
+
     UserModel? loggedUser = await PrefService.loadUserData();
     if (loggedUser == null) {
       return;

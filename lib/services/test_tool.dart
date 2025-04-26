@@ -151,4 +151,17 @@ class TestTool {
     // Chờ trong khoảng thời gian ngẫu nhiên
     await Future.delayed(Duration(milliseconds: randomMilliseconds));
   }
+
+  Future<void> calculateRating() async {
+    final ItemRepository itemRepo = ItemRepository();
+    final RatingRepository ratingRepo = RatingRepository();
+
+    List<ItemModel> items = await itemRepo.getAllItems();
+
+    for (ItemModel item in items) {
+      item.rating = await ratingRepo.getRatingValueByItemID(item.itemID!);
+
+      await itemRepo.updateItem(item);
+    }
+  }
 }

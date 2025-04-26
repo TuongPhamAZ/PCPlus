@@ -1,5 +1,6 @@
 import 'package:pcplus/builders/object_builders/list_item_data_builder.dart';
 import 'package:pcplus/builders/object_builders/list_object_builder_director.dart';
+import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/models/items/item_with_seller.dart';
 import 'package:pcplus/pages/home/user_home/home_contract.dart';
 import 'package:pcplus/controller/api_controller.dart';
@@ -37,37 +38,9 @@ class HomePresenter {
 
   Future<void> getData() async {
     newestItemStream = _itemRepo.getNewestItemsWithSellerStream(MAX_NEWEST_ITEMS);
-    recommendedItemStream = _itemRepo.getNewestItemsWithSellerStream(MAX_NEWEST_ITEMS);
 
-    // final ListItemDataBuilder builder = ListItemDataBuilder();
-    // final Map<String, UserModel> cacheShops = {};
-    // final ListObjectBuilderDirector director = ListObjectBuilderDirector();
-
-    // final TestTool testTool = TestTool();
-    // List<ItemModel> newestItemModels = await _itemRepo.getTopItems(MAX_NEWEST_ITEMS);
-    // // List<ItemModel> newestItemModels = testTool.getRandomItemModelList(10);
-    //
-    // await director.makeListItemData(
-    //     builder: builder,
-    //     items: newestItemModels,
-    //     shops: cacheShops
-    // );
-    // newestItems = builder.createList().cast<ItemData>();
-
-    // List<String> itemIds = await _apiController.callApiRecommend("5235448", MAX_RECOMMENDED_ITEMS);
-    // print(itemIds);
-    // for (String itemId in itemIds) {
-    //   recommendedItems.add(await _itemRepo.getItemById(itemId));
-    // }
-    // List<ItemModel> recommendItemModels = await _itemRepo.getRandomItems(20);
-    // await director.makeListItemData(
-    //     builder: builder,
-    //     items: recommendItemModels,
-    //     shops: cacheShops
-    // );
-    // recommendedItems = builder.createList().cast<ItemData>();
-
-
+    List<String> recommendedItemIds = await _apiController.callApiRecommend(SessionController.getInstance().userID!, MAX_RECOMMENDED_ITEMS);
+    recommendedItemStream = _itemRepo.getItemsWithSellerStreamByIdList(recommendedItemIds);
 
     _view.onLoadDataSucceed();
   }

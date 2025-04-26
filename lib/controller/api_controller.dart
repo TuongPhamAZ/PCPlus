@@ -62,9 +62,11 @@ class ApiController {
     try {
       Uri uri = Uri.parse("$baseUrl/recommend?uid=$userId&max=$amount");
       // print(uri);
-      final response = await http.post(uri);
+      final response = await http.get(uri);
       // print(response.body);
-      return jsonDecode(response.body);
+      Map<String, Object?> responseMap = jsonDecode(response.body);
+      List<String> itemIDs = (responseMap["products"] as List<dynamic>).map((e) => e.toString()).toList();
+      return itemIDs;
     } catch (e) {
       print(e);
     }
