@@ -100,15 +100,15 @@ class RatingRepository {
 
   Stream<List<RatingModel>> getUserRatingsStream(String userID) async* {
     final itemSnapshot = await FirebaseFirestore.instance
-        .collection('items')
+        .collection(ItemModel.collectionName)
         .get();
 
     // Tạo list stream từ mỗi subcollection 'ratings'
     List<Stream<List<RatingModel>>> streams = itemSnapshot.docs.map((itemDoc) {
       return FirebaseFirestore.instance
-          .collection('items')
+          .collection(ItemModel.collectionName)
           .doc(itemDoc.id)
-          .collection('ratings')
+          .collection(RatingModel.collectionName)
           .where('userID', isEqualTo: userID)
           .snapshots()
           .map((snapshot) => snapshot.docs

@@ -18,7 +18,7 @@ class RatingItemOnSubmitCommand implements ICommand {
 
   @override
   void execute() {
-    presenter.sendRating(model, rating!, comment);
+    // presenter.sendRating(model, rating!, comment);
   }
 
 }

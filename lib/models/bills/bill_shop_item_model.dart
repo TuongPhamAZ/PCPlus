@@ -1,9 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../../services/utility.dart';
-import '../items/color_model.dart';
-
-class OrderItemModel {
+class BillShopItemModel {
 
   String? itemID;
   String? name;
@@ -14,9 +11,11 @@ class OrderItemModel {
   DateTime? addDate;
   int? price;
   String? image;
-  ColorModel? color;
+  String? color;
+  int? amount;
+  int? totalCost;
 
-  OrderItemModel(
+  BillShopItemModel(
       {
         required this.itemID,
         required this.name,
@@ -28,6 +27,8 @@ class OrderItemModel {
         required this.price,
         this.image,
         required this.color,
+        required this.amount,
+        required this.totalCost,
       });
 
   Map<String, dynamic> toJson() => {
@@ -40,12 +41,14 @@ class OrderItemModel {
     'detail': detail,
     'price': price,
     'image': image,
-    'color': color
+    'color': color,
+    'amount': amount,
+    'totalCost': totalCost,
   };
 
-  static OrderItemModel fromJson(Map<String, dynamic> json) {
+  static BillShopItemModel fromJson(Map<String, dynamic> json) {
 
-    return OrderItemModel(
+    return BillShopItemModel(
       itemID: json['itemID'] as String,
       name: json['name'] as String,
       sellerID: json['sellerID'] as String,
@@ -55,11 +58,13 @@ class OrderItemModel {
       detail: json['detail'] as String,
       price: json['price'] as int,
       image: json['image'] as String,
-      color: ColorModel.fromJson(json['color']),
+      color: json['color'] as String,
+      amount: json['amount'] as int,
+      totalCost: json['totalCost'] as int,
     );
   }
 
-  bool isEqual(OrderItemModel model) {
+  bool isEqual(BillShopItemModel model) {
     return
       itemID == model.itemID
           && itemType == model.itemType
@@ -70,7 +75,8 @@ class OrderItemModel {
           && description == model.description
           && addDate?.compareTo(model.addDate!) == 0
           && image == model.image
-          && color == model.color;
+          && color == model.color
+          && amount == model.amount
+          && totalCost == model.totalCost;
   }
 }
-

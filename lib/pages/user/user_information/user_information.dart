@@ -12,7 +12,8 @@ import 'package:pcplus/themes/text_decor.dart';
 import 'package:pcplus/pages/home/user_home/home.dart';
 import 'package:pcplus/pages/home/shop_home/shop_home.dart';
 
-import '../../../singleton/user_singleton.dart';
+import '../../../controller/session_controller.dart';
+import '../../authentication/login/login.dart';
 import '../../widgets/profile/background_container.dart';
 import '../../widgets/profile/button_profile.dart';
 import '../../widgets/util_widgets.dart';
@@ -465,11 +466,10 @@ class _UserInformationState extends State<UserInformation>
 
   @override
   void onConfirmSucceeded() {
-    if (UserSingleton.getInstance().isShop()) {
-      Navigator.of(context).pushNamed(ShopHome.routeName);
-    } else {
-      Navigator.of(context).pushNamed(HomeScreen.routeName);
-    }
+    Navigator.of(context).pushNamedAndRemoveUntil(
+      SessionController.getInstance().isShop() ? LoginScreen.routeName : HomeScreen.routeName,
+          (Route<dynamic> route) => false,
+    );
   }
 
   @override

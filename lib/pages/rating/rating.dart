@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:pcplus/models/bills/bill_shop_item_model.dart';
 import 'package:pcplus/pages/rating/rating_contract.dart';
 import 'package:pcplus/pages/rating/rating_presenter.dart';
 import 'package:pcplus/services/utility.dart';
 
 import '../../commands/rating_item/rating_item_on_submit_command.dart';
+import '../../models/bills/bill_model.dart';
 import '../../models/orders/order_model.dart';
 import '../../themes/text_decor.dart';
 import '../widgets/listItem/rating_item.dart';
@@ -60,42 +62,47 @@ class _RatingScreenState extends State<RatingScreen> implements RatingScreenCont
           color: Colors.grey.withOpacity(0.5),
         ),
         child: SingleChildScrollView(
-          child:
-              StreamBuilder<List<OrderModel>>(
-                stream: _presenter!.orderStream,
-                builder: (context, snapshot) {
-                  Widget? result = UtilWidgets.createSnapshotResultWidget(context, snapshot);
-                  if (result != null) {
-                    return result;
-                  }
+          child: null
+            //   StreamBuilder<List<BillModel>>(
+            //     stream: _presenter!.billStream,
+            //     builder: (context, snapshot) {
+            //       Widget? result = UtilWidgets.createSnapshotResultWidget(context, snapshot);
+            //       if (result != null) {
+            //         return result;
+            //       }
+            //
+            //       final orders = snapshot.data ?? [];
+            //
+            //       if (orders.isEmpty) {
+            //         return const Center(child: Text('No data'));
+            //       }
+            //
+            //       List<BillShopItemModel> items = [];
+            //
+            //
+            //       return ListView.builder(
+            //           itemCount: items.length,
+            //           shrinkWrap: true,
+            //           physics: const NeverScrollableScrollPhysics(),
+            //           itemBuilder: (context, index) {
+            //             return RatingItem(
+            //                 shopName: orders[index].shopName!,
+            //                 productName: orders[index].itemModel!.name!,
+            //                 color: orders[index].itemModel!.color!.name!,
+            //                 image: orders[index].itemModel!.image!,
+            //                 dayRemain: 30 - Utility.calculateDuration(orders[index].orderDate!, DateTime.now()).inDays,
+            //                 buyAmount: orders[index].amount!,
+            //                 onSubmit: RatingItemOnSubmitCommand(
+            //                   presenter: _presenter!,
+            //                   model: orders[index]
+            //                 ),
+            //             );
+            //           },
+            //         );
+            //   },
+            // ),
 
-                  final orders = snapshot.data ?? [];
 
-                  if (orders.isEmpty) {
-                    return const Center(child: Text('No data'));
-                  }
-
-                  return ListView.builder(
-                      itemCount: orders.length,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        return RatingItem(
-                            shopName: orders[index].shopName!,
-                            productName: orders[index].itemModel!.name!,
-                            color: orders[index].itemModel!.color,
-                            image: orders[index].itemModel!.image!,
-                            dayRemain: 30 - Utility.calculateDuration(orders[index].orderDate!, DateTime.now()).inDays,
-                            buyAmount: orders[index].amount!,
-                            onSubmit: RatingItemOnSubmitCommand(
-                              presenter: _presenter!,
-                              model: orders[index]
-                            ),
-                        );
-                      },
-                    );
-              },
-            ),
         ),
       ),
     );

@@ -6,7 +6,6 @@ import 'package:pcplus/models/users/user_model.dart';
 import 'package:pcplus/services/authentication_service.dart';
 import 'package:pcplus/services/pref_service.dart';
 import 'package:pcplus/services/test_tool.dart';
-import 'package:pcplus/singleton/user_singleton.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/pages/home/user_home/home.dart';
 import 'package:pcplus/pages/authentication/login/login.dart';

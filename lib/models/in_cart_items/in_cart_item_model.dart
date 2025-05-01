@@ -1,10 +1,12 @@
 
+import '../items/color_model.dart';
+
 class InCartItemModel {
 
   String? key;
   String? itemID;
   int? amount;
-  String? color;
+  ColorModel? color;
   bool? isSelected;
   String? noteForShop = "";
   String? deliveryMethod = "";
@@ -40,7 +42,7 @@ class InCartItemModel {
       key: key,
       itemID: json['itemID'] as String,
       amount: json['amount'] as int,
-      color: json['color'] as String,
+      color: ColorModel.fromJson(json['color']),
       isSelected: json['isSelected'] as bool,
       noteForShop: (json['noteForShop'] ?? "") as String,
       deliveryMethod: (json['deliveryMethod'] ?? "") as String,

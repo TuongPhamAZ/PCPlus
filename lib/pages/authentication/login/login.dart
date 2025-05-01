@@ -8,13 +8,10 @@ import 'package:pcplus/themes/text_decor.dart';
 import 'package:gap/gap.dart';
 import 'package:pcplus/pages/authentication/forgot_password/forgot_password.dart';
 import 'package:pcplus/pages/authentication/register/register.dart';
-import 'package:pcplus/pages/home/shop_home/shop_home.dart';
-
 import '../../widgets/profile/button_profile.dart';
 import '../../widgets/profile/profile_input.dart';
 import '../../widgets/util_widgets.dart';
 import 'login_presenter.dart';
-import '../../../singleton/user_singleton.dart';
 import '../../home/user_home/home.dart';
 
 class LoginScreen extends StatefulWidget {

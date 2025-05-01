@@ -1,11 +1,11 @@
 import '../items/item_model.dart';
-import '../users/user_model.dart';
+import '../shops/shop_model.dart';
 import 'in_cart_item_model.dart';
 
 class ItemInCartWithSeller {
 
   ItemModel item;
-  UserModel seller;
+  ShopModel seller;
   InCartItemModel inCart;
 
   ItemInCartWithSeller({

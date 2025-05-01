@@ -15,7 +15,7 @@ class ShopItemFactory {
     return ShopItem(
       itemName: data.item.name!,
       imagePath: data.item.image!,
-      location: data.seller.getLocation(),
+      location: data.seller.location!,
       rating: data.item.rating!,
       price: data.item.price!,
       sold: data.item.sold!,

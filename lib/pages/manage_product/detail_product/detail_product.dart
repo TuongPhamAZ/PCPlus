@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:gap/gap.dart';
-import 'package:pcplus/builders/widget_builders/review_item_builder.dart';
-import 'package:pcplus/builders/widget_builders/widget_builder_director.dart';
 import 'package:pcplus/config/asset_helper.dart';
 import 'package:pcplus/const/navigator_arguments.dart';
 import 'package:pcplus/controller/session_controller.dart';
@@ -11,8 +9,6 @@ import 'package:pcplus/models/items/item_with_seller.dart';
 import 'package:pcplus/pages/manage_product/detail_product/detail_product_contract.dart';
 import 'package:pcplus/pages/manage_product/detail_product/detail_product_presenter.dart';
 import 'package:pcplus/services/utility.dart';
-import 'package:pcplus/singleton/user_singleton.dart';
-import 'package:pcplus/singleton/view_item_singleton.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 import 'package:pcplus/pages/bill/bill_product/bill_product.dart';
@@ -36,8 +32,6 @@ class _DetailProductState extends State<DetailProduct> implements DetailProductC
   bool isShop = false;
 
   bool isLoading = true;
-
-  final WidgetBuilderDirector director = WidgetBuilderDirector();
 
   final PageController _pageController = PageController();
   final ScrollController _scrollController = ScrollController();
@@ -587,9 +581,10 @@ class _DetailProductState extends State<DetailProduct> implements DetailProductC
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: reviews.length,
                       itemBuilder: (context, index) {
-                        ReviewItemBuilder builder = ReviewItemBuilder();
-                        director.makeReviewItem(builder: builder, data: reviews[index]);
-                        return builder.createWidget();
+                        return null;
+                        // ReviewItemBuilder builder = ReviewItemBuilder();
+                        // director.makeReviewItem(builder: builder, data: reviews[index]);
+                        // return builder.createWidget();
                       },
                     ),
                   const Gap(30),
@@ -1162,9 +1157,9 @@ class _DetailProductState extends State<DetailProduct> implements DetailProductC
       price = _presenter!.itemWithSeller!.item.price!;
       sold = _presenter!.itemWithSeller!.item.sold!;
       rating = _presenter!.itemWithSeller!.item.rating ?? 0;
-      shopName = _presenter!.itemWithSeller!.seller.getShopName();
-      location = _presenter!.itemWithSeller!.seller.getLocation();
-      shopAvatar = _presenter!.itemWithSeller!.seller.avatarUrl ?? "";
+      shopName = _presenter!.itemWithSeller!.seller.name!;
+      location = _presenter!.itemWithSeller!.seller.location!;
+      shopAvatar = _presenter!.itemWithSeller!.seller.image ?? "";
       productsCount = _presenter!.shopProductsCount;
       reviews = _presenter!.ratingsData;
       images = _presenter!.itemWithSeller!.item.reviewImages!;

@@ -14,7 +14,6 @@ class AuthenticationService {
   Future<void> signOut() async {
     try {
       await _auth.signOut();
-      await PrefService.clearUserData();
     } catch (e) {
       throw Exception("Sign out failed: $e");
     }

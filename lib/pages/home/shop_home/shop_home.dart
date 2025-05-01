@@ -12,9 +12,7 @@ import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 import 'package:pcplus/pages/manage_product/add_product/add_product.dart';
 import 'package:pcplus/pages/manage_product/detail_product/detail_product.dart';
-
-import '../../../builders/widget_builders/widget_builder_director.dart';
-import '../../../models/users/user_model.dart';
+import '../../../models/shops/shop_model.dart';
 import '../../manage_product/edit_product/edit_product.dart';
 import '../../widgets/bottom/shop_bottom_bar.dart';
 import '../../widgets/util_widgets.dart';
@@ -30,9 +28,8 @@ class ShopHome extends StatefulWidget {
 
 class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
   ShopHomePresenter? _presenter;
-  WidgetBuilderDirector director = WidgetBuilderDirector();
 
-  UserModel? shop;
+  ShopModel? shop;
 
   bool init = true;
   bool isShop = true;
@@ -251,10 +248,10 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
 
     setState(() {
       shop = _presenter!.seller;
-      avatarUrl = shop!.avatarUrl ?? "";
-      shopName = shop!.getShopName();
+      avatarUrl = shop!.image ?? "";
+      shopName = shop!.name!;
       shopPhone = shop!.phone!;
-      location = shop!.getLocation();
+      location = shop!.location!;
       isLoading = false;
     });
   }

@@ -19,7 +19,7 @@ class NotificationScreenPresenter {
   Future<void> getData() async {
     user = await PrefService.loadUserData();
 
-    isShop = user!.isSeller!;
+    isShop = user!.userType == UserType.SHOP;
     notificationStream = _notificationRepo.getAllNotificationsFromUserStream(user!.userID!);
 
     _view.onLoadDataSucceeded();

@@ -8,9 +8,6 @@ import 'package:pcplus/models/items/item_with_seller.dart';
 import 'package:pcplus/models/ratings/rating_repo.dart';
 import 'package:pcplus/models/users/user_repo.dart';
 import 'package:pcplus/pages/manage_product/detail_product/detail_product_contract.dart';
-import 'package:pcplus/singleton/cart_singleton.dart';
-import 'package:pcplus/singleton/shop_singleton.dart';
-import 'package:pcplus/singleton/view_item_singleton.dart';
 
 import '../../../models/items/item_model.dart';
 import '../../../models/ratings/rating_model.dart';
@@ -21,9 +18,6 @@ class DetailProductPresenter {
   final DetailProductContract _view;
   DetailProductPresenter(this._view);
 
-  // final ViewItemSingleton _itemSingleton = ViewItemSingleton.getInstance();
-  // final CartSingleton _cartSingleton = CartSingleton.getInstance();
-  final ShopSingleton _shopSingleton = ShopSingleton.getInstance();
   final RatingRepository _ratingRepo = RatingRepository();
   final ItemRepository _itemRepo = ItemRepository();
   final UserRepository _userRepo = UserRepository();
@@ -39,7 +33,7 @@ class DetailProductPresenter {
     ratings.clear();
     ratingsData.clear();
 
-    List<ItemModel> sellerProducts = await _itemRepo.getItemsBySeller(itemWithSeller!.seller.userID!);
+    List<ItemModel> sellerProducts = await _itemRepo.getItemsBySeller(itemWithSeller!.seller.shopID!);
     shopProductsCount = sellerProducts.length;
 
     ratings = await _ratingRepo.getAllRatingsByItemID(itemWithSeller!.item.itemID!);
@@ -74,7 +68,7 @@ class DetailProductPresenter {
     // _shopSingleton.changeShop(_itemSingleton.itemData!.shop!);
     // await _shopSingleton.initShopData();
     // _view.onPopContext();
-    _view.onViewShop(itemWithSeller!.seller.userID!);
+    _view.onViewShop(itemWithSeller!.seller.shopID!);
   }
 
   Future<void> handleAddToCart() async {

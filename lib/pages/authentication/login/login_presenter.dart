@@ -2,18 +2,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/services/authentication_service.dart';
 import 'package:pcplus/services/pref_service.dart';
-import 'package:pcplus/singleton/shop_singleton.dart';
 import 'login_contract.dart';
 import '../../../models/users/user_model.dart';
 import '../../../models/users/user_repo.dart';
-import '../../../singleton/user_singleton.dart';
 
 class LoginPresenter {
   final LoginViewContract _view;
   LoginPresenter(this._view);
   final AuthenticationService _authService = AuthenticationService();
   final UserRepository _userRepo = UserRepository();
-  final PrefService _prefService = PrefService();
   final SessionController _sessionController = SessionController.getInstance();
 
   Future<void> login(String email, String password) async {

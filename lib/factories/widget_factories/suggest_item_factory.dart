@@ -14,7 +14,7 @@ class SuggestItemFactory {
         description: itemWithSeller.item.description!,
         imagePath: itemWithSeller.item.image!,
         command: command,
-        location: itemWithSeller.seller.getLocation(),
+        location: itemWithSeller.seller.location!,
         rating: itemWithSeller.item.rating!,
         price: itemWithSeller.item.price!,
         sold: itemWithSeller.item.sold!

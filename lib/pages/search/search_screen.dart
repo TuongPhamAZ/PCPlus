@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:gap/gap.dart';
-import 'package:pcplus/builders/widget_builders/widget_builder_director.dart';
 import 'package:pcplus/commands/search_command.dart';
 import 'package:pcplus/component/item_argument.dart';
 import 'package:pcplus/const/item_filter.dart';
 import 'package:pcplus/factories/widget_factories/suggest_item_factory.dart';
 import 'package:pcplus/pages/search/search_screen_contract.dart';
 import 'package:pcplus/pages/search/search_screen_presenter.dart';
-import 'package:pcplus/singleton/search_singleton.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 
 import '../../models/items/item_with_seller.dart';
-import '../../objects/suggest_item_data.dart';
 import '../manage_product/detail_product/detail_product.dart';
 import '../widgets/util_widgets.dart';
 
@@ -26,7 +23,6 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> implements SearchScreenContract {
   SearchScreenPresenter? _presenter;
-  final WidgetBuilderDirector director = WidgetBuilderDirector();
 
   bool lienQuan = true;
   bool moiNhat = false;

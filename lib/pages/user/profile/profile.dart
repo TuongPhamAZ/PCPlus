@@ -18,7 +18,6 @@ import '../../widgets/bottom/bottom_bar_custom.dart';
 import '../../widgets/bottom/shop_bottom_bar.dart';
 import '../../widgets/profile/background_container.dart';
 import '../../widgets/util_widgets.dart';
-import '../../../singleton/user_singleton.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});

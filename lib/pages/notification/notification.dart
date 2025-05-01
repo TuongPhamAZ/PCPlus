@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pcplus/commands/notification/notification_pressed_command.dart';
 import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/pages/notification/notification_screen_contract.dart';
 import 'package:pcplus/models/notification/notification_model.dart';
 import 'package:pcplus/pages/notification/notification_screen_presenter.dart';
-import 'package:pcplus/singleton/user_singleton.dart';
-import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 import 'package:pcplus/pages/notification/confirm.dart';
 

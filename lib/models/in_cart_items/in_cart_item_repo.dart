@@ -2,8 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../items/item_model.dart';
+import '../shops/shop_model.dart';
+import '../shops/shop_repo.dart';
 import '../users/user_model.dart';
-import '../users/user_repo.dart';
 import 'in_cart_item_model.dart';
 import 'item_in_cart_with_seller.dart';
 
@@ -144,12 +145,12 @@ class InCartItemRepo {
           .toList();
 
       Set<String?> sellerIds = items.map((item) => item.sellerID).toSet();
-      List<UserModel> sellers = await Future.wait(
-        sellerIds.map((id) => UserRepository().getUserById(id!)),
+      List<ShopModel> sellers = await Future.wait(
+        sellerIds.map((id) => ShopRepository().getShopById(id!)),
       );
 
-      Map<String, UserModel> sellerMap = {
-        for (var seller in sellers.where((s) => s != null)) seller.userID!: seller
+      Map<String, ShopModel> sellerMap = {
+        for (var seller in sellers.where((s) => s != null)) seller.shopID!: seller
       };
 
       return {
@@ -163,7 +164,7 @@ class InCartItemRepo {
       itemStream,
           (List<InCartItemModel> cartItems, dynamic itemData) {
         List<ItemModel> items = itemData['items'];
-        Map<String, UserModel> sellerMap = itemData['sellerMap'];
+        Map<String, ShopModel> sellerMap = itemData['sellerMap'];
 
         Map<String, ItemModel> itemMap = {
           for (var item in items) item.itemID!: item
@@ -208,12 +209,12 @@ class InCartItemRepo {
           .toList();
 
       Set<String?> sellerIds = items.map((item) => item.sellerID).toSet();
-      List<UserModel> sellers = await Future.wait(
-        sellerIds.map((id) => UserRepository().getUserById(id!)),
+      List<ShopModel> sellers = await Future.wait(
+        sellerIds.map((id) => ShopRepository().getShopById(id!)),
       );
 
-      Map<String, UserModel> sellerMap = {
-        for (var seller in sellers.where((s) => s != null)) seller.userID!: seller
+      Map<String, ShopModel> sellerMap = {
+        for (var seller in sellers.where((s) => s != null)) seller.shopID!: seller
       };
 
       return {
@@ -227,7 +228,7 @@ class InCartItemRepo {
       itemStream,
           (List<InCartItemModel> cartItems, dynamic itemData) {
         List<ItemModel> items = itemData['items'];
-        Map<String, UserModel> sellerMap = itemData['sellerMap'];
+        Map<String, ShopModel> sellerMap = itemData['sellerMap'];
 
         Map<String, ItemModel> itemMap = {
           for (var item in items) item.itemID!: item
