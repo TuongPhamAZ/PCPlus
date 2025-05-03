@@ -12,8 +12,6 @@ import 'package:pcplus/themes/text_decor.dart';
 import 'package:pcplus/pages/home/user_home/home.dart';
 import 'package:pcplus/pages/home/shop_home/shop_home.dart';
 
-import '../../../controller/session_controller.dart';
-import '../../authentication/login/login.dart';
 import '../../widgets/profile/background_container.dart';
 import '../../widgets/profile/button_profile.dart';
 import '../../widgets/util_widgets.dart';
@@ -35,7 +33,7 @@ class _UserInformationState extends State<UserInformation>
   bool _isMale = true;
   bool _passwordVisible = false;
   bool _rePasswordVisible = false;
-  bool _isShopOwner = false;
+  bool _isShopOwner = true;
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _fullNameController = TextEditingController();
@@ -329,76 +327,9 @@ class _UserInformationState extends State<UserInformation>
                   ),
                 ),
               ),
-              Row(
-                children: [
-                  Checkbox(
-                    activeColor: Palette.main1,
-                    side: const BorderSide(
-                      width: 0.8,
-                    ),
-                    value: _isShopOwner,
-                    onChanged: (value) {
-                      setState(() {
-                        _isShopOwner = value!;
-                        print(_isShopOwner);
-                      });
-                    },
-                  ),
-                  Text(
-                    'I am a shop owner',
-                    style: TextDecor.robo16Medi.copyWith(color: Palette.main2),
-                  ),
-                ],
-              ),
-              Visibility(
-                visible: _isShopOwner,
-                child: BackgroundContainer(
-                  child: TextField(
-                    onTapOutside: (event) {
-                      FocusScope.of(context).unfocus();
-                    },
-                    controller: _shopNameController,
-                    style: TextDecor.robo16Medi,
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                      label: Text(
-                        'Shop Name',
-                        style: TextDecor.profileHintText,
-                      ),
-                      hintStyle: TextDecor.profileHintText,
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.all(0),
-                    ),
-                  ),
-                ),
-              ),
-              Visibility(
-                visible: _isShopOwner,
-                child: BackgroundContainer(
-                  child: TextField(
-                    onTapOutside: (event) {
-                      FocusScope.of(context).unfocus();
-                    },
-                    readOnly: true,
-                    onTap: _showLocationPicker,
-                    controller: _locationController,
-                    style: TextDecor.robo16Medi,
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                      label: Text(
-                        'Shop Address',
-                        style: TextDecor.profileHintText,
-                      ),
-                      hintStyle: TextDecor.profileHintText,
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.all(0),
-                    ),
-                  ),
-                ),
-              ),
               const Gap(20),
               ButtonProfile(
-                name: 'DONE',
+                name: _isShopOwner ? 'NEXT' : 'DONE',
                 onPressed: () {
                   _presenter!.handleConfirm(
                       name: _fullNameController.text.trim(),
@@ -466,10 +397,7 @@ class _UserInformationState extends State<UserInformation>
 
   @override
   void onConfirmSucceeded() {
-    Navigator.of(context).pushNamedAndRemoveUntil(
-      SessionController.getInstance().isShop() ? LoginScreen.routeName : HomeScreen.routeName,
-          (Route<dynamic> route) => false,
-    );
+    Navigator.of(context).pushNamed(ShopHome.routeName);
   }
 
   @override

@@ -94,17 +94,18 @@ class UserInformationPresenter {
         return;
       }
 
-      String avatarUrl = imagePath != null && imagePath.isNotEmpty ? imagePath : "";
+      String avatarUrl =
+          imagePath != null && imagePath.isNotEmpty ? imagePath : "";
 
       UserModel user = UserModel(
-          userID: userCredential.user!.uid,
-          name: name,
-          email: email,
-          phone: phone,
-          dateOfBirth: birthDate,
-          gender: isMale ? "male" : "female",
-          userType: UserType.USER,
-          avatarUrl: avatarUrl,
+        userID: userCredential.user!.uid,
+        name: name,
+        email: email,
+        phone: phone,
+        dateOfBirth: birthDate,
+        gender: isMale ? "male" : "female",
+        userType: UserType.USER,
+        avatarUrl: avatarUrl,
       );
 
       //await _apiController.callApiAddUserData(user);
