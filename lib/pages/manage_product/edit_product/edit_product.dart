@@ -5,7 +5,6 @@ import 'package:gap/gap.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pcplus/pages/manage_product/edit_product/edit_product_contract.dart';
 import 'package:pcplus/pages/manage_product/edit_product/edit_product_presenter.dart';
-import 'package:pcplus/singleton/shop_singleton.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 import 'package:pcplus/objects/image_data.dart';
@@ -26,8 +25,6 @@ class _EditProductState extends State<EditProduct> implements EditProductContrac
   List<ImageData> _images = [];
   final ImagePicker _picker = ImagePicker();
 
-  final ShopSingleton _shopSingleton = ShopSingleton.getInstance();
-
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _detailController = TextEditingController();
@@ -37,19 +34,19 @@ class _EditProductState extends State<EditProduct> implements EditProductContrac
   @override
   void initState() {
     _presenter = EditProductPresenter(this);
-    ItemModel itemModel = _shopSingleton.editedItem!.product!;
-    _nameController.text = itemModel.name!;
-    _detailController.text = itemModel.detail!;
-    _descriptionController.text = itemModel.description!;
-    _priceController.text = itemModel.price.toString();
-    _amountController.text = itemModel.stock.toString();
-    for (String url in itemModel.reviewImages!) {
-      ImageData imageData = ImageData(
-          path: url,
-          isNew: false
-      );
-      _images.add(imageData);
-    }
+    // ItemModel itemModel = _shopSingleton.editedItem!.product!;
+    // _nameController.text = itemModel.name!;
+    // _detailController.text = itemModel.detail!;
+    // _descriptionController.text = itemModel.description!;
+    // _priceController.text = itemModel.price.toString();
+    // _amountController.text = itemModel.stock.toString();
+    // for (String url in itemModel.reviewImages!) {
+    //   ImageData imageData = ImageData(
+    //       path: url,
+    //       isNew: false
+    //   );
+    //   _images.add(imageData);
+    // }
 
     super.initState();
   }

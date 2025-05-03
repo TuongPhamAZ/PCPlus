@@ -137,11 +137,11 @@ class _CartShoppingScreenState extends State<CartShoppingScreen> implements Cart
                           ItemInCartWithSeller itemData = itemsWithSeller[index];
 
                           return CartItem(
-                            shopName: itemData.seller.getShopName(),
+                            shopName: itemData.seller.name!,
                             itemName: itemData.item.name!,
                             description: itemData.item.description!,
                             rating: itemData.item.rating!,
-                            location: itemData.seller.getLocation(),
+                            location: itemData.seller.location!,
                             imageUrl: itemData.item.image!,
                             onChanged: (value) => _toggleItemChecked(itemData.inCart, value),
                             isCheck: itemData.inCart.isSelected!,

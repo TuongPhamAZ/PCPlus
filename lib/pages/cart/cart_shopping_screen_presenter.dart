@@ -3,7 +3,6 @@ import 'package:pcplus/models/in_cart_items/in_cart_item_model.dart';
 import 'package:pcplus/models/in_cart_items/in_cart_item_repo.dart';
 import 'package:pcplus/models/in_cart_items/item_in_cart_with_seller.dart';
 import 'package:pcplus/pages/cart/cart_shopping_screen_contract.dart';
-import 'package:pcplus/singleton/view_item_singleton.dart';
 import '../../services/utility.dart';
 
 class CartShoppingScreenPresenter {

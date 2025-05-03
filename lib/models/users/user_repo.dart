@@ -4,7 +4,7 @@ import 'package:pcplus/models/users/user_model.dart';
 class UserRepository {
   final FirebaseFirestore _storage = FirebaseFirestore.instance;
 
-  void addUserToFirestore(UserModel user) async {
+  Future<void> addUserToFirestore(UserModel user) async {
     try {
       DocumentReference docRef = _storage.collection(UserModel.collectionName).doc(user.userID);
       await docRef.set(user.toJson()).whenComplete(()

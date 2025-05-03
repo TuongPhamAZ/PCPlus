@@ -4,7 +4,6 @@ import 'package:gap/gap.dart';
 import 'package:pcplus/config/asset_helper.dart';
 import 'package:pcplus/pages/user/change_password/change_password_contract.dart';
 import 'package:pcplus/pages/user/change_password/change_password_presenter.dart';
-import 'package:pcplus/singleton/user_singleton.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 
@@ -25,7 +24,6 @@ class ChangePasswordScreen extends StatefulWidget {
 
 class _ChangePasswordScreenState extends State<ChangePasswordScreen> implements ChangePasswordContract {
   ChangePasswordPresenter? _presenter;
-  final UserSingleton _userSingleton = UserSingleton.getInstance();
   UserModel? user;
   String _userAvatarUrl = "";
 

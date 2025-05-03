@@ -1,10 +1,10 @@
 import 'package:pcplus/models/items/item_model.dart';
 
-import '../users/user_model.dart';
+import '../shops/shop_model.dart';
 
 class ItemWithSeller {
   ItemModel item;
-  UserModel seller;
+  ShopModel seller;
 
   ItemWithSeller({
     required this.item,

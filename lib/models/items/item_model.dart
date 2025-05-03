@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pcplus/models/orders/order_item_model.dart';
 
 import '../../services/utility.dart';
+import '../bills/bill_shop_item_model.dart';
+import 'color_model.dart';
 
 class ItemModel {
 
@@ -18,7 +20,7 @@ class ItemModel {
   double? rating;
   String? status;
   List<String>? reviewImages = [];
-  List<String>? colors = [];
+  List<ColorModel>? colors = [];
 
   static String collectionName = 'Items';
 
@@ -55,13 +57,14 @@ class ItemModel {
     'sold': sold,
     'status': status,
     'reviewImages': reviewImages,
-    'colors': colors,
+    'colors': (colors ?? []).map((color) => color.toJson()).toList(),
     'rating': rating
   };
 
   static ItemModel fromJson(String key, Map<String, dynamic> json) {
     final reviewImagesData = json['reviewImages'] as List?;
-    final colorsData = json['colors'] as List?;
+    final dataColors = json['colors'] as List?;
+    final listColors = List.castFrom<Object?, Map<String, Object?>>(dataColors!);
 
     return ItemModel(
       itemID: key,
@@ -76,7 +79,7 @@ class ItemModel {
       sold: json['sold'] as int,
       status: json['status'] as String,
       reviewImages: List.castFrom(reviewImagesData!),
-      colors: List.castFrom(colorsData!),
+      colors: listColors.map((raw) => ColorModel.fromJson(raw)).toList(),
       rating: (json['rating'] ?? 0.0) as double
     );
   }
@@ -118,12 +121,12 @@ class ItemModel {
         && description == model.description
         && addDate?.compareTo(model.addDate!) == 0
         && status == model.status
-        && Utility.listStringIsEqual(reviewImages, model.reviewImages)
-        && Utility.listStringIsEqual(colors, model.colors);
+        && Utility.listStringIsEqual(reviewImages, model.reviewImages);
+        // && Utility.listStringIsEqual(colors, model.colors);
   }
 
   OrderItemModel toOrderItemModel({
-    required String color
+    required ColorModel color
   }) {
     return OrderItemModel(
       itemID: itemID,
@@ -136,6 +139,26 @@ class ItemModel {
       description: description,
       image: image,
       detail: detail
+    );
+  }
+
+  BillShopItemModel toBillShopItemModel({
+    required int colorIndex,
+    required int amount,
+  }) {
+    return BillShopItemModel(
+        itemID: itemID,
+        name: name,
+        itemType: itemType,
+        sellerID: sellerID,
+        addDate: addDate,
+        price: price,
+        color: colors![colorIndex].name,
+        description: description,
+        image: image,
+        detail: detail,
+        amount: amount,
+        totalCost: price! * amount,
     );
   }
 }

@@ -35,7 +35,7 @@ class TestTool {
         status: ProductStatus.BUYABLE,
         detail: randomTool.generateRandomString(40),
         reviewImages: testImages,
-        colors: testColor,
+        colors: [],
         description: randomTool.generateRandomString(20),
         sold: randomTool.generateRandomNumber(100, 1000),
         rating: randomTool.generateRandomNumber(1, 5).toDouble()
@@ -68,11 +68,10 @@ class TestTool {
       dateOfBirth: randomTool.generateRandomDate(DateTime(1970, 1, 1),
           DateTime.now().subtract(Duration(days: 365 * 18))),
       gender: 'male',
-      isSeller: false,
+      userType: UserType.SHOP,
       avatarUrl:
           "https://product.hstatic.net/200000722513/product/b3ver24z_39c09f4db42b4078ac82013a19385b21_grande.png",
       money: randomTool.generateRandomNumber(100, 1000),
-      shopInfo: {},
     );
   }
 
@@ -98,6 +97,8 @@ class TestTool {
               rating: randomTool.generateRandomNumber(1, 5).toDouble(),
               comment: randomTool.generateRandomText(18, true),
               date: randomTool.generateRandomDate(startDate, endDate),
+              like: [],
+              dislike: [],
             );
             ratingRepo.addRatingToFirestore(item.itemID!, rating);
           }

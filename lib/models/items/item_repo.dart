@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pcplus/models/items/item_model.dart';
 import 'package:async/async.dart';
-import 'package:pcplus/models/users/user_repo.dart';
 
-import '../users/user_model.dart';
+import '../shops/shop_model.dart';
+import '../shops/shop_repo.dart';
 import 'item_with_seller.dart';
 
 class ItemRepository {
@@ -194,16 +194,16 @@ class ItemRepository {
       // Lấy danh sách các sellerID (loại bỏ trùng)
       Set<String?> sellerIds = items.map((item) => item.sellerID).toSet();
 
-      // Truy vấn tất cả UserModel cùng lúc
-      List<UserModel> sellers = await Future.wait(
+      // Truy vấn tất cả ShopModel cùng lúc
+      List<ShopModel> sellers = await Future.wait(
         sellerIds.map((id) async {
-          return UserRepository().getUserById(id!);
+          return ShopRepository().getShopById(id!);
         }),
       );
 
       // Tạo Map sellerId -> UserModel để tra cứu nhanh
-      Map<String, UserModel> sellerMap = {
-        for (var seller in sellers.where((s) => s != null)) seller.userID!: seller
+      Map<String, ShopModel> sellerMap = {
+        for (var seller in sellers.where((s) => s != null)) seller.shopID!: seller
       };
 
       // Ghép dữ liệu UserModel vào ItemModel
@@ -240,15 +240,15 @@ class ItemRepository {
       Set<String?> sellerIds = items.map((item) => item.sellerID).toSet();
 
       // Truy vấn tất cả UserModel cùng lúc
-      List<UserModel> sellers = await Future.wait(
+      List<ShopModel> sellers = await Future.wait(
         sellerIds.map((id) async {
-          return UserRepository().getUserById(id!);
+          return ShopRepository().getShopById(id!);
         }),
       );
 
       // Tạo Map sellerId -> UserModel để tra cứu nhanh
-      Map<String, UserModel> sellerMap = {
-        for (var seller in sellers.where((s) => s != null)) seller.userID!: seller
+      Map<String, ShopModel> sellerMap = {
+        for (var seller in sellers.where((s) => s != null)) seller.shopID!: seller
       };
 
       // Ghép dữ liệu UserModel vào ItemModel
@@ -288,11 +288,11 @@ class ItemRepository {
 
       // Lấy thông tin từng seller
       final sellers = await Future.wait(
-        sellerIds.map((id) => UserRepository().getUserById(id!)),
+        sellerIds.map((id) => ShopRepository().getShopById(id!)),
       );
 
       final sellerMap = {
-        for (var s in sellers.where((e) => e != null)) s.userID!: s
+        for (var s in sellers.where((e) => e != null)) s.shopID!: s
       };
 
       // Gắn seller vào từng item
@@ -321,15 +321,15 @@ class ItemRepository {
       Set<String?> sellerIds = items.map((item) => item.sellerID).toSet();
 
       // Truy vấn tất cả UserModel cùng lúc
-      List<UserModel> sellers = await Future.wait(
+      List<ShopModel> sellers = await Future.wait(
         sellerIds.map((id) async {
-          return UserRepository().getUserById(id!);
+          return ShopRepository().getShopById(id!);
         }),
       );
 
       // Tạo Map sellerId -> UserModel để tra cứu nhanh
-      Map<String, UserModel> sellerMap = {
-        for (var seller in sellers.where((s) => s != null)) seller.userID!: seller
+      Map<String, ShopModel> sellerMap = {
+        for (var seller in sellers.where((s) => s != null)) seller.shopID!: seller
       };
 
       // Ghép dữ liệu UserModel vào ItemModel

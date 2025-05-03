@@ -1,0 +1,219 @@
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:pcplus/config/asset_helper.dart';
+import 'package:pcplus/const/shop_location.dart';
+import 'package:pcplus/pages/home/shop_home/shop_home.dart';
+import 'package:pcplus/pages/shop_information/shop_information_contract.dart';
+import 'package:pcplus/pages/shop_information/shop_information_presenter.dart';
+import 'package:pcplus/pages/widgets/profile/background_container.dart';
+import 'package:pcplus/pages/widgets/profile/button_profile.dart';
+import 'package:pcplus/pages/widgets/util_widgets.dart';
+import 'package:pcplus/themes/text_decor.dart';
+
+class ShopInformationScreen extends StatefulWidget {
+  const ShopInformationScreen({super.key});
+  static const String routeName = 'shop_information_screen';
+
+  @override
+  State<ShopInformationScreen> createState() => _ShopInformationScreenState();
+}
+
+class _ShopInformationScreenState extends State<ShopInformationScreen>
+    implements ShopInformationContract {
+  ShopInformationPresenter? _presenter;
+  String _imageFile = "";
+
+  final TextEditingController _phoneNumberController = TextEditingController();
+  final TextEditingController _shopNameController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
+  List<String> locations = [];
+
+  @override
+  void initState() {
+    _presenter = ShopInformationPresenter(this);
+    super.initState();
+  }
+
+  void selectImageFromGallery() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? pickedImage =
+        await picker.pickImage(source: ImageSource.gallery);
+    if (pickedImage != null) {
+      _presenter!.pickedImage = pickedImage;
+      setState(() {
+        _imageFile = pickedImage.path;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: Container(
+          color: Colors.white,
+          width: size.width,
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Gap(30),
+              Text(
+                'SHOP INFORMATION',
+                style: TextDecor.profileTitle,
+              ),
+              const Gap(10),
+              Stack(
+                children: [
+                  GestureDetector(
+                    onTap: selectImageFromGallery,
+                    child: Container(
+                      width: 92.0,
+                      height: 92.0,
+                      decoration: _imageFile.isEmpty
+                          ? const BoxDecoration(
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                image: AssetImage(AssetHelper.shopAvt),
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                          : BoxDecoration(
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                image: FileImage(File(_imageFile)),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: -12.0,
+                    right: -12.0,
+                    child: IconButton(
+                      onPressed: selectImageFromGallery,
+                      icon: const Icon(Icons.camera_alt),
+                      color: const Color.fromARGB(255, 244, 54, 212),
+                    ),
+                  ),
+                ],
+              ),
+              const Gap(30),
+              BackgroundContainer(
+                child: TextField(
+                  onTapOutside: (event) {
+                    FocusScope.of(context).unfocus();
+                  },
+                  style: TextDecor.robo16Medi,
+                  controller: _shopNameController,
+                  keyboardType: TextInputType.text,
+                  decoration: InputDecoration(
+                    label: Text(
+                      'Shop Name',
+                      style: TextDecor.profileHintText,
+                    ),
+                    hintStyle: TextDecor.profileHintText,
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.all(0),
+                  ),
+                ),
+              ),
+              BackgroundContainer(
+                child: TextField(
+                  onTapOutside: (event) {
+                    FocusScope.of(context).unfocus();
+                  },
+                  readOnly: true,
+                  onTap: _showLocationPicker,
+                  controller: _locationController,
+                  style: TextDecor.robo16Medi,
+                  keyboardType: TextInputType.text,
+                  decoration: InputDecoration(
+                    label: Text(
+                      'Shop Address',
+                      style: TextDecor.profileHintText,
+                    ),
+                    hintStyle: TextDecor.profileHintText,
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.all(0),
+                  ),
+                ),
+              ),
+              BackgroundContainer(
+                child: TextField(
+                  onTapOutside: (event) {
+                    FocusScope.of(context).unfocus();
+                  },
+                  controller: _phoneNumberController,
+                  style: TextDecor.robo16Medi,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    label: Text(
+                      'Phone Number',
+                      style: TextDecor.profileHintText,
+                    ),
+                    hintStyle: TextDecor.profileHintText,
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.all(0),
+                  ),
+                ),
+              ),
+              const Gap(30),
+              ButtonProfile(
+                name: 'DONE',
+                onPressed: () {},
+              ),
+              const Gap(30),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showLocationPicker() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return ListView(
+          children: LOCATIONS.map((location) {
+            return ListTile(
+              title: Text(location),
+              onTap: () {
+                setState(() {
+                  _locationController.text = location;
+                });
+                Navigator.pop(context);
+              },
+            );
+          }).toList(),
+        );
+      },
+    );
+  }
+
+  @override
+  void onConfirmFailed(String message) {
+    UtilWidgets.createSnackBar(context, message);
+  }
+
+  @override
+  void onConfirmSucceeded() {
+    Navigator.of(context).pushNamed(ShopHome.routeName);
+  }
+
+  @override
+  void onPopContext() {
+    Navigator.of(context, rootNavigator: true).pop();
+  }
+
+  @override
+  void onWaitingProgressBar() {
+    UtilWidgets.createLoadingWidget(context);
+  }
+}

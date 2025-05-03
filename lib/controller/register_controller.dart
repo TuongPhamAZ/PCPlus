@@ -1,4 +1,6 @@
-import 'package:pcplus/builders/model_builders/user_builder.dart';
+
+import '../models/shops/shop_model.dart';
+import '../models/users/user_model.dart';
 
 class RegisterController {
   static RegisterController? _registerController;
@@ -10,13 +12,12 @@ class RegisterController {
   RegisterController();
 
   String? email;
-  final UserBuilder _builder = UserBuilder();
+  UserModel? user;
+  ShopModel? shop;
 
   void reset() {
-    _builder.reset();
-  }
-
-  UserBuilder getBuilder() {
-    return _builder;
+    user = null;
+    shop = null;
+    email = null;
   }
 }

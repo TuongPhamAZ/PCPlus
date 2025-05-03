@@ -91,7 +91,7 @@ class BillProductPresenter {
     UserModel? user = await PrefService.loadUserData();
 
     for (ItemInCartWithSeller data in onPaymentItems!) {
-      String shopId = data.seller.userID!;
+      String shopId = data.seller.shopID!;
 
       OrderModel newOrder = OrderModel(
           orderID: await orderRepository.generateID(),

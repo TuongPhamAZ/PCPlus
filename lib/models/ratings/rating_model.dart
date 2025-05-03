@@ -8,6 +8,9 @@ class RatingModel {
   double? rating;
   DateTime? date;
   String? comment;
+  List<String>? like;
+  List<String>? dislike;
+  String? response;
 
   static String collectionName = 'Ratings';
 
@@ -18,6 +21,9 @@ class RatingModel {
     required this.rating,
     required this.date,
     this.comment,
+    required this.like,
+    required this.dislike,
+    this.response,
   });
 
   Map<String, dynamic> toJson() => {
@@ -25,10 +31,18 @@ class RatingModel {
     'itemID': itemID,
     'rating': rating,
     'comment': comment,
-    'date': date
+    'date': date,
+    'like': (like ?? []).toList(),
+    'dislike': (dislike ?? []).toString(),
+    'response': response,
   };
 
   static RatingModel fromJson(String key, Map<String, dynamic> json) {
+    final dataLikes = json['like'] as List?;
+    final listLikes = List.castFrom<Object?, Map<String, Object?>>(dataLikes!);
+    final dataDislikes = json['dislike'] as List?;
+    final listDislikes = List.castFrom<Object?, Map<String, Object?>>(dataDislikes!);
+
     return RatingModel(
         key: key,
         userID: json['userID'] as String,
@@ -36,6 +50,9 @@ class RatingModel {
         rating: json['rating'] as double,
         comment: json['comment'] as String,
         date: (json['date'] as Timestamp).toDate(),
+        like: listLikes.map((raw) => raw as String).toList(),
+        dislike: listDislikes.map((raw) => raw as String).toList(),
+        response: json['response'] as String
     );
   }
 }

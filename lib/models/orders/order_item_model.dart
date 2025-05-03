@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../services/utility.dart';
+import '../items/color_model.dart';
 
 class OrderItemModel {
 
@@ -13,7 +14,7 @@ class OrderItemModel {
   DateTime? addDate;
   int? price;
   String? image;
-  String color;
+  ColorModel? color;
 
   OrderItemModel(
       {
@@ -54,7 +55,7 @@ class OrderItemModel {
       detail: json['detail'] as String,
       price: json['price'] as int,
       image: json['image'] as String,
-      color: json['color'] as String,
+      color: ColorModel.fromJson(json['color']),
     );
   }
 

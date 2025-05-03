@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:gap/gap.dart';
-import 'package:pcplus/builders/widget_builders/widget_builder_director.dart';
 import 'package:pcplus/commands/home_command.dart';
 import 'package:pcplus/component/item_argument.dart';
 import 'package:pcplus/config/asset_helper.dart';
@@ -28,7 +27,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> implements HomeContract {
   HomePresenter? _presenter;
-  WidgetBuilderDirector director = WidgetBuilderDirector();
   bool isShop = false;
   bool isLoading = true;
   bool isFirstLoad = true;

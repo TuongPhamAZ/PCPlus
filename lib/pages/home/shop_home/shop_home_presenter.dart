@@ -1,29 +1,22 @@
 import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/models/items/item_repo.dart';
-import 'package:pcplus/models/users/user_repo.dart';
+import 'package:pcplus/models/shops/shop_repo.dart';
 import 'package:pcplus/pages/home/shop_home/shop_home_contract.dart';
 import 'package:pcplus/services/pref_service.dart';
-import '../../../models/items/item_model.dart';
 import '../../../models/items/item_with_seller.dart';
-import '../../../models/users/user_model.dart';
-import '../../../objects/suggest_item_data.dart';
+import '../../../models/shops/shop_model.dart';
 
 class ShopHomePresenter {
   final ShopHomeContract _view;
-  ShopHomePresenter(this._view) {
-    // _shopSingleton.subscribe(this);
-  }
-
-  // final ShopSingleton _shopSingleton = ShopSingleton.getInstance();
-  // final ViewItemSingleton _itemSingleton = ViewItemSingleton.getInstance();
-  // final UserSingleton _userSingleton = UserSingleton.getInstance();
+  ShopHomePresenter(this._view);
 
   final SessionController _sessionController = SessionController.getInstance();
   final ItemRepository _itemRepo = ItemRepository();
-  final UserRepository _userRepo = UserRepository();
+  // final UserRepository _userRepo = UserRepository();
+  final ShopRepository _shopRepo = ShopRepository();
 
   String? userId;
-  UserModel? seller;
+  ShopModel? seller;
 
   // List<ItemModel> itemModels = [];
   // List<ItemData> itemsData = [];
@@ -42,16 +35,13 @@ class ShopHomePresenter {
 
     if (_sessionController.isShop()) {
       userId = _sessionController.userID;
-      seller = await PrefService.loadUserData();
+      seller = await PrefService.loadShopData();
     }
     else {
-      seller = await _userRepo.getUserById(userId!);
+      seller = await _shopRepo.getShopById(userId!);
     }
 
     userItemsStream = _itemRepo.getItemsWithSellerStreamBySellerID(userId!);
-
-    // itemModels = _shopSingleton.itemModels;
-    // itemsData = _shopSingleton.itemsData;
 
     _view.onLoadDataSucceeded();
   }

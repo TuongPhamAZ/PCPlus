@@ -1,4 +1,6 @@
 
+import 'package:pcplus/services/pref_service.dart';
+
 import '../models/users/user_model.dart';
 
 class SessionController {
@@ -17,11 +19,12 @@ class SessionController {
     userID = user.userID;
     firstEnter = true;
 
-    isSeller = user.isSeller!;
+    isSeller = user.userType == UserType.SHOP;
   }
 
   Future<void> signOut() async {
-
+    await PrefService.clearUserData();
+    await PrefService.clearShopData();
   }
 
   bool isShop() {

@@ -5,8 +5,6 @@ import 'package:pcplus/pages/manage_product/add_product/add_product_contract.dar
 import 'package:pcplus/models/items/item_model.dart';
 import 'package:pcplus/models/items/item_repo.dart';
 import 'package:pcplus/services/image_storage_service.dart';
-import 'package:pcplus/singleton/shop_singleton.dart';
-import 'package:pcplus/singleton/user_singleton.dart';
 
 import '../../../const/product_status.dart';
 
@@ -14,7 +12,6 @@ class AddProductPresenter {
   final AddProductContract _view;
   AddProductPresenter(this._view);
 
-  // final ShopSingleton _shopSingleton = ShopSingleton.getInstance();
   final SessionController _sessionController = SessionController.getInstance();
   final ItemRepository _itemRepo = ItemRepository();
 
@@ -61,7 +58,7 @@ class AddProductPresenter {
         detail: detail,
         description: description,
         sold: 0,
-        colors: ["black, grey, white"],
+        colors: [],
         rating: 0
     );
 

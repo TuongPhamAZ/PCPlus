@@ -1,6 +1,7 @@
 import 'package:pcplus/models/in_cart_items/in_cart_item_model.dart';
 import 'package:pcplus/models/orders/order_address_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/shops/shop_model.dart';
 import '../models/users/user_model.dart';
 
 class PrefService {
@@ -17,13 +18,9 @@ class PrefService {
     prefs.setString('gender', userData.gender!);
     prefs.setString('dateOfBirth', userData.dateOfBirth!.toString());
     prefs.setString('phone', userData.phone!.toString());
-    prefs.setBool('isSeller', userData.isSeller!);
+    prefs.setString('userType', userData.userType!);
     prefs.setString('avatarUrl', userData.avatarUrl!);
     prefs.setInt('money', userData.money!);
-    if (userData.isSeller!) {
-      prefs.setString('location', userData.getLocation());
-      prefs.setString('shopName', userData.getShopName());
-    }
   }
 
   static Future<void> clearUserData() async {
@@ -50,15 +47,46 @@ class PrefService {
       phone: prefs.getString('phone'),
       gender: prefs.getString('gender'),
       dateOfBirth: DateTime.parse(prefs.getString('dateOfBirth')!),
-      isSeller: prefs.getBool('isSeller'),
+      userType: prefs.getString('userType'),
       avatarUrl: prefs.getString('avatarUrl'),
-      money: prefs.getInt('money')
+      money: prefs.getInt('money'),
     );
 
-    if (model.isSeller!) {
-      model.setLocation(prefs.getString('location')!);
-      model.setShopName(prefs.getString('shopName')!);
-    }
+    return model;
+  }
+
+  static Future<void> saveShopData({required ShopModel shopData}) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    prefs.setString('shopID', shopData.shopID!);
+    prefs.setString('shopName', shopData.name!);
+    prefs.setString('shopLocation', shopData.location!);
+    prefs.setDouble('shopRating', shopData.rating!);
+    prefs.setString('shopImage', shopData.image!);
+    prefs.setString('shopPhone', shopData.phone!);
+  }
+
+  static Future<void> clearShopData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('shopID');
+    await prefs.remove('shopName');
+    await prefs.remove('shopLocation');
+    await prefs.remove('shopRating');
+    await prefs.remove('shopImage');
+    await prefs.remove('shopPhone');
+  }
+
+  static Future<ShopModel?> loadShopData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    ShopModel model = ShopModel(
+      shopID: prefs.getString('shopID'),
+      name: prefs.getString('shopName'),
+      location: prefs.getString('shopLocation'),
+      phone: prefs.getString('phone'),
+      rating: prefs.getDouble('shopRating'),
+      image: prefs.getString('shopImage'),
+    );
 
     return model;
   }

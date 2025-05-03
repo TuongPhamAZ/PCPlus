@@ -11,7 +11,7 @@ class NewItemFactory {
         itemName: itemWithSeller.item.name!,
         imagePath: itemWithSeller.item.image!,
         command: command,
-        location: itemWithSeller.seller.getLocation(),
+        location: itemWithSeller.seller.location!,
         rating: itemWithSeller.item.rating!,
         price: itemWithSeller.item.price!,
         sold: itemWithSeller.item.sold!

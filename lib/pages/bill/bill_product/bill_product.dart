@@ -232,7 +232,7 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
 
                       return PaymentProductItem(
                         productName: data.item.name!,
-                        shopName: data.seller.getShopName(),
+                        shopName: data.seller.name!,
                         price: data.item.price!,
                         amount: data.inCart.amount!,
                         imageUrl: data.item.image!,

@@ -1,22 +1,13 @@
-import 'package:pcplus/builders/object_builders/list_item_data_builder.dart';
-import 'package:pcplus/builders/object_builders/list_object_builder_director.dart';
 import 'package:pcplus/const/item_filter.dart';
 import 'package:pcplus/models/items/item_with_seller.dart';
 import 'package:pcplus/pages/search/search_screen_contract.dart';
 import 'package:pcplus/models/items/item_repo.dart';
-import 'package:pcplus/objects/suggest_item_data.dart';
-import 'package:pcplus/services/test_tool.dart';
-import 'package:pcplus/singleton/view_item_singleton.dart';
-
-import '../../models/items/item_model.dart';
-import '../../models/users/user_model.dart';
 
 class SearchScreenPresenter {
   final SearchScreenContract _view;
   SearchScreenPresenter(this._view);
 
   final ItemRepository _itemRepo = ItemRepository();
-  final ListItemDataBuilder builder = ListItemDataBuilder();
 
   Stream<List<ItemWithSeller>>? searchItemStream;
 
