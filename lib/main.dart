@@ -6,6 +6,7 @@ import 'package:pcplus/firebase_options.dart';
 import 'package:pcplus/route.dart';
 import 'package:pcplus/pages/splash/splash.dart';
 import 'package:pcplus/sample/comment.dart';
+import 'package:pcplus/sample/voice_search.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,7 +28,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const SampleComment(),
+      home: const VoiceSearchSample(),
       routes: routes,
       debugShowCheckedModeBanner: false,
     );

@@ -432,6 +432,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.0.6"
+  fuzzy:
+    dependency: "direct main"
+    description:
+      name: fuzzy
+      sha256: af5fbd36f2f8de0663a5b562ef5ca209aea957e81a2f0e97f97475cfbed044ec
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.1"
   gap:
     dependency: "direct main"
     description:
@@ -648,6 +656,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.7"
+  json_annotation:
+    dependency: transitive
+    description:
+      name: json_annotation
+      sha256: "1ce844379ca14835a50d2f019a3099f419082cfdd231cd86a142af94dd5c6bb1"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.9.0"
   keyboard_dismisser:
     dependency: "direct main"
     description:
@@ -832,6 +848,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.11.1"
+  pedantic:
+    dependency: transitive
+    description:
+      name: pedantic
+      sha256: "67fc27ed9639506c856c840ccce7594d0bdcd91bc8d53d6e52359449a1d50602"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.11.1"
   permission_handler:
     dependency: "direct main"
     description:
@@ -1013,6 +1037,38 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.10.0"
+  speech_to_text:
+    dependency: "direct main"
+    description:
+      name: speech_to_text
+      sha256: "57fef1d41bdebe298e84842c89bb4ac91f31cdbec7830c8cb1fc6b91d03abd42"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.6.0"
+  speech_to_text_google_dialog:
+    dependency: "direct main"
+    description:
+      name: speech_to_text_google_dialog
+      sha256: f156aaf3b39416161310fb27a33a4e4da1b4bfeecd643635f28d5cac405a00da
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.6"
+  speech_to_text_macos:
+    dependency: transitive
+    description:
+      name: speech_to_text_macos
+      sha256: e685750f7542fcaa087a5396ee471e727ec648bf681f4da83c84d086322173f6
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
+  speech_to_text_platform_interface:
+    dependency: transitive
+    description:
+      name: speech_to_text_platform_interface
+      sha256: a1935847704e41ee468aad83181ddd2423d0833abe55d769c59afca07adb5114
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.3.0"
   sprintf:
     dependency: transitive
     description:
@@ -1053,6 +1109,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
+  stringr:
+    dependency: transitive
+    description:
+      name: stringr
+      sha256: "2846b6811c3cbb34c8937a35e623986e3fbf7203b3bb33ffe7f80e496ea3eff2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   syncfusion_flutter_core:
     dependency: transitive
     description:

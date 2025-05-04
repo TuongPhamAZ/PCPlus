@@ -25,6 +25,7 @@ import 'package:pcplus/pages/splash/splash.dart';
 import 'package:pcplus/pages/statistic/statistic.dart';
 import 'package:pcplus/pages/user/user_information/user_information.dart';
 import 'package:pcplus/sample/comment.dart';
+import 'package:pcplus/sample/voice_search.dart';
 
 final Map<String, WidgetBuilder> routes = {
   SplashScreen.routeName: (context) => const SplashScreen(),
@@ -52,4 +53,5 @@ final Map<String, WidgetBuilder> routes = {
   AddProduct.routeName: (context) => const AddProduct(),
   EditProduct.routeName: (context) => const EditProduct(),
   SampleComment.routeName: (context) => const SampleComment(),
+  VoiceSearchSample.routeName: (context) => const VoiceSearchSample(),
 };
