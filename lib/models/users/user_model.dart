@@ -13,6 +13,7 @@ class UserModel {
   String? userType;
   String? avatarUrl;
   ShipInformationModel? shipInformationModel;
+  List<String>? fcm;
   int? money = 0;
   // Map<String, Object?>? shopInfo = {};
 
@@ -31,6 +32,7 @@ class UserModel {
       this.shipInformationModel,
       this.avatarUrl,
       this.money,
+      this.fcm,
       // this.shopInfo
   });
 
@@ -45,11 +47,13 @@ class UserModel {
         'avatarUrl': avatarUrl,
         'shipInformation' : shipInformationModel,
         'money': money,
+        'fcm': (fcm ?? []).map((key) => key).toList(),
         // 'shopInfo': jsonEncode(shopInfo)
       };
 
   static UserModel fromJson(Map<String, dynamic> json) {
-    // final shopInfo = jsonDecode(json['shopInfo']) as Map<String, Object?>?;
+    final dataFcm = json['fcm'] as List?;
+    final listFcm = List.castFrom<Object?, Map<String, Object?>>(dataFcm!);
 
     return UserModel(
         userID: json['userID'] as String,
@@ -62,32 +66,10 @@ class UserModel {
         avatarUrl: json['avatarUrl'] as String,
         shipInformationModel: ShipInformationModel.fromJson(json['shipInformation']),
         money: json['money'] as int,
+        fcm: listFcm.map((raw) => raw as String).toList()
         // shopInfo: shopInfo
     );
   }
-
-  // void setLocation(String location) {
-  //   shopInfo ??= {};
-  //   shopInfo![ShopInfo.LOCATION] = location;
-  // }
-  //
-  // String getLocation() {
-  //   return shopInfo![ShopInfo.LOCATION] as String;
-  // }
-  //
-  // void setShopName(String shopName) {
-  //   shopInfo ??= {};
-  //   shopInfo![ShopInfo.SHOP_NAME] = shopName;
-  // }
-  //
-  // String getShopName() {
-  //   return shopInfo![ShopInfo.SHOP_NAME] as String;
-  // }
-}
-
-abstract class ShopInfo {
-  static const LOCATION = "location";
-  static const SHOP_NAME = "shopName";
 }
 
 abstract class UserType {

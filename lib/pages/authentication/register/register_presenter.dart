@@ -1,4 +1,3 @@
-import 'package:pcplus/controller/register_controller.dart';
 import 'package:pcplus/services/authentication_service.dart';
 import 'package:string_validator/string_validator.dart';
 
@@ -7,7 +6,6 @@ import 'register_contract.dart';
 class RegisterPresenter {
   final RegisterViewContract? _view;
   final AuthenticationService _authService = AuthenticationService();
-  final RegisterController _registerController = RegisterController.getInstance();
   RegisterPresenter(this._view);
 
   String? validateEmail(String? email) {
@@ -30,8 +28,7 @@ class RegisterPresenter {
     if (result == true) {
       _view?.onEmailAlreadyInUse();
     } else if (result == false) {
-      _registerController.email = email;
-      _view?.onRegisterSucceeded();
+      _view?.onRegisterSucceeded(email);
     } else if (result == null) {
       _view?.onRegisterFailed();
     }

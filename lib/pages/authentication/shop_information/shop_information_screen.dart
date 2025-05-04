@@ -3,11 +3,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:pcplus/component/register_component.dart';
 import 'package:pcplus/config/asset_helper.dart';
 import 'package:pcplus/const/shop_location.dart';
+import 'package:pcplus/pages/authentication/shop_information/shop_information_contract.dart';
+import 'package:pcplus/pages/authentication/shop_information/shop_information_presenter.dart';
 import 'package:pcplus/pages/home/shop_home/shop_home.dart';
-import 'package:pcplus/pages/shop_information/shop_information_contract.dart';
-import 'package:pcplus/pages/shop_information/shop_information_presenter.dart';
 import 'package:pcplus/pages/widgets/profile/background_container.dart';
 import 'package:pcplus/pages/widgets/profile/button_profile.dart';
 import 'package:pcplus/pages/widgets/util_widgets.dart';
@@ -24,17 +25,30 @@ class ShopInformationScreen extends StatefulWidget {
 class _ShopInformationScreenState extends State<ShopInformationScreen>
     implements ShopInformationContract {
   ShopInformationPresenter? _presenter;
+
+  RegisterArgument? args;
+
   String _imageFile = "";
 
   final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _shopNameController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
-  List<String> locations = [];
+  List<String> locations = LOCATIONS;
 
   @override
   void initState() {
     _presenter = ShopInformationPresenter(this);
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    args = ModalRoute.of(context)!.settings.arguments as RegisterArgument;
+
+    _presenter?.userModel = args?.userModel;
+    _presenter?.password = args?.password;
   }
 
   void selectImageFromGallery() async {
@@ -166,7 +180,13 @@ class _ShopInformationScreenState extends State<ShopInformationScreen>
               const Gap(30),
               ButtonProfile(
                 name: 'DONE',
-                onPressed: () {},
+                onPressed: () {
+                  _presenter?.handleConfirm(
+                      name: _shopNameController.text.trim(),
+                      location: _locationController.text.trim(),
+                      phone: _phoneNumberController.text.trim(),
+                  );
+                },
               ),
               const Gap(30),
             ],

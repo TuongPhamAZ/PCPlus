@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:pcplus/component/register_component.dart';
 import 'package:pcplus/config/asset_helper.dart';
 import 'package:pcplus/pages/authentication/account_type/account_type_contract.dart';
 import 'package:pcplus/pages/authentication/account_type/account_type_presenter.dart';
@@ -7,6 +8,10 @@ import 'package:pcplus/pages/widgets/profile/button_profile.dart';
 import 'package:pcplus/pages/widgets/util_widgets.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
+
+import '../../../models/users/user_model.dart';
+import '../shop_information/shop_information_screen.dart';
+import '../user_information/user_information.dart';
 
 class AccountTypeScreen extends StatefulWidget {
   const AccountTypeScreen({super.key});
@@ -19,6 +24,22 @@ class AccountTypeScreen extends StatefulWidget {
 class _AccountTypeScreenState extends State<AccountTypeScreen>
     implements AccountTypeContract {
   AccountTypePresenter? _accountTypePresenter;
+
+  RegisterArgument? args;
+
+  @override
+  void initState() {
+    _accountTypePresenter = AccountTypePresenter(this);
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    args = ModalRoute.of(context)!.settings.arguments as RegisterArgument;
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -51,7 +72,9 @@ class _AccountTypeScreenState extends State<AccountTypeScreen>
                     borderRadius: BorderRadius.circular(15),
                   ),
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  _accountTypePresenter?.onSelectAccountType(UserType.SHOP);
+                },
                 child: Text(
                   "SHOP OWNER",
                   style:
@@ -69,7 +92,9 @@ class _AccountTypeScreenState extends State<AccountTypeScreen>
                     borderRadius: BorderRadius.circular(15),
                   ),
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  _accountTypePresenter?.onSelectAccountType(UserType.USER);
+                },
                 child: Text(
                   "CUSTOMER",
                   style:
@@ -92,5 +117,12 @@ class _AccountTypeScreenState extends State<AccountTypeScreen>
   @override
   void onPopContext() {
     Navigator.of(context, rootNavigator: true).pop();
+  }
+
+  @override
+  void onSelectUserType(String userType) {
+    // TODO: implement onSelectUserType
+    args?.userType = userType;
+    Navigator.of(context).pushNamed(UserInformation.routeName);
   }
 }

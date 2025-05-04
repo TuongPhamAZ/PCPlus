@@ -93,8 +93,7 @@ class _LoginScreenState extends State<LoginScreen> implements LoginViewContract 
                     ),
                     InkWell(
                       onTap: () {
-                        Navigator.of(context)
-                            .pushNamed(RegisterScreen.routeName);
+                        onRegister();
                       },
                       child: Text(
                         'Register',
@@ -125,6 +124,10 @@ class _LoginScreenState extends State<LoginScreen> implements LoginViewContract 
         ),
       ),
     );
+  }
+
+  void onRegister() {
+    Navigator.of(context).pushNamed(RegisterScreen.routeName);
   }
 
   @override

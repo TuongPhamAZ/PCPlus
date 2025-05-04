@@ -7,7 +7,8 @@ import 'otp_contract.dart';
 
 class OtpPresenter {
   final OtpViewContract? _view;
-  OtpPresenter(this._view, this.email);
+  OtpPresenter(this._view);
+
   String pinCode = "";
   String? email = "";
 
