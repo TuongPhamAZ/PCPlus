@@ -55,12 +55,17 @@ class UserModel {
     final dataFcm = json['fcm'] as List?;
     final listFcm = List.castFrom<Object?, Map<String, Object?>>(dataFcm!);
 
+    DateTime? dateTime;
+    if (json['dateOfBirth'] is Timestamp == false) {
+      dateTime = DateTime.parse(json['dateOfBirth']);
+    }
+
     return UserModel(
         userID: json['userID'] as String,
         name: json['name'] as String,
         email: json['email'] as String,
         phone: json['phone'] as String,
-        dateOfBirth: (json['dateOfBirth'] as Timestamp).toDate(),
+        dateOfBirth: dateTime ?? (json['dateOfBirth'] as Timestamp).toDate(),
         gender: json['gender'] as String,
         userType: json['userType'] as String,
         avatarUrl: json['avatarUrl'] as String,

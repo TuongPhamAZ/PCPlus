@@ -1,0 +1,42 @@
+[
+  {
+    "shopID": "yrrqggZETt8KVcemuEKT",
+    "name": "An Phát Computer",
+    "location": "TP. Hồ Chí Minh",
+    "phone": "0926095770",
+    "rating": 0.0,
+    "image": "https://images.pexels.com/photos/31869843/pexels-photo-31869843.jpeg"
+  },
+  {
+    "shopID": "N0eK0YGWrrareRRqP0OF",
+    "name": "Bình Minh Tech",
+    "location": "TP. Hồ Chí Minh",
+    "phone": "0912123816",
+    "rating": 0.0,
+    "image": "https://images.pexels.com/photos/31869847/pexels-photo-31869847.jpeg"
+  },
+  {
+    "shopID": "wtaFnEgQtt2uBEWSMQPT",
+    "name": "Cường PC",
+    "location": "TP. Hồ Chí Minh",
+    "phone": "0986983403",
+    "rating": 0.0,
+    "image": "https://images.pexels.com/photos/2588757/pexels-photo-2588757.jpeg"
+  },
+  {
+    "shopID": "BECQs2vftJLLRU1kuGep",
+    "name": "Duyên Electronics",
+    "location": "TP. Hồ Chí Minh",
+    "phone": "0994496295",
+    "rating": 0.0,
+    "image": "https://images.pexels.com/photos/2582932/pexels-photo-2582932.jpeg"
+  },
+  {
+    "shopID": "oNQR4vq9kPqCgyHZ59z9",
+    "name": "Vương Digital",
+    "location": "TP. Hồ Chí Minh",
+    "phone": "0929088331",
+    "rating": 0.0,
+    "image": "https://images.pexels.com/photos/270572/pexels-photo-270572.jpeg"
+  }
+]

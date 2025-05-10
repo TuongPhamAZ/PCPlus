@@ -20,7 +20,10 @@ class ShipInformationModel {
     'isDefault': isDefault,
   };
 
-  static ShipInformationModel fromJson(Map<String, dynamic> json) {
+  static ShipInformationModel? fromJson(Map<String, dynamic>? json) {
+    if (json == null) {
+      return null;
+    }
 
     return ShipInformationModel(
       receiverName: json['receiverName'] as String,

@@ -1,7 +1,10 @@
+import 'dart:convert';
 import 'dart:math';
 
+import 'package:flutter/services.dart';
 import 'package:pcplus/models/items/item_model.dart';
 import 'package:pcplus/models/items/item_repo.dart';
+import 'package:pcplus/models/shops/shop_repo.dart';
 import 'package:pcplus/models/users/user_model.dart';
 import 'package:pcplus/models/users/user_repo.dart';
 import 'package:pcplus/services/random_tool.dart';
@@ -12,12 +15,13 @@ import '../const/test_item_name.dart';
 import '../const/test_shop.dart';
 import '../models/ratings/rating_model.dart';
 import '../models/ratings/rating_repo.dart';
+import '../models/shops/shop_model.dart';
 
 class TestTool {
   final RandomTool randomTool = RandomTool();
 
   final startDate = DateTime(2020, 1, 1);
-  final endDate = DateTime(2024, 12, 31);
+  final endDate = DateTime(2025, 7, 5);
 
   List<String> testColor = ["Black", "Grey", "White"];
 
@@ -59,7 +63,7 @@ class TestTool {
     }
   }
 
-  UserModel getUserModel() {
+  UserModel getUserModel(String userType) {
     return UserModel(
       userID: randomTool.generateRandomString(20),
       name: randomTool.generateRandomText(10, true),
@@ -67,19 +71,19 @@ class TestTool {
       phone: randomTool.generateRandomPhoneNumber(),
       dateOfBirth: randomTool.generateRandomDate(DateTime(1970, 1, 1),
           DateTime.now().subtract(Duration(days: 365 * 18))),
-      gender: 'male',
-      userType: UserType.SHOP,
+      gender: randomTool.generateRandomNumber(0, 100) < 50 ? 'male' : 'female',
+      userType: userType,
       avatarUrl:
           "https://product.hstatic.net/200000722513/product/b3ver24z_39c09f4db42b4078ac82013a19385b21_grande.png",
       money: randomTool.generateRandomNumber(100, 1000),
     );
   }
 
-  void createRandomUserToFirestore(int length) {
+  Future<void> createRandomUserToFirestore(int length, String userType) async {
     final UserRepository userRepository = UserRepository();
 
     for (int i = 0; i < length; i++) {
-      userRepository.addUserToFirestore(getUserModel());
+      await userRepository.addUserToFirestore(getUserModel(userType));
     }
   }
 
@@ -105,6 +109,43 @@ class TestTool {
         }
       });
     });
+  }
+
+  Future<void> createSampleItems() async {
+    final String jsonString = await rootBundle.loadString('lib/sample/test_samples/item_cleaned.json');
+    final List<dynamic> jsonList = jsonDecode(jsonString);
+    final List<ItemModel> items = jsonList.map((raw) => ItemModel.fromJson("", raw)).toList();
+
+    final ItemRepository itemRepo = ItemRepository();
+
+    for (ItemModel item in items) {
+      item.addDate = randomTool.generateRandomDate(startDate, endDate);
+      item.detail = item.description;
+      await waitRandomDuration(500, 600);
+      await itemRepo.addItemToFirestore(item);
+    }
+    print('Done!');
+  }
+
+  Future<void> createSampleSellers() async {
+    final String jsonStringSellers = await rootBundle.loadString('lib/sample/test_samples/user_seller.json');
+    final List<dynamic> jsonSellersList = jsonDecode(jsonStringSellers);
+    final List<UserModel> sellers = jsonSellersList.map((raw) => UserModel.fromJson(raw)).toList();
+
+    final String jsonStringShops = await rootBundle.loadString('lib/sample/test_samples/shop.json');
+    final List<dynamic> jsonShopsList = jsonDecode(jsonStringShops);
+    final List<ShopModel> shops = jsonShopsList.map((raw) => ShopModel.fromJson(raw)).toList();
+
+    final UserRepository userRepository = UserRepository();
+    final ShopRepository shopRepository = ShopRepository();
+
+    for (UserModel seller in sellers) {
+      await userRepository.addUserToFirestore(seller);
+    }
+
+    for (ShopModel shop in shops) {
+      await shopRepository.addShopToFirestore(shop);
+    }
   }
 
   Future<void> waitRandomDuration(

@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:get/get.dart';
+import 'package:pcplus/const/tax_rate.dart';
 import 'package:pcplus/models/bills/bill_of_shop_model.dart';
 import 'package:pcplus/models/bills/bill_shop_model.dart';
 import 'package:pcplus/models/users/ship_infor_model.dart';
@@ -72,6 +74,10 @@ class BillModel {
       return null;
     }
 
+    int vat = (totalPrice! * TaxRate.vat).round();
+    int pit = (totalPrice! * TaxRate.pit).round();
+    int commissionFee = (totalPrice! * TaxRate.commissionFee).round();
+
     return BillOfShopModel(
         billID: billID,
         userID: userID,
@@ -80,7 +86,11 @@ class BillModel {
         status: status,
         shipInformation: shipInformation,
         paymentType: paymentType,
-        totalPrice: totalPrice
+        totalPrice: totalPrice,
+        vat: vat,
+        pit: pit,
+        commissionFee: commissionFee,
+        payout: totalPrice! - vat - pit - commissionFee,
     );
   }
 

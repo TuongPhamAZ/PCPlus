@@ -23,7 +23,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   google_fonts: ^6.2.1
   font_awesome_icon_class: ^0.0.6
-  fl_chart: ^0.71.0
+  fl_chart: ^0.68.0
   gap: ^3.0.1
   get: ^4.6.6
   iconly: ^1.0.1
@@ -73,6 +73,7 @@ flutter:
   assets:
   #  - assets/icons/
     - assets/images/
+    - lib/sample/test_samples/
   #  - assets/fonts/
  # fonts:
   #  - family: Lexend

@@ -13,6 +13,10 @@ class BillOfShopModel {
   ShipInformationModel? shipInformation;
   String? paymentType;
   int? totalPrice;
+  int? vat;
+  int? pit;
+  int? commissionFee;
+  int? payout;
   // VoucherModel? voucher;
 
   static String collectionName = 'Bills';
@@ -27,7 +31,10 @@ class BillOfShopModel {
         required this.shipInformation,
         required this.paymentType,
         required this.totalPrice,
-
+        required this.vat,
+        required this.pit,
+        required this.commissionFee,
+        required this.payout,
       });
 
   Map<String, dynamic> toJson() => {
@@ -38,6 +45,10 @@ class BillOfShopModel {
     'shipInformation': shipInformation,
     'paymentType': paymentType,
     'totalPrice': totalPrice,
+    'vat': vat,
+    'pit': pit,
+    'commissionFee': commissionFee,
+    'payout': payout,
   };
 
   static BillOfShopModel fromJson(String id, Map<String, dynamic> json) {
@@ -53,6 +64,10 @@ class BillOfShopModel {
       shipInformation: ShipInformationModel.fromJson(json['shipInformation']),
       paymentType: json['paymentType'] as String,
       totalPrice:  json['totalPrice'] as int,
+      vat: json['vat'] as int,
+      pit: json['pit'] as int,
+      commissionFee: json['commissionFee'] as int,
+      payout: json['payout'] as int,
     );
   }
 

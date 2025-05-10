@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pcplus/models/orders/order_item_model.dart';
 
@@ -71,12 +73,12 @@ class ItemModel {
       name: json['name'] as String,
       sellerID: json['sellerID'] as String,
       itemType: json['itemType'] as String,
-      addDate: (json['addDate'] as Timestamp).toDate(),
+      addDate: ((json['addDate'] ?? Timestamp.now()) as Timestamp).toDate(),
       description: json['description'] as String,
-      detail: json['detail'] as String,
+      detail: (json['detail'] ?? "") as String,
       price: json['price'] as int,
       stock: json['stock'] as int,
-      sold: json['sold'] as int,
+      sold: (json['sold'] ?? 0) as int,
       status: json['status'] as String,
       reviewImages: List.castFrom(reviewImagesData!),
       colors: listColors.map((raw) => ColorModel.fromJson(raw)).toList(),
