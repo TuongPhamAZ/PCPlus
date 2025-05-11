@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../users/ship_infor_model.dart';
+import '../vouchers/voucher_model.dart';
 import 'bill_shop_item_model.dart';
 
 class BillOfShopModel {
@@ -17,7 +18,7 @@ class BillOfShopModel {
   int? pit;
   int? commissionFee;
   int? payout;
-  // VoucherModel? voucher;
+  VoucherModel? voucher;
 
   static String collectionName = 'Bills';
 
@@ -33,6 +34,7 @@ class BillOfShopModel {
         required this.totalPrice,
         required this.vat,
         required this.pit,
+        this.voucher,
         required this.commissionFee,
         required this.payout,
       });
@@ -44,6 +46,7 @@ class BillOfShopModel {
     'status': status,
     'shipInformation': shipInformation,
     'paymentType': paymentType,
+    'voucher': voucher,
     'totalPrice': totalPrice,
     'vat': vat,
     'pit': pit,
@@ -62,6 +65,7 @@ class BillOfShopModel {
       orderDate: (json['orderDate'] as Timestamp).toDate(),
       status: json['status'] as String,
       shipInformation: ShipInformationModel.fromJson(json['shipInformation']),
+      voucher: VoucherModel.fromJson("", json['voucher']),
       paymentType: json['paymentType'] as String,
       totalPrice:  json['totalPrice'] as int,
       vat: json['vat'] as int,

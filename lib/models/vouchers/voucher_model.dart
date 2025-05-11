@@ -32,7 +32,11 @@ class VoucherModel {
     'userPicked': (userPicked ?? []).toList(),
   };
 
-  static VoucherModel fromJson(String id, Map<String, dynamic> json) {
+  static VoucherModel? fromJson(String id, Map<String, dynamic>? json) {
+    if (json == null) {
+      return null;
+    }
+
     final dataUsers = json['userPicked'] as List?;
     final listUsers = List.castFrom<Object?, Map<String, Object?>>(dataUsers!);
 

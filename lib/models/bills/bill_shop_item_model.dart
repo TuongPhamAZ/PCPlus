@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../items/color_model.dart';
+
 class BillShopItemModel {
 
   String? itemID;
@@ -11,7 +13,7 @@ class BillShopItemModel {
   DateTime? addDate;
   int? price;
   String? image;
-  String? color;
+  ColorModel? color;
   int? amount;
   int? totalCost;
 
@@ -58,7 +60,7 @@ class BillShopItemModel {
       detail: json['detail'] as String,
       price: json['price'] as int,
       image: json['image'] as String,
-      color: json['color'] as String,
+      color: ColorModel.fromJson(json['color']),
       amount: json['amount'] as int,
       totalCost: json['totalCost'] as int,
     );

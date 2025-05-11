@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pcplus/models/orders/order_item_model.dart';
 
@@ -155,7 +153,7 @@ class ItemModel {
         sellerID: sellerID,
         addDate: addDate,
         price: price,
-        color: colors![colorIndex].name,
+        color: colors![colorIndex],
         description: description,
         image: image,
         detail: detail,

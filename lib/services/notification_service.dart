@@ -1,5 +1,7 @@
 import 'package:pcplus/models/notification/notification_repo.dart';
 
+import '../models/bills/bill_model.dart';
+import '../models/bills/bill_of_shop_model.dart';
 import '../models/notification/notification_model.dart';
 import '../models/orders/order_model.dart';
 import '../models/users/user_model.dart';
@@ -8,16 +10,16 @@ class NotificationService {
   final NotificationRepository _notificationRepo = NotificationRepository();
   // TODO: Thong bao duoc tao ra tu nguoi dung
 
-  Future<void> createOrderingNotification(OrderModel order) async {
+  Future<void> createOrderingNotification(String sellerID, BillOfShopModel order) async {
     NotificationModel notification = NotificationModel(
       title: "Đơn hàng mới",
-      content: "${order.receiverName} đã đặt hàng từ bạn. Mã history_order: ${order.orderID!}",
+      content: "${order.shipInformation!.receiverName} đã đặt hàng từ bạn. Mã đơn hàng: ${order.billID!}",
       isRead: false,
       date: DateTime.now(),
-      productImage: order.itemModel!.image,
+      productImage: order.items!.first.color!.image ?? "",
     );
     _notificationRepo.addNotificationToFirestore(
-        order.itemModel!.sellerID!,
+        sellerID,
         notification
     );
   }

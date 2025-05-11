@@ -29,7 +29,7 @@ class RatingPresenter {
   }
 
   Future<void> updateBill(BillModel model, String shopID, String status) async {
-    model.status = status;
+    // model.status = status;
 
     BillOfShopModel? billOfShopModel = model.toBillOfShopModel(shopID);
 

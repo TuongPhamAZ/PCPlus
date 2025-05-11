@@ -1,6 +1,13 @@
 import 'package:pcplus/controller/session_controller.dart';
+import 'package:pcplus/models/bills/bill_model.dart';
+import 'package:pcplus/models/bills/bill_of_shop_model.dart';
+import 'package:pcplus/models/bills/bill_of_shop_repo.dart';
+import 'package:pcplus/models/bills/bill_repo.dart';
+import 'package:pcplus/models/bills/bill_shop_item_model.dart';
+import 'package:pcplus/models/bills/bill_shop_model.dart';
 import 'package:pcplus/models/in_cart_items/in_cart_item_repo.dart';
 import 'package:pcplus/models/users/user_model.dart';
+import 'package:pcplus/models/users/user_repo.dart';
 import 'package:pcplus/pages/bill/bill_product/bill_product_contract.dart';
 import 'package:pcplus/services/pref_service.dart';
 import 'package:pcplus/services/utility.dart';
@@ -8,8 +15,6 @@ import 'package:pcplus/models/orders/order_address_model.dart';
 
 import '../../../const/order_status.dart';
 import '../../../models/in_cart_items/item_in_cart_with_seller.dart';
-import '../../../models/orders/order_model.dart';
-import '../../../models/orders/order_repo.dart';
 import '../../../models/system/param_store_repo.dart';
 import '../../../services/notification_service.dart';
 
@@ -17,7 +22,6 @@ class BillProductPresenter {
   final BillProductContract _view;
   BillProductPresenter(this._view);
 
-  // final CartSingleton _cartSingleton = CartSingleton.getInstance();
   final InCartItemRepo _inCartItemRepo = InCartItemRepo();
 
   OrderAddressModel? address;
@@ -54,7 +58,6 @@ class BillProductPresenter {
   }
 
   void handleChangeLocation(OrderAddressModel address) {
-    // _cartSingleton.address = address;
     PrefService.saveLocationData(addressData: address);
   }
 
@@ -79,41 +82,91 @@ class BillProductPresenter {
     }
   }
 
-  Future<void> performPayment() async {
+  Future<bool> performPayment() async {
     if (validateOnPaymentItem() == false) {
-      return;
+      return false;
     }
 
-    OrderRepository orderRepository = OrderRepository();
+    BillRepository billRepository = BillRepository();
+    BillOfShopRepository billOfShopRepository = BillOfShopRepository();
+    UserRepository userRepository = UserRepository();
     ParamStoreRepository paramRepository = ParamStoreRepository();
     NotificationService notificationService = NotificationService();
 
-    UserModel? user = await PrefService.loadUserData();
+    UserModel? user = await userRepository.getUserById(userId!);
+
+    String? billID = await billRepository.generateID();
+
+    if (billID == null || user == null) {
+      return false;
+    }
+
+    DateTime orderDate = DateTime.now();
+
+    BillModel newBill = BillModel(
+        billID: billID,
+        userID: userId,
+        shops: [],
+        orderDate: orderDate,
+        shipInformation: user.shipInformationModel,
+        paymentType: PaymentType.byCashOnDelivery,
+        totalPrice: 0,
+    );
 
     for (ItemInCartWithSeller data in onPaymentItems!) {
       String shopId = data.seller.shopID!;
 
-      OrderModel newOrder = OrderModel(
-          orderID: await orderRepository.generateID(),
-          shopName: data.seller.name,
-          receiverID: userId,
-          orderDate: DateTime.now(),
-          receiverName: user!.name,
+      BillShopModel? billShop;
+
+      for (BillShopModel shop in newBill.shops!) {
+        if (shop.shopID == shopId) {
+          billShop = shop;
+        }
+        break;
+      }
+
+      billShop ??= BillShopModel(
+          shopID: shopId,
+          buyItems: [],
           status: OrderStatus.PENDING_CONFIRMATION,
-          address: address,
-          itemModel: data.item.toOrderItemModel(color: data.inCart.color!),
-          deliveryMethod: data.inCart.deliveryMethod,
-          deliveryCost: data.inCart.deliveryCost,
+          voucher: null,
+        );
+
+      BillShopItemModel newItem = BillShopItemModel(
+          itemID: data.item.itemID,
+          name: data.item.name,
+          itemType: data.item.itemType,
+          sellerID: shopId,
+          addDate: orderDate,
+          price: data.item.price,
+          color: data.inCart.color,
           amount: data.inCart.amount,
+          totalCost: data.item.price! * data.inCart.amount!,
       );
 
-      orderRepository.addOrderToFirestore(userId!, newOrder);
-      orderRepository.addOrderToFirestore(shopId, newOrder);
-      await notificationService.createOrderingNotification(newOrder);
+      billShop.buyItems!.add(newItem);
+    }
 
-      await paramRepository.increaseOrderIdIndex();
+    await billRepository.addBillToFirestore(userId!, newBill);
+
+    for (BillShopModel shop in newBill.shops!) {
+      BillOfShopModel? billOfShopModel = newBill.toBillOfShopModel(shop.shopID!);
+      if (billOfShopModel == null) {
+        return false;
+      }
+      // Tạo Bill trong shop
+      await billOfShopRepository.addBillOfShopToFirestore(shop.shopID!, billOfShopModel);
+      // Gửi thông báo tới shop
+      await notificationService.createOrderingNotification(shop.shopID!, billOfShopModel);
+    }
+    // Xóa item trong giỏ hàng
+    for (ItemInCartWithSeller data in onPaymentItems!) {
       await _inCartItemRepo.deleteItemInCart(userId!, data.inCart);
     }
+
+    await paramRepository.increaseOrderIdIndex();
+
+    return true;
   }
 
   bool validateOnPaymentItem() {
@@ -130,9 +183,7 @@ class BillProductPresenter {
 
   String getProductCost() {
     int total = 0;
-    // for (InCartItemData data in _cartSingleton.onPaymentItems) {
-    //   total += data.amount * data.item!.price!;
-    // }
+
     if (onPaymentItems == null) {
       return "-";
     }
@@ -146,9 +197,7 @@ class BillProductPresenter {
 
   String getShippingFee() {
     int total = 0;
-    // for (InCartItemData data in _cartSingleton.onPaymentItems) {
-    //   total += data.deliveryCost;
-    // }
+
     if (onPaymentItems == null) {
       return "-";
     }
@@ -162,9 +211,7 @@ class BillProductPresenter {
 
   String getTotalCost() {
     int total = 0;
-    // for (InCartItemData data in _cartSingleton.onPaymentItems) {
-    //   total += data.amount * data.item!.price! + data.deliveryCost;
-    // }
+
     if (onPaymentItems == null) return "-";
 
     for (ItemInCartWithSeller data in onPaymentItems!) {
@@ -175,7 +222,6 @@ class BillProductPresenter {
   }
 
   void handleBack() {
-    // _cartSingleton.clearOnPaymentItems();
     _view.onBack();
   }
 
