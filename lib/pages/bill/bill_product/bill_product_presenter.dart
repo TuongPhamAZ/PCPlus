@@ -127,6 +127,7 @@ class BillProductPresenter {
 
       billShop ??= BillShopModel(
           shopID: shopId,
+          shopName: data.seller.name,
           buyItems: [],
           status: OrderStatus.PENDING_CONFIRMATION,
           voucher: null,

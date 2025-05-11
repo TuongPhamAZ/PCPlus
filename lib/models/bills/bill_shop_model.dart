@@ -5,6 +5,7 @@ import '../vouchers/voucher_model.dart';
 class BillShopModel {
 
   String? shopID;
+  String? shopName;
   List<BillShopItemModel>? buyItems;
   String? status;
   VoucherModel? voucher;
@@ -13,6 +14,7 @@ class BillShopModel {
   BillShopModel(
       {
         required this.shopID,
+        required this.shopName,
         required this.buyItems,
         required this.status,
         required this.voucher,
@@ -30,6 +32,7 @@ class BillShopModel {
 
     return {
       'shopID': shopID,
+      'shopName': shopName,
       'buyItems': (buyItems ?? []).map((item) => item.toJson()).toList(),
       'status': status,
       'voucher': voucher,
@@ -43,6 +46,7 @@ class BillShopModel {
 
     return BillShopModel(
       shopID: json['shopID'] as String,
+      shopName: json['shopName'] as String,
       buyItems: listItems.map((raw) => BillShopItemModel.fromJson(raw)).toList(),
       status: json['status'] as String,
       voucher: VoucherModel.fromJson("", json['voucher']),

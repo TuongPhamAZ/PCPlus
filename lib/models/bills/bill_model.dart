@@ -60,6 +60,45 @@ class BillModel {
     );
   }
 
+  BillShopModel? getBillShopModel(String shopID) {
+    if (shops == null) {
+      return null;
+    }
+
+    BillShopModel? billShopModel;
+
+    for (BillShopModel shop in shops!) {
+      if (shop.shopID == shopID) {
+        billShopModel = shop;
+        break;
+      }
+    }
+
+    return billShopModel;
+  }
+
+  bool updateShopStatus(String shopID, String status) {
+    if (shops == null) {
+      return false;
+    }
+
+    BillShopModel? billShopModel;
+
+    for (BillShopModel shop in shops!) {
+      if (shop.shopID == shopID) {
+        billShopModel = shop;
+        break;
+      }
+    }
+
+    if (billShopModel == null) {
+      return false;
+    }
+
+    billShopModel.status = status;
+    return true;
+  }
+
   BillOfShopModel? toBillOfShopModel(String shopID) {
     if (shops == null) {
       return null;

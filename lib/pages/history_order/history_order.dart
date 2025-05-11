@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:pcplus/themes/text_decor.dart';
 
-import '../../models/orders/order_model.dart';
+import '../../models/bills/bill_model.dart';
+import '../../models/bills/bill_of_shop_model.dart';
+import '../../models/bills/bill_shop_model.dart';
 import '../widgets/util_widgets.dart';
 import 'history_order_contract.dart';
 import 'history_order_presenter.dart';
@@ -62,30 +64,70 @@ class _HistoryOrderState extends State<HistoryOrder>
           color: Colors.grey.withOpacity(0.5),
         ),
         child:
-          StreamBuilder<List<OrderModel>>(
-            stream: _presenter!.orderStream,
-            builder: (context, snapshot) {
-              Widget? result = UtilWidgets.createSnapshotResultWidget(context, snapshot);
-              if (result != null) {
-              return result;
-              }
+          (_presenter!.isShop) ?
+              StreamBuilder<List<BillOfShopModel>>(
+                stream: _presenter!.billsOfShopStream,
+                builder: (context, snapshot) {
+                  Widget? result = UtilWidgets.createSnapshotResultWidget(context, snapshot);
+                  if (result != null) {
+                    return result;
+                  }
 
-              final orders = snapshot.data ?? [];
+                  final orders = snapshot.data ?? [];
 
-              if (orders.isEmpty) {
-              return const Center(child: Text('No data'));
-              }
+                  if (orders.isEmpty) {
+                    return const Center(child: Text('No data'));
+                  }
 
-              return ListView.builder(
-                itemCount: orders.length,
-                shrinkWrap: true,
-                // physics: const Scroas(),
-                itemBuilder: (context, index) {
-                  return _presenter!.createHistoryOrderItem(orders[index]);
+                  return ListView.builder(
+                    itemCount: orders.length,
+                    shrinkWrap: true,
+                    // physics: const Scroas(),
+                    itemBuilder: (context, index) {
+                      return _presenter!.createHistoryOrderItemForShop(orders[index]);
+                    },
+                  );
                 },
-              );
-            },
-          )
+              )
+          :
+              StreamBuilder<List<BillModel>>(
+                stream: _presenter!.billStream,
+                builder: (context, snapshot) {
+                  Widget? result = UtilWidgets.createSnapshotResultWidget(context, snapshot);
+                  if (result != null) {
+                    return result;
+                  }
+
+                  final orders = snapshot.data ?? [];
+
+                  if (orders.isEmpty) {
+                    return const Center(child: Text('No data'));
+                  }
+
+                  Map<BillShopModel, BillModel> billsAndShopsMap = {};
+
+                  for (BillModel bill in orders) {
+                    for (BillShopModel billShop in bill.shops!) {
+                      billsAndShopsMap[billShop] = bill;
+                    }
+                  }
+
+                  return ListView.builder(
+                    itemCount: billsAndShopsMap.keys.length,
+                    shrinkWrap: true,
+                    // physics: const Scroas(),
+                    itemBuilder: (context, index) {
+                      BillShopModel billShopModel = billsAndShopsMap.keys.elementAt(index);
+                      BillModel? billModel = billsAndShopsMap[billShopModel];
+
+                      return _presenter!.createHistoryOrderItemForUser(
+                        billModel!,
+                        billShopModel.shopID!,
+                      );
+                    },
+                  );
+                },
+              )
         ),
     );
   }
@@ -113,5 +155,10 @@ class _HistoryOrderState extends State<HistoryOrder>
   @override
   void onWaitingProgressBar() {
     UtilWidgets.createLoadingWidget(context);
+  }
+
+  @override
+  void onError(String message) {
+    UtilWidgets.createSnackBar(context, message);
   }
 }

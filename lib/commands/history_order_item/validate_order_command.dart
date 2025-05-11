@@ -1,11 +1,10 @@
 import 'package:pcplus/interfaces/command.dart';
-
-import '../../models/orders/order_model.dart';
+import '../../models/bills/bill_of_shop_model.dart';
 import '../../pages/history_order/history_order_presenter.dart';
 
 class ValidateOrderCommand implements ICommand {
   HistoryOrderPresenter presenter;
-  OrderModel model;
+  BillOfShopModel model;
   String? reason;
 
   ValidateOrderCommand({
@@ -15,7 +14,7 @@ class ValidateOrderCommand implements ICommand {
 
   @override
   void execute() {
-    presenter.handleConfirmOrder(model);
+    presenter.handleConfirmOrderForShop(model);
   }
 
 }
