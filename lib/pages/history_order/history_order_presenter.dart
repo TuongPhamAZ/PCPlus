@@ -2,8 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:pcplus/const/order_status.dart';
 import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/factories/widget_factories/history_order_item_factory.dart';
+import 'package:pcplus/models/await_ratings/await_rating_model.dart';
+import 'package:pcplus/models/await_ratings/await_rating_repo.dart';
 import 'package:pcplus/models/bills/bill_of_shop_repo.dart';
 import 'package:pcplus/models/bills/bill_repo.dart';
+import 'package:pcplus/models/bills/bill_shop_item_model.dart';
 import 'package:pcplus/services/notification_service.dart';
 import 'package:pcplus/services/pref_service.dart';
 import '../../factories/widget_factories/history_order_item_for_shop_factory.dart';
@@ -24,6 +27,7 @@ class HistoryOrderPresenter {
   // final OrderRepository _orderRepo = OrderRepository();
   final BillRepository _billRepo = BillRepository();
   final BillOfShopRepository _billOfShopRepo = BillOfShopRepository();
+  final AwaitRatingRepository _awaitRatingRepo = AwaitRatingRepository();
   final SessionController _sessionController = SessionController.getInstance();
   final NotificationService _notificationService = NotificationService();
   UserModel? user;
@@ -159,7 +163,7 @@ class HistoryOrderPresenter {
 
   Future<void> handleAlreadyReceivedOrder(BillModel model, String shopID) async {
     _view.onWaitingProgressBar();
-    if (await updateOrder(model, shopID, OrderStatus.AWAIT_RATING) == false) {
+    if (await updateOrder(model, shopID, OrderStatus.COMPLETED) == false) {
       _view.onPopContext();
       _view.onError("Đã có lỗi xảy ra. Hãy thử lại sau.");
       return;
@@ -172,6 +176,10 @@ class HistoryOrderPresenter {
       return;
     }
     await _notificationService.createReceivedOrderNotification(shopID, billOfShopModel);
+    for (BillShopItemModel billShopItem in billOfShopModel.items!) {
+      AwaitRatingModel awaitRatingModel = billShopItem.createAwaitRatingModel(shop!.name!);
+      await _awaitRatingRepo.addAwaitRatingToFirestore(billOfShopModel.userID!, awaitRatingModel);
+    }
 
     if (orderType.isNotEmpty) {
       bills.remove(model);

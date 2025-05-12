@@ -42,12 +42,31 @@ class AwaitRatingRepository {
       .doc(key)
       .delete();
 
-  Stream<List<AwaitRatingModel>> getAllAwaitRatingStream(String shopID) {
+  Future<List<AwaitRatingModel>> getAllAwaitRating(String userID) async {
+     try {
+       final QuerySnapshot querySnapshot = await _storage
+           .collection(UserModel.collectionName)
+           .doc(userID)
+           .collection(AwaitRatingModel.collectionName)
+           .orderBy('createdAt', descending: true)
+           .get();
+
+       final items = querySnapshot
+           .docs
+           .map((doc) => AwaitRatingModel.fromJson(doc.id, doc.data() as Map<String, dynamic>))
+           .toList();
+       return items;
+     } catch (e) {
+       return [];
+     }
+  }
+
+  Stream<List<AwaitRatingModel>> getAllAwaitRatingStream(String userID) {
     return _storage
-        .collection(ShopModel.collectionName)
-        .doc(shopID)
+        .collection(UserModel.collectionName)
+        .doc(userID)
         .collection(AwaitRatingModel.collectionName)
-        .orderBy('orderDate', descending: true)
+        .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) {
       return snapshot.docs

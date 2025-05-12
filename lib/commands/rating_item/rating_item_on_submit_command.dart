@@ -1,10 +1,10 @@
 import 'package:pcplus/interfaces/command.dart';
-import 'package:pcplus/models/orders/order_model.dart';
 import 'package:pcplus/pages/rating/rating_presenter.dart';
+import '../../models/await_ratings/await_rating_model.dart';
 
 class RatingItemOnSubmitCommand implements ICommand {
   RatingPresenter presenter;
-  OrderModel model;
+  AwaitRatingModel model;
   double? rating;
   String? comment;
 
@@ -18,7 +18,7 @@ class RatingItemOnSubmitCommand implements ICommand {
 
   @override
   void execute() {
-    // presenter.sendRating(model, rating!, comment);
+    presenter.sendRating(model, rating!, comment);
   }
 
 }
