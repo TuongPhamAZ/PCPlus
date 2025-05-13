@@ -56,7 +56,7 @@ class BillOfShopModel {
 
   static BillOfShopModel fromJson(String id, Map<String, dynamic> json) {
     final dataItems = json['items'] as List?;
-    final listItems = List.castFrom<Object?, Map<String, Object?>>(dataItems!);
+    final listItems = List.castFrom<Object?, Map<String, dynamic>>(dataItems!);
 
     return BillOfShopModel(
       billID: id,

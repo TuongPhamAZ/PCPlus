@@ -35,7 +35,7 @@ class _SplashScreenState extends State<SplashScreen>
     // Tạo AnimationController với thời gian 3 giây
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(minutes: 5, seconds: 3),
+      duration: const Duration(seconds: 3),
     );
 
     // Sử dụng Tween để tạo giá trị tiến trình từ 0 đến 1

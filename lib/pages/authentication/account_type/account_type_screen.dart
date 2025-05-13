@@ -123,6 +123,9 @@ class _AccountTypeScreenState extends State<AccountTypeScreen>
   void onSelectUserType(String userType) {
     // TODO: implement onSelectUserType
     args?.userType = userType;
-    Navigator.of(context).pushNamed(UserInformation.routeName);
+    Navigator.of(context).pushNamed(
+        UserInformation.routeName,
+        arguments: args,
+    );
   }
 }

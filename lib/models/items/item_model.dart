@@ -64,7 +64,7 @@ class ItemModel {
   static ItemModel fromJson(String key, Map<String, dynamic> json) {
     final reviewImagesData = json['reviewImages'] as List?;
     final dataColors = json['colors'] as List?;
-    final listColors = List.castFrom<Object?, Map<String, Object?>>(dataColors!);
+    final listColors = List.castFrom<Object?, Map<String, dynamic>>(dataColors!);
 
     return ItemModel(
       itemID: key,

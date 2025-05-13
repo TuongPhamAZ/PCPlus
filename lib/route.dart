@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pcplus/pages/authentication/account_type/account_type_screen.dart';
 import 'package:pcplus/pages/authentication/otp/OTP.dart';
 import 'package:pcplus/pages/authentication/shop_information/shop_information_screen.dart';
 import 'package:pcplus/pages/authentication/user_information/user_information.dart';
@@ -33,6 +34,7 @@ final Map<String, WidgetBuilder> routes = {
   RegisterScreen.routeName: (context) => const RegisterScreen(),
   ForgotPasswordScreen.routeName: (context) => const ForgotPasswordScreen(),
   OTPScreen.routeName: (context) => const OTPScreen(),
+  AccountTypeScreen.routeName: (context) => const AccountTypeScreen(),
   UserInformation.routeName: (context) => const UserInformation(),
   ShopInformationScreen.routeName: (context) => const ShopInformationScreen(),
   NoNetworkScreen.routeName: (context) => const NoNetworkScreen(),

@@ -11,10 +11,14 @@ class OtpPresenter {
 
   String pinCode = "";
   String? email = "";
+  bool firstInit = true;
 
-  void initSendPinCode() {
+  Future<void> initSendPinCode() async {
     pinCode = _generateRandomCode();
-    _sendConfirmationCode(pinCode);
+    if (firstInit) {
+      firstInit = false;
+      await _sendConfirmationCode(pinCode);
+    }
   }
 
   Future<void> pinCodeVerify(String? pinCode) async {
@@ -40,7 +44,7 @@ class OtpPresenter {
     return code;
   }
 
-  void _sendConfirmationCode(String code) async {
+  Future<void> _sendConfirmationCode(String code) async {
     String username = "personalschedulemanager@gmail.com";
     String password = "myocgxvnvsdybuhr";
 

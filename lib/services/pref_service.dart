@@ -20,7 +20,7 @@ class PrefService {
     prefs.setString('phone', userData.phone!.toString());
     prefs.setString('userType', userData.userType!);
     prefs.setString('avatarUrl', userData.avatarUrl!);
-    prefs.setInt('money', userData.money!);
+    prefs.setInt('money', userData.money ?? 0);
   }
 
   static Future<void> clearUserData() async {

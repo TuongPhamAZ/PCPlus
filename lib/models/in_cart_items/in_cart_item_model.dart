@@ -29,11 +29,11 @@ class InCartItemModel {
   Map<String, dynamic> toJson() => {
     'itemID': itemID,
     'amount': amount,
-    'color': color,
+    'color': color?.toJson(),
     'isSelected': isSelected,
     'noteForShop': noteForShop ?? "",
     'deliveryMethod': deliveryMethod ?? "",
-    'deliveryCost': deliveryCost ?? "",
+    'deliveryCost': deliveryCost ?? 0,
   };
 
   static InCartItemModel fromJson(String key, Map<String, dynamic> json) {
