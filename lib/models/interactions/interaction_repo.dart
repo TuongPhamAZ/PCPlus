@@ -5,13 +5,15 @@ import 'interaction_model.dart';
 class InteractionRepository {
   final FirebaseFirestore _storage = FirebaseFirestore.instance;
 
-  void addInteractionToFirestore(InteractionModel model) async {
+  Future<String?> addInteractionToFirestore(InteractionModel model) async {
     try {
       DocumentReference docRef = _storage.collection(InteractionModel.collectionName).doc(model.itemID);
       await docRef.set(model.toJson()).whenComplete(()
       => print('Interaction added to Firestore with ID: ${docRef.id}'));
+      return docRef.id;
     } catch (e) {
       print('Error adding Interaction to Firestore: $e');
+      return null;
     }
   }
 
@@ -28,15 +30,18 @@ class InteractionRepository {
     return isSuccess;
   }
 
-  Future<InteractionModel> getInteractionsByUserIDAndItemID(String userID, String itemID) async {
+  Future<InteractionModel?> getInteractionByUserIDAndItemID(String userID, String itemID) async {
     final QuerySnapshot querySnapshot = await _storage.collection(InteractionModel.collectionName)
         .where('userID', isEqualTo: userID)
         .where('itemID', isEqualTo: itemID)
         .get();
     final items = querySnapshot
         .docs
-        .map((doc) => InteractionModel.fromJson(doc as Map<String, dynamic>))
+        .map((doc) => InteractionModel.fromJson(doc.id, doc.data() as Map<String, dynamic>))
         .toList();
+    if (items.isEmpty) {
+      return null;
+    }
     return items.first;
   }
 
@@ -45,7 +50,7 @@ class InteractionRepository {
         .where('userID', isEqualTo: id).get();
     final items = querySnapshot
         .docs
-        .map((doc) => InteractionModel.fromJson(doc as Map<String, dynamic>))
+        .map((doc) => InteractionModel.fromJson(doc.id, doc as Map<String, dynamic>))
         .toList();
     return items;
   }
@@ -55,7 +60,7 @@ class InteractionRepository {
         .where('itemID', isEqualTo: id).get();
     final items = querySnapshot
         .docs
-        .map((doc) => InteractionModel.fromJson(doc as Map<String, dynamic>))
+        .map((doc) => InteractionModel.fromJson(doc.id, doc as Map<String, dynamic>))
         .toList();
     int count = 0;
     for (InteractionModel item in items) {
@@ -70,7 +75,7 @@ class InteractionRepository {
           .where('itemID', isEqualTo: id).get();
       final items = querySnapshot
           .docs
-          .map((doc) => InteractionModel.fromJson(doc as Map<String, dynamic>))
+          .map((doc) => InteractionModel.fromJson(doc.id, doc as Map<String, dynamic>))
           .toList();
       if (items.isEmpty) {
         return 0;

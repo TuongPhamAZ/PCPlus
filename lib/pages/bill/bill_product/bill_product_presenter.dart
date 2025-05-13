@@ -15,6 +15,7 @@ import 'package:pcplus/models/orders/order_address_model.dart';
 
 import '../../../const/order_status.dart';
 import '../../../models/in_cart_items/item_in_cart_with_seller.dart';
+import '../../../models/interactions/interaction_model.dart';
 import '../../../models/system/param_store_repo.dart';
 import '../../../services/notification_service.dart';
 
@@ -146,6 +147,10 @@ class BillProductPresenter {
       );
 
       billShop.buyItems!.add(newItem);
+
+      InteractionModel interactionModel = await SessionController.getInstance().getInteractionModel(data.item.itemID!);
+      interactionModel.buyTimes = interactionModel.buyTimes! + data.inCart.amount!;
+      await SessionController.getInstance().updateInteraction(interactionModel);
     }
 
     await billRepository.addBillToFirestore(userId!, newBill);

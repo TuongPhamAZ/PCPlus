@@ -2,6 +2,8 @@
 import 'package:pcplus/models/shops/shop_repo.dart';
 import 'package:pcplus/services/pref_service.dart';
 
+import '../models/interactions/interaction_model.dart';
+import '../models/interactions/interaction_repo.dart';
 import '../models/shops/shop_model.dart';
 import '../models/users/user_model.dart';
 
@@ -38,5 +40,31 @@ class SessionController {
 
   bool isShop() {
     return isSeller;
+  }
+
+  Future<InteractionModel> getInteractionModel(String itemID) async {
+    InteractionRepository interactionRepo = InteractionRepository();
+
+    InteractionModel? model = await interactionRepo.getInteractionByUserIDAndItemID(userID!, itemID);
+
+    if (model == null) {
+      model = InteractionModel(
+          userID: userID,
+          itemID: itemID,
+          clickTimes: 0,
+          buyTimes: 0,
+          rating: 0,
+          isFavor: false
+      );
+      String? newId = await interactionRepo.addInteractionToFirestore(model);
+      model.key = newId;
+    }
+
+    return model;
+  }
+
+  Future<void> updateInteraction(InteractionModel interactionModel) async {
+    InteractionRepository interactionRepo = InteractionRepository();
+    await interactionRepo.updateInteraction(interactionModel);
   }
 }

@@ -1,5 +1,6 @@
 import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/models/await_ratings/await_rating_repo.dart';
+import 'package:pcplus/models/interactions/interaction_model.dart';
 import 'package:pcplus/models/ratings/rating_model.dart';
 import 'package:pcplus/models/ratings/rating_repo.dart';
 import 'package:pcplus/pages/rating/rating_contract.dart';
@@ -42,6 +43,10 @@ class RatingPresenter {
     );
     await _ratingRepo.addRatingToFirestore(model.item!.itemID!, ratingModel);
     await _awaitRatingRepo.deleteAwaitRatingByKey(_sessionController.userID!, model.key!);
+    InteractionModel interactionModel = await SessionController.getInstance().getInteractionModel(model.item!.itemID!);
+    interactionModel.rating = rating;
+    await SessionController.getInstance().updateInteraction(interactionModel);
+
     _view.onPopContext();
     _view.onLoadDataSucceeded();
   }
