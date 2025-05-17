@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/models/in_cart_items/in_cart_item_model.dart';
 import 'package:pcplus/models/in_cart_items/in_cart_item_repo.dart';
@@ -9,6 +7,7 @@ import 'package:pcplus/models/ratings/rating_repo.dart';
 import 'package:pcplus/models/users/user_repo.dart';
 import 'package:pcplus/pages/manage_product/detail_product/detail_product_contract.dart';
 
+import '../../../models/interactions/interaction_model.dart';
 import '../../../models/items/item_model.dart';
 import '../../../models/ratings/rating_model.dart';
 import '../../../models/users/user_model.dart';
@@ -32,6 +31,10 @@ class DetailProductPresenter {
   Future<void> getData() async {
     ratings.clear();
     ratingsData.clear();
+
+    InteractionModel interactionModel = await SessionController.getInstance().getInteractionModel(itemWithSeller!.item.itemID!);
+    interactionModel.clickTimes = interactionModel.clickTimes! + 1;
+    await SessionController.getInstance().updateInteraction(interactionModel);
 
     List<ItemModel> sellerProducts = await _itemRepo.getItemsBySeller(itemWithSeller!.seller.shopID!);
     shopProductsCount = sellerProducts.length;

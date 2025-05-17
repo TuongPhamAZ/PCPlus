@@ -8,6 +8,7 @@ import 'package:pcplus/themes/text_decor.dart';
 import 'package:pcplus/pages/authentication/otp/OTP.dart';
 import 'package:pcplus/pages/authentication/login/login.dart';
 
+import '../../../component/register_component.dart';
 import '../../widgets/profile/button_profile.dart';
 import '../../widgets/profile/profile_input.dart';
 import '../../widgets/util_widgets.dart';
@@ -124,8 +125,16 @@ class _RegisterScreenState extends State<RegisterScreen> implements RegisterView
   }
 
   @override
-  void onRegisterSucceeded() {
-    Navigator.of(context).pushNamed(OTPScreen.routeName);
+  void onRegisterSucceeded(String email) {
+    Navigator.of(context).pushNamed(
+        OTPScreen.routeName,
+        arguments: RegisterArgument(
+          email: email,
+          userModel: null,
+          shopModel: null,
+          userType: null,
+        )
+    );
   }
 
   @override

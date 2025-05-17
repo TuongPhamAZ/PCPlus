@@ -64,19 +64,19 @@ class ItemModel {
   static ItemModel fromJson(String key, Map<String, dynamic> json) {
     final reviewImagesData = json['reviewImages'] as List?;
     final dataColors = json['colors'] as List?;
-    final listColors = List.castFrom<Object?, Map<String, Object?>>(dataColors!);
+    final listColors = List.castFrom<Object?, Map<String, dynamic>>(dataColors!);
 
     return ItemModel(
       itemID: key,
       name: json['name'] as String,
       sellerID: json['sellerID'] as String,
       itemType: json['itemType'] as String,
-      addDate: (json['addDate'] as Timestamp).toDate(),
+      addDate: ((json['addDate'] ?? Timestamp.now()) as Timestamp).toDate(),
       description: json['description'] as String,
-      detail: json['detail'] as String,
+      detail: (json['detail'] ?? "") as String,
       price: json['price'] as int,
       stock: json['stock'] as int,
-      sold: json['sold'] as int,
+      sold: (json['sold'] ?? 0) as int,
       status: json['status'] as String,
       reviewImages: List.castFrom(reviewImagesData!),
       colors: listColors.map((raw) => ColorModel.fromJson(raw)).toList(),
@@ -153,7 +153,7 @@ class ItemModel {
         sellerID: sellerID,
         addDate: addDate,
         price: price,
-        color: colors![colorIndex].name,
+        color: colors![colorIndex],
         description: description,
         image: image,
         detail: detail,

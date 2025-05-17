@@ -3,4 +3,5 @@ abstract class HistoryOrderContract {
   void onItemPressed();
   void onWaitingProgressBar();
   void onPopContext();
+  void onError(String message);
 }

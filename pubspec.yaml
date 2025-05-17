@@ -15,8 +15,10 @@ dependencies:
   cloud_firestore: ^5.0.1
   firebase_core: ^3.4.0
   firebase_auth: ^5.1.0
+  firebase_messaging: ^15.0.1
   firebase_storage: ^12.0.1
   firebase_remote_config: ^5.0.1
+  flutter_local_notifications: ^17.1.2
   fuzzy: ^0.5.1
   rxdart: ^0.27.7
 
@@ -24,7 +26,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   google_fonts: ^6.2.1
   font_awesome_icon_class: ^0.0.6
-  fl_chart: ^0.71.0
+  fl_chart: ^0.68.0
   gap: ^3.0.1
   get: ^4.6.6
   iconly: ^1.0.1
@@ -76,6 +78,7 @@ flutter:
   assets:
   #  - assets/icons/
     - assets/images/
+    - lib/sample/test_samples/
   #  - assets/fonts/
  # fonts:
   #  - family: Lexend

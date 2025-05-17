@@ -6,6 +6,8 @@ import 'package:pcplus/models/items/item_repo.dart';
 import 'package:pcplus/models/users/user_model.dart';
 import 'package:pcplus/objects/suggest_item_data.dart';
 
+import '../../../controller/session_controller.dart';
+
 class HomePresenter {
   final HomeContract _view;
   HomePresenter(this._view);
@@ -30,8 +32,14 @@ class HomePresenter {
   Future<void> getData() async {
     newestItemStream = _itemRepo.getNewestItemsWithSellerStream(MAX_NEWEST_ITEMS);
     recommendedItemStream = _itemRepo.getNewestItemsWithSellerStream(MAX_NEWEST_ITEMS);
+    // recommendedItemStream = _getRecommendedItemsAsStream();
 
     _view.onLoadDataSucceed();
+  }
+
+  Stream<List<ItemWithSeller>> _getRecommendedItemsAsStream() async* {
+    List<String> recommendedItemIds = await _apiController.callApiRecommend(SessionController.getInstance().userID!, MAX_RECOMMENDED_ITEMS);
+    yield* _itemRepo.getItemsWithSellerStreamByIdList(recommendedItemIds);
   }
 
   Future<void> handleItemPressed(ItemWithSeller item) async {

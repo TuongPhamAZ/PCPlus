@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/services/authentication_service.dart';
 import 'package:pcplus/services/pref_service.dart';
@@ -17,11 +18,12 @@ class LoginPresenter {
     try {
       _view.onWaitingProgressBar();
       AuthResult authResult = AuthResult();
-      UserCredential? userCredential = await _authService.signInWithEmailAndPassword(email, password, authResult);
+      UserCredential? userCredential = await _authService
+          .signInWithEmailAndPassword(email, password, authResult);
 
-      if (authResult.code == AuthResult.WrongPassword
-          || authResult.code == AuthResult.UserNotFound
-          || authResult.code == AuthResult.InvalidCredential) {
+      if (authResult.code == AuthResult.WrongPassword ||
+          authResult.code == AuthResult.UserNotFound ||
+          authResult.code == AuthResult.InvalidCredential) {
         _view.onPopContext();
         _view.onLoginFailed();
         return;
@@ -33,7 +35,26 @@ class LoginPresenter {
         _view.onPopContext();
         _view.onError("Login failed.");
       }
-      UserModel userData = await _userRepo.getUserById(userCredential!.user!.uid);
+      UserModel? userData =
+          await _userRepo.getUserById(userCredential!.user!.uid);
+
+      FirebaseMessaging messaging = FirebaseMessaging.instance;
+      String? currentToken = await messaging.getToken();
+
+      if (currentToken != null) {
+        // Kiểm tra nếu token chưa tồn tại trong danh sách token của người dùng
+        if (!userData!.fcm!.contains(currentToken)) {
+          userData.fcm!.add(currentToken);
+          await _userRepo.updateUser(userData);
+        }
+      }
+
+      if (userData == null) {
+        _view.onPopContext();
+        _view.onError("Something was wrong. Please try again.");
+        return;
+      }
+
       await _sessionController.loadUser(userData);
       await PrefService.saveUserData(userData: userData, password: password);
     } catch (e) {

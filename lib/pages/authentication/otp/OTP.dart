@@ -4,13 +4,14 @@ import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:gap/gap.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pcplus/config/asset_helper.dart';
+import 'package:pcplus/pages/authentication/account_type/account_type_screen.dart';
 import 'package:pcplus/pages/authentication/otp/otp_contract.dart';
 import 'package:pcplus/controller/register_controller.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
-import 'package:pcplus/pages/user/user_information/user_information.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
+import '../../../component/register_component.dart';
 import '../../widgets/profile/button_profile.dart';
 import '../../widgets/util_widgets.dart';
 import 'OTP_presenter.dart';
@@ -25,7 +26,8 @@ class OTPScreen extends StatefulWidget {
 
 class _OTPScreenState extends State<OTPScreen> implements OtpViewContract {
   OtpPresenter? _otpPresenter;
-  final RegisterController _registerController = RegisterController.getInstance();
+  final RegisterController _registerController =
+      RegisterController.getInstance();
   final _formKey = GlobalKey<FormState>();
   StreamController<ErrorAnimationType> errorController =
       StreamController<ErrorAnimationType>();
@@ -35,9 +37,19 @@ class _OTPScreenState extends State<OTPScreen> implements OtpViewContract {
 
   @override
   void initState() {
-    _otpPresenter = OtpPresenter(this, _registerController.email);
+    _otpPresenter = OtpPresenter(this);
     _otpPresenter!.initSendPinCode();
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final args = ModalRoute.of(context)!.settings.arguments as RegisterArgument;
+
+    _otpPresenter?.email = args.email;
+    
   }
 
   @override
@@ -196,19 +208,15 @@ class _OTPScreenState extends State<OTPScreen> implements OtpViewContract {
 
   @override
   void onVerifySucceeded() {
-    // TODO: implement onVerifySucceeded
-    Navigator.of(context).pushNamed(UserInformation.routeName);
+    Navigator.of(context).pushNamed(AccountTypeScreen.routeName,
+        arguments: ModalRoute.of(context)!.settings.arguments);
   }
 
   @override
   void onWrongPinCodeError() {
     UtilWidgets.createDismissibleDialog(
-        context,
-        UtilWidgets.NOTIFICATION,
-        "Input code is incorrect",
-        () {
-          Navigator.of(context, rootNavigator: true).pop();
-        }
-    );
+        context, UtilWidgets.NOTIFICATION, "Input code is incorrect", () {
+      Navigator.of(context, rootNavigator: true).pop();
+    });
   }
 }

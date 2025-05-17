@@ -4,7 +4,7 @@ import 'package:pcplus/models/shops/shop_model.dart';
 class ShopRepository {
   final FirebaseFirestore _storage = FirebaseFirestore.instance;
 
-  void addShopToFirestore(ShopModel shop) async {
+  Future<void> addShopToFirestore(ShopModel shop) async {
     try {
       DocumentReference docRef = _storage.collection(ShopModel.collectionName).doc(shop.shopID);
       await docRef.set(shop.toJson()).whenComplete(()

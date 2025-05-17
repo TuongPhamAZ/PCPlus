@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:pcplus/pages/authentication/account_type/account_type_screen.dart';
 import 'package:pcplus/pages/authentication/otp/OTP.dart';
+import 'package:pcplus/pages/authentication/shop_information/shop_information_screen.dart';
+import 'package:pcplus/pages/authentication/user_information/user_information.dart';
 import 'package:pcplus/pages/history_order/history_order.dart';
 import 'package:pcplus/pages/manage_product/add_product/add_product.dart';
 import 'package:pcplus/pages/bill/bill_product/bill_product.dart';
@@ -23,7 +26,6 @@ import 'package:pcplus/pages/search/search_screen.dart';
 import 'package:pcplus/pages/home/shop_home/shop_home.dart';
 import 'package:pcplus/pages/splash/splash.dart';
 import 'package:pcplus/pages/statistic/statistic.dart';
-import 'package:pcplus/pages/user/user_information/user_information.dart';
 import 'package:pcplus/sample/comment.dart';
 import 'package:pcplus/sample/voice_search.dart';
 
@@ -33,7 +35,9 @@ final Map<String, WidgetBuilder> routes = {
   RegisterScreen.routeName: (context) => const RegisterScreen(),
   ForgotPasswordScreen.routeName: (context) => const ForgotPasswordScreen(),
   OTPScreen.routeName: (context) => const OTPScreen(),
+  AccountTypeScreen.routeName: (context) => const AccountTypeScreen(),
   UserInformation.routeName: (context) => const UserInformation(),
+  ShopInformationScreen.routeName: (context) => const ShopInformationScreen(),
   NoNetworkScreen.routeName: (context) => const NoNetworkScreen(),
   HomeScreen.routeName: (context) => const HomeScreen(),
   CartShoppingScreen.routeName: (context) => const CartShoppingScreen(),

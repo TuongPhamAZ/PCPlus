@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../users/ship_infor_model.dart';
+import '../vouchers/voucher_model.dart';
 import 'bill_shop_item_model.dart';
 
 class BillOfShopModel {
@@ -13,7 +14,11 @@ class BillOfShopModel {
   ShipInformationModel? shipInformation;
   String? paymentType;
   int? totalPrice;
-  // VoucherModel? voucher;
+  int? vat;
+  int? pit;
+  int? commissionFee;
+  int? payout;
+  VoucherModel? voucher;
 
   static String collectionName = 'Bills';
 
@@ -27,7 +32,11 @@ class BillOfShopModel {
         required this.shipInformation,
         required this.paymentType,
         required this.totalPrice,
-
+        required this.vat,
+        required this.pit,
+        this.voucher,
+        required this.commissionFee,
+        required this.payout,
       });
 
   Map<String, dynamic> toJson() => {
@@ -37,12 +46,17 @@ class BillOfShopModel {
     'status': status,
     'shipInformation': shipInformation,
     'paymentType': paymentType,
+    'voucher': voucher,
     'totalPrice': totalPrice,
+    'vat': vat,
+    'pit': pit,
+    'commissionFee': commissionFee,
+    'payout': payout,
   };
 
   static BillOfShopModel fromJson(String id, Map<String, dynamic> json) {
     final dataItems = json['items'] as List?;
-    final listItems = List.castFrom<Object?, Map<String, Object?>>(dataItems!);
+    final listItems = List.castFrom<Object?, Map<String, dynamic>>(dataItems!);
 
     return BillOfShopModel(
       billID: id,
@@ -51,8 +65,13 @@ class BillOfShopModel {
       orderDate: (json['orderDate'] as Timestamp).toDate(),
       status: json['status'] as String,
       shipInformation: ShipInformationModel.fromJson(json['shipInformation']),
+      voucher: VoucherModel.fromJson("", json['voucher']),
       paymentType: json['paymentType'] as String,
       totalPrice:  json['totalPrice'] as int,
+      vat: json['vat'] as int,
+      pit: json['pit'] as int,
+      commissionFee: json['commissionFee'] as int,
+      payout: json['payout'] as int,
     );
   }
 

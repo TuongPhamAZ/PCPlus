@@ -9,21 +9,18 @@ import 'package:pcplus/services/utility.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 
-import '../../../models/orders/order_model.dart';
-import '../../../pages/history_order/history_order_presenter.dart';
+import '../../../models/bills/bill_shop_item_model.dart';
 
 class HistoryItem extends StatefulWidget {
   final String shopName;
   final String receiverName;
   final String status;
-  final String productName;
+  final List<BillShopItemModel> products;
+  // final String productName;
   final String address;
   final int price;
-  final int amount;
   final String image;
   final bool isShop;
-  final HistoryOrderPresenter? presenter;
-  final OrderModel? order;
   final ValidateOrderCommand? onValidateOrder;
   final CancelOrderCommand? onCancelOrder;
   final ReceivedOrderCommand? onReceivedOrder;
@@ -32,19 +29,16 @@ class HistoryItem extends StatefulWidget {
       {super.key,
       required this.shopName,
       required this.status,
-      required this.productName,
+      required this.products,
       required this.address,
       required this.receiverName,
       required this.price,
-      required this.amount,
       required this.isShop,
       required this.image,
       this.onValidateOrder,
       this.onCancelOrder,
       this.onReceivedOrder,
       this.onSentOrder,
-      this.presenter,
-      this.order
     });
 
   @override
@@ -318,86 +312,102 @@ class _HistoryItemState extends State<HistoryItem> {
                   ),
                 ),
                 const Gap(10),
-                SizedBox(
-                  width: size.width - 180,
-                  height: isShop ? 150 : 125,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
+                Wrap(
+                  spacing: 8,
+                  children: widget.products
+                    .asMap()
+                    .entries
+                    .map((entry) => SizedBox(
                         width: size.width - 180,
-                        child: Text(
-                          widget.productName,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.justify,
-                          style: TextDecor.robo16Medi,
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          Text(
-                            "Phan loai: Black",
-                            textAlign: TextAlign.justify,
-                            maxLines: 2,
-                            style: TextDecor.robo14.copyWith(
-                              color: Colors.grey,
-                            ),
-                          ),
-                          Expanded(child: Container()),
-                          Text(
-                            "x${widget.amount}",
-                            textAlign: TextAlign.justify,
-                            maxLines: 2,
-                            style: TextDecor.robo14.copyWith(
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                      if (isShop)
-                        Column(
+                        height: 125,
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             SizedBox(
                               width: size.width - 180,
                               child: Text(
-                                "To: ${widget.receiverName}",
-                                style: TextDecor.robo17,
+                                entry.value.name!,
                                 maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.justify,
+                                style: TextDecor.robo16Medi,
                               ),
                             ),
-                            SizedBox(
-                              width: size.width - 180,
-                              child: Text(
-                                widget.address,
-                                style: TextDecor.robo17,
-                                maxLines: 2,
-                              ),
+                            Row(
+                              children: [
+                                Text(
+                                  "Phân loại: ${entry.value.color!.name!}",
+                                  textAlign: TextAlign.justify,
+                                  maxLines: 2,
+                                  style: TextDecor.robo14.copyWith(
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                                Expanded(child: Container()),
+                                Text(
+                                  "x${entry.value.amount!}",
+                                  textAlign: TextAlign.justify,
+                                  maxLines: 2,
+                                  style: TextDecor.robo14.copyWith(
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      Expanded(child: Container()),
-                      Row(
-                        children: [
-                          Expanded(child: Container()),
-                          Text(
-                            Utility.formatCurrency(widget.price),
-                            style: TextDecor.robo17,
-                          ),
-                        ],
-                      ),
-                      const Gap(5),
-                    ],
-                  ),
+                    )
+                  ).toList(),
                 ),
+                if (isShop)
+                  SizedBox(
+                    width: size.width - 180,
+                    height: 25,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: size.width - 180,
+                                child: Text(
+                                  "To: ${widget.receiverName}",
+                                  style: TextDecor.robo17,
+                                  maxLines: 1,
+                                ),
+                              ),
+                              SizedBox(
+                                width: size.width - 180,
+                                child: Text(
+                                  widget.address,
+                                  style: TextDecor.robo17,
+                                  maxLines: 2,
+                                ),
+                              ),
+                            ],
+                          ),
+                        Expanded(child: Container()),
+                        Row(
+                          children: [
+                            Expanded(child: Container()),
+                            Text(
+                              Utility.formatCurrency(widget.price),
+                              style: TextDecor.robo17,
+                            ),
+                          ],
+                        ),
+                        const Gap(5),
+                      ],
+                    ),
+                  ),
               ],
             ),
             Row(
               children: [
                 Expanded(child: Container()),
                 Text(
-                  "Total (${widget.amount} products): ${Utility.formatCurrency(widget.amount * widget.price)}",
+                  "Đơn giá: ${Utility.formatCurrency(widget.price)}",
                   style: TextDecor.robo17Medi,
                 ),
               ],

@@ -75,6 +75,8 @@ class AuthenticationService {
     }
   }
 
+
+
   Future<bool?> checkIfEmailExists(String emailAddress, AuthResult authResult) async {
     try {
       final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(

@@ -4,14 +4,15 @@ import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:gap/gap.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pcplus/config/asset_helper.dart';
-import 'package:pcplus/const/shop_location.dart';
-import 'package:pcplus/pages/user/user_information/user_information_contract.dart';
-import 'package:pcplus/pages/user/user_information/user_information_presenter.dart';
+import 'package:pcplus/pages/authentication/shop_information/shop_information_screen.dart';
+import 'package:pcplus/pages/authentication/user_information/user_information_contract.dart';
+import 'package:pcplus/pages/authentication/user_information/user_information_presenter.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
-import 'package:pcplus/pages/home/user_home/home.dart';
-import 'package:pcplus/pages/home/shop_home/shop_home.dart';
 
+import '../../../component/register_component.dart';
+import '../../../models/users/user_model.dart';
+import '../../home/user_home/home.dart';
 import '../../widgets/profile/background_container.dart';
 import '../../widgets/profile/button_profile.dart';
 import '../../widgets/util_widgets.dart';
@@ -28,6 +29,8 @@ class _UserInformationState extends State<UserInformation>
     implements UserInformationContract {
   UserInformationPresenter? _presenter;
 
+  RegisterArgument? args;
+
   String _imageFile = "";
 
   bool _isMale = true;
@@ -41,17 +44,30 @@ class _UserInformationState extends State<UserInformation>
   final TextEditingController _birthDateController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _rePasswordController = TextEditingController();
-  final TextEditingController _shopNameController = TextEditingController();
-  final TextEditingController _locationController = TextEditingController();
-  List<String> locations = [];
 
   DateTime? _birthDate;
 
   @override
   void initState() {
     _presenter = UserInformationPresenter(this);
-    _emailController.text = _presenter!.getEmail();
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    args = ModalRoute.of(context)!.settings.arguments as RegisterArgument;
+
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    setState(() {
+      _emailController.text = args!.email!;
+      _presenter?.isShop = args!.userType == UserType.SHOP;
+      _isShopOwner = _presenter!.isShop!;
+    });
   }
 
   void selectImageFromGallery() async {
@@ -340,9 +356,10 @@ class _UserInformationState extends State<UserInformation>
                       birthDate: _birthDate,
                       password: _passwordController.text.trim(),
                       rePassword: _rePasswordController.text.trim(),
-                      isSeller: _isShopOwner,
-                      shopName: _shopNameController.text.trim(),
-                      location: _locationController.text);
+                      isSeller: _isShopOwner
+                  );
+                      // shopName: _shopNameController.text.trim(),
+                      // location: _locationController.text);
                 },
               ),
               const Gap(30),
@@ -353,26 +370,26 @@ class _UserInformationState extends State<UserInformation>
     );
   }
 
-  void _showLocationPicker() {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return ListView(
-          children: LOCATIONS.map((location) {
-            return ListTile(
-              title: Text(location),
-              onTap: () {
-                setState(() {
-                  _locationController.text = location;
-                });
-                Navigator.pop(context); // Đóng bottom sheet
-              },
-            );
-          }).toList(),
-        );
-      },
-    );
-  }
+  // void _showLocationPicker() {
+  //   showModalBottomSheet(
+  //     context: context,
+  //     builder: (context) {
+  //       return ListView(
+  //         children: LOCATIONS.map((location) {
+  //           return ListTile(
+  //             title: Text(location),
+  //             onTap: () {
+  //               setState(() {
+  //                 _locationController.text = location;
+  //               });
+  //               Navigator.pop(context); // Đóng bottom sheet
+  //             },
+  //           );
+  //         }).toList(),
+  //       );
+  //     },
+  //   );
+  // }
 
   Future<void> _datePicker() async {
     final DateTime? picked = await showDatePicker(
@@ -396,8 +413,14 @@ class _UserInformationState extends State<UserInformation>
   }
 
   @override
-  void onConfirmSucceeded() {
-    Navigator.of(context).pushNamed(ShopHome.routeName);
+  void onConfirmSucceeded(UserModel userModel, String password) {
+    if (_isShopOwner) {
+      args?.userModel = userModel;
+      args?.password = password;
+      Navigator.of(context).pushNamed(ShopInformationScreen.routeName);
+    } else {
+      Navigator.of(context).pushNamed(HomeScreen.routeName);
+    }
   }
 
   @override
