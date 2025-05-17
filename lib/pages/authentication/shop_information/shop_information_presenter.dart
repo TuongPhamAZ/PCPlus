@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pcplus/models/shops/shop_repo.dart';
 import 'package:pcplus/models/users/user_model.dart';
@@ -28,17 +29,19 @@ class ShopInformationPresenter {
   List<String>? fcm;
 
   Future<void> getFcm() async {
-    fcm = [];
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    String? token = await messaging.getToken();
+    fcm = [token!];
   }
-  Future<void> handleConfirm(
-      {required String name,
-        required String location,
-        required String phone,
-      }) async {
+
+  Future<void> handleConfirm({
+    required String name,
+    required String location,
+    required String phone,
+  }) async {
     _view.onWaitingProgressBar();
 
-    if (name.isEmpty ||
-        phone.isEmpty) {
+    if (name.isEmpty || phone.isEmpty) {
       _view.onPopContext();
       _view.onConfirmFailed("Please complete all required fields");
       return;
@@ -57,7 +60,8 @@ class ShopInformationPresenter {
     }
 
     try {
-      UserCredential? userCredential = await _auth.signUpWithEmailAndPassword(userModel!.email!, password!);
+      UserCredential? userCredential =
+          await _auth.signUpWithEmailAndPassword(userModel!.email!, password!);
       if (userCredential == null) {
         _view.onPopContext();
         _view.onConfirmFailed("Something was wrong. Please try again.");
@@ -66,7 +70,8 @@ class ShopInformationPresenter {
 
       await getFcm();
 
-      String avatarUrl = imagePath != null && imagePath.isNotEmpty ? imagePath : "";
+      String avatarUrl =
+          imagePath != null && imagePath.isNotEmpty ? imagePath : "";
 
       userModel!.userID = userCredential.user!.uid;
       userModel!.fcm = fcm;
