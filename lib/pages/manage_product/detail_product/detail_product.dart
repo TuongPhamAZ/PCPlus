@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:gap/gap.dart';
+import 'package:pcplus/component/item_argument.dart';
+import 'package:pcplus/component/shop_argument.dart';
 import 'package:pcplus/config/asset_helper.dart';
 import 'package:pcplus/const/navigator_arguments.dart';
 import 'package:pcplus/controller/session_controller.dart';
@@ -13,6 +15,7 @@ import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 import 'package:pcplus/pages/bill/bill_product/bill_product.dart';
 
+import '../../../models/shops/shop_model.dart';
 import '../../../objects/review_data.dart';
 import '../../home/shop_home/shop_home.dart';
 import '../../widgets/util_widgets.dart';
@@ -70,8 +73,8 @@ class _DetailProductState extends State<DetailProduct> implements DetailProductC
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-    _presenter!.itemWithSeller = args[NavigatorArgs.itemData] as ItemWithSeller;
+    final args = ModalRoute.of(context)!.settings.arguments as ItemArgument;
+    _presenter!.itemWithSeller = args.data;
     loadData();
   }
 
@@ -1122,10 +1125,10 @@ class _DetailProductState extends State<DetailProduct> implements DetailProductC
   }
 
   @override
-  void onViewShop(String sellerID) {
+  void onViewShop(ShopModel seller) {
     Navigator.of(context).pushNamed(
         ShopHome.routeName,
-        arguments: {NavigatorArgs.shopID : sellerID}
+        arguments: ShopArgument(shop: seller)
     );
   }
 

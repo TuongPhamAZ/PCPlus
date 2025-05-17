@@ -7,6 +7,7 @@ import 'package:pcplus/pages/user/edit_profile/edit_profile_screen_presenter.dar
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 import 'package:pcplus/pages/user/change_password/change_password.dart';
+import '../../../component/user_argument.dart';
 import '../../../config/asset_helper.dart';
 import '../../widgets/button/accept_button.dart';
 import '../../widgets/button/cancel_button.dart';
@@ -257,9 +258,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> implements EditPr
                 onTap: () {
                   Navigator.of(context).pushNamed(
                     ChangePasswordScreen.routeName,
-                    arguments: ItemArgument(data: {
-                      'userModel' : _presenter!.user
-                    }),
+                    arguments: UserArgument(user: _presenter!.user!),
                   );
                 },
                 child: Text(

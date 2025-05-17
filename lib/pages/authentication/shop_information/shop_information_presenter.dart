@@ -69,6 +69,7 @@ class ShopInformationPresenter {
       String avatarUrl = imagePath != null && imagePath.isNotEmpty ? imagePath : "";
 
       userModel!.userID = userCredential.user!.uid;
+      userModel!.userType = UserType.SHOP;
       userModel!.fcm = fcm;
 
       ShopModel shopModel = ShopModel(
@@ -86,6 +87,7 @@ class ShopInformationPresenter {
 
       await _shopRepo.addShopToFirestore(shopModel);
       await PrefService.saveShopData(shopData: shopModel);
+      await SessionController.getInstance().loadUser(userModel!);
 
       _view.onPopContext();
       _view.onConfirmSucceeded();

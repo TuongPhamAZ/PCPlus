@@ -9,6 +9,7 @@ import 'package:pcplus/pages/search/search_screen_contract.dart';
 import 'package:pcplus/pages/search/search_screen_presenter.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 
+import '../../component/search_argument.dart';
 import '../../models/items/item_with_seller.dart';
 import '../manage_product/detail_product/detail_product.dart';
 import '../widgets/util_widgets.dart';
@@ -45,11 +46,11 @@ class _SearchScreenState extends State<SearchScreen> implements SearchScreenCont
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    final args = ModalRoute.of(context)!.settings.arguments as ItemArgument;
+    final args = ModalRoute.of(context)!.settings.arguments as SearchArgument;
 
-    if ((args.data['searchQuery'] as String).isEmpty == false) {
-      _searchController.text = args.data['searchQuery'];
-      args.data['searchQuery'] = '';
+    if (args.query.isEmpty == false) {
+      _searchController.text = args.query;
+      args.query = '';
     }
 
     loadData();
@@ -349,8 +350,11 @@ class _SearchScreenState extends State<SearchScreen> implements SearchScreenCont
   }
 
   @override
-  void onSelectItem() {
-    Navigator.of(context).pushNamed(DetailProduct.routeName);
+  void onSelectItem(ItemWithSeller item) {
+    Navigator.of(context).pushNamed(
+      DetailProduct.routeName,
+      arguments: ItemArgument(data: item),
+    );
   }
 
   @override

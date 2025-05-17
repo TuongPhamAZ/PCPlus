@@ -8,9 +8,6 @@ class InCartItemModel {
   int? amount;
   ColorModel? color;
   bool? isSelected;
-  String? noteForShop = "";
-  String? deliveryMethod = "";
-  int? deliveryCost = 0;
 
   InCartItemModel(
       {
@@ -19,9 +16,6 @@ class InCartItemModel {
         required this.amount,
         this.color,
         this.isSelected,
-        this.noteForShop,
-        this.deliveryMethod,
-        this.deliveryCost,
       });
 
   static String collectionName = 'InCartItems';
@@ -31,9 +25,6 @@ class InCartItemModel {
     'amount': amount,
     'color': color?.toJson(),
     'isSelected': isSelected,
-    'noteForShop': noteForShop ?? "",
-    'deliveryMethod': deliveryMethod ?? "",
-    'deliveryCost': deliveryCost ?? 0,
   };
 
   static InCartItemModel fromJson(String key, Map<String, dynamic> json) {
@@ -44,9 +35,6 @@ class InCartItemModel {
       amount: json['amount'] as int,
       color: ColorModel.fromJson(json['color']),
       isSelected: json['isSelected'] as bool,
-      noteForShop: (json['noteForShop'] ?? "") as String,
-      deliveryMethod: (json['deliveryMethod'] ?? "") as String,
-      deliveryCost:  (json['deliveryCost'] ?? 0) as int,
     );
   }
 

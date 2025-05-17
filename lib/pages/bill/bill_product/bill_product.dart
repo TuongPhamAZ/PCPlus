@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:gap/gap.dart';
+import 'package:pcplus/models/bills/bill_shop_item_model.dart';
 import 'package:pcplus/pages/bill/bill_product/bill_product_contract.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 import 'package:pcplus/pages/delivery/delivery_infor.dart';
-import 'package:pcplus/models/orders/order_address_model.dart';
 import 'package:pcplus/pages/home/user_home/home.dart';
 
+import '../../../const/order_status.dart';
+import '../../../models/bills/bill_shop_model.dart';
 import '../../../models/in_cart_items/item_in_cart_with_seller.dart';
+import '../../../models/users/ship_infor_model.dart';
 import '../../widgets/listItem/payment_product.dart';
 import '../../widgets/util_widgets.dart';
 import 'bill_product_presenter.dart';
@@ -29,11 +32,11 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
 
   int productCount = 2;
   bool isFirst = true;
-  OrderAddressModel address = OrderAddressModel(
+  ShipInformationModel address = ShipInformationModel(
     receiverName: "",
     phone: "",
-    address1: "",
-    address2: "",
+    location: "",
+    isDefault: true,
   );
 
   String? _productCost = "0";
@@ -141,9 +144,9 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
                                           ),
                                         ],
                                       ),
-                                      Text('${address.address1}',
+                                      Text('${address.location}',
                                           style: TextDecor.robo15),
-                                      Text('${address.address2}',
+                                      Text('${address.location}',
                                           style: TextDecor.robo15),
                                     ],
                                   ),
@@ -199,6 +202,40 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
                   final itemsWithSeller = snapshot.data ?? [];
 
                   _presenter!.onPaymentItems = itemsWithSeller;
+                  Map<String, BillShopModel> billShops = _presenter!.billShops!;
+                  billShops.clear();
+
+                  // Bỏ item vô BillShopModel
+                  for (ItemInCartWithSeller data in itemsWithSeller) {
+                    String shopId = data.seller.shopID!;
+                    BillShopModel? billShop;
+
+                    if (billShops.containsKey(shopId)) {
+                      billShop = billShops[shopId];
+                    }
+
+                    billShop ??= BillShopModel(
+                      shopID: shopId,
+                      shopName: data.seller.name,
+                      buyItems: [],
+                      status: OrderStatus.PENDING_CONFIRMATION,
+                      voucher: null,
+                    );
+
+                    BillShopItemModel newItem = BillShopItemModel(
+                      itemID: data.item.itemID,
+                      name: data.item.name,
+                      itemType: data.item.itemType,
+                      sellerID: shopId,
+                      addDate: data.item.addDate,
+                      price: data.item.price,
+                      color: data.inCart.color,
+                      amount: data.inCart.amount,
+                      totalCost: data.item.price! * data.inCart.amount!,
+                    );
+
+                    billShop.buyItems!.add(newItem);
+                  }
 
                   String remoteProductCost = _presenter!.getProductCost();
                   String remoteShippingFee = _presenter!.getShippingFee();
@@ -226,16 +263,13 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
                     padding: EdgeInsets.zero,
                     physics: const NeverScrollableScrollPhysics(),
                     scrollDirection: Axis.vertical,
-                    itemCount: itemsWithSeller.length,
+                    itemCount: _presenter!.billShops!.length,
                     itemBuilder: (context, index) {
-                      ItemInCartWithSeller data = itemsWithSeller[index];
+                      BillShopModel data = billShops.values.elementAt(index);
 
                       return PaymentProductItem(
-                        productName: data.item.name!,
-                        shopName: data.seller.name!,
-                        price: data.item.price!,
-                        amount: data.inCart.amount!,
-                        imageUrl: data.item.image!,
+                        shopName: data.shopName!,
+                        items: data.buyItems!,
                         onChangeNote: (text) {
                           _presenter?.handleNoteForShop(data: data, text: text);
                         },
@@ -246,7 +280,6 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
                               cost: price
                           );
                         },
-                        color: "Black",
                       );
                     },
                   );

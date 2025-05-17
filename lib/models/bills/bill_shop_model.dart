@@ -10,6 +10,9 @@ class BillShopModel {
   String? status;
   VoucherModel? voucher;
   int? totalPrice;
+  String? noteForShop = "";
+  String? deliveryMethod = "";
+  int? deliveryCost = 0;
 
   BillShopModel(
       {
@@ -19,6 +22,9 @@ class BillShopModel {
         required this.status,
         required this.voucher,
         this.totalPrice,
+        this.noteForShop,
+        this.deliveryMethod,
+        this.deliveryCost,
       });
 
   Map<String, dynamic> toJson() {
@@ -37,6 +43,9 @@ class BillShopModel {
       'status': status,
       'voucher': voucher,
       'totalPrice': totalPrice,
+      'noteForShop': noteForShop ?? "",
+      'deliveryMethod': deliveryMethod ?? "",
+      'deliveryCost': deliveryCost ?? 0,
     };
   }
 
@@ -51,6 +60,9 @@ class BillShopModel {
       status: json['status'] as String,
       voucher: VoucherModel.fromJson("", json['voucher']),
       totalPrice: json['totalPrice'] as int,
+      noteForShop: (json['noteForShop'] ?? "") as String,
+      deliveryMethod: (json['deliveryMethod'] ?? "") as String,
+      deliveryCost:  (json['deliveryCost'] ?? 0) as int,
     );
   }
 }

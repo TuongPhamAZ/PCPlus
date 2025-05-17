@@ -29,7 +29,7 @@ class ShopRepository {
     final DocumentReference<Map<String, dynamic>> collectionRef = _storage.collection(ShopModel.collectionName).doc(id);
     DocumentSnapshot<Map<String, dynamic>> documentSnapshot = await collectionRef.get();
 
-    final ShopModel shop = ShopModel.fromJson(documentSnapshot.data() as Map<String, dynamic>);
+    final ShopModel shop = ShopModel.fromJson(documentSnapshot.id, documentSnapshot.data() as Map<String, dynamic>);
     return shop;
   }
 
@@ -37,7 +37,7 @@ class ShopRepository {
     final QuerySnapshot querySnapshot = await _storage.collection(ShopModel.collectionName).get();
     final shops = querySnapshot
         .docs
-        .map((doc) => ShopModel.fromJson(doc as Map<String, dynamic>))
+        .map((doc) => ShopModel.fromJson(doc.id, doc as Map<String, dynamic>))
         .toList();
     return shops;
   }

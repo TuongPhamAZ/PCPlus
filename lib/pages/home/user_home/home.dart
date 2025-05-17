@@ -13,6 +13,7 @@ import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 import 'package:pcplus/pages/manage_product/detail_product/detail_product.dart';
 import 'package:pcplus/pages/search/search_screen.dart';
+import '../../../component/search_argument.dart';
 import '../../widgets/bottom/bottom_bar_custom.dart';
 import '../../widgets/util_widgets.dart';
 import 'home_presenter.dart';
@@ -238,9 +239,7 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
   void onSearch() {
     Navigator.of(context).pushNamed(
         SearchScreen.routeName,
-        arguments: ItemArgument(data: {
-          NavigatorArgs.searchQuery : _searchController.text.trim()
-        })
+        arguments: SearchArgument(query: _searchController.text.trim()),
     );
   }
 

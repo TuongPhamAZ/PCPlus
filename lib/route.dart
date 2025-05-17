@@ -28,6 +28,8 @@ import 'package:pcplus/pages/splash/splash.dart';
 import 'package:pcplus/pages/statistic/statistic.dart';
 import 'package:pcplus/sample/comment.dart';
 
+import 'models/users/ship_infor_model.dart';
+
 final Map<String, WidgetBuilder> routes = {
   SplashScreen.routeName: (context) => const SplashScreen(),
   LoginScreen.routeName: (context) => const LoginScreen(),
@@ -47,7 +49,7 @@ final Map<String, WidgetBuilder> routes = {
   DetailProduct.routeName: (context) => const DetailProduct(),
   BillProduct.routeName: (context) => const BillProduct(),
   DeliveryChoice.routeName: (context) => const DeliveryChoice(),
-  DeliveryInfor.routeName: (context) => DeliveryInfor(currentAddress: OrderAddressModel.emptyAddress),
+  DeliveryInfor.routeName: (context) => DeliveryInfor(currentAddress: ShipInformationModel.emptyAddress),
   SearchScreen.routeName: (context) => const SearchScreen(),
   HistoryOrder.routeName: (context) => const HistoryOrder(orderType: '',),
   RatingScreen.routeName: (context) => const RatingScreen(),

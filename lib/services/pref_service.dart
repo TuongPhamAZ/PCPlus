@@ -2,6 +2,7 @@ import 'package:pcplus/models/in_cart_items/in_cart_item_model.dart';
 import 'package:pcplus/models/orders/order_address_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/shops/shop_model.dart';
+import '../models/users/ship_infor_model.dart';
 import '../models/users/user_model.dart';
 
 class PrefService {
@@ -97,28 +98,28 @@ class PrefService {
   }
 
   static Future<void> saveLocationData({
-    required OrderAddressModel addressData,
+    required ShipInformationModel addressData,
   }) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     prefs.setString('receiverName', addressData.receiverName!);
     prefs.setString('phone', addressData.phone!);
-    prefs.setString('address1', addressData.address1!);
-    prefs.setString('address2', addressData.address2!);
+    prefs.setString('location', addressData.location!);
+    prefs.setBool('isDefault', addressData.isDefault!);
   }
 
-  static Future<OrderAddressModel?> loadLocationData() async {
+  static Future<ShipInformationModel?> loadLocationData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     if (prefs.containsKey('receiverName') == false) {
       return null;
     }
 
-    return OrderAddressModel(
+    return ShipInformationModel(
         receiverName: prefs.getString('receiverName'),
         phone: prefs.getString('phone'),
-        address1: prefs.getString('address1'),
-        address2: prefs.getString('address2')
+        location: prefs.getString('location'),
+        isDefault: prefs.getBool('isDefault')
     );
   }
 

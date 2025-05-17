@@ -417,7 +417,10 @@ class _UserInformationState extends State<UserInformation>
     if (_isShopOwner) {
       args?.userModel = userModel;
       args?.password = password;
-      Navigator.of(context).pushNamed(ShopInformationScreen.routeName);
+      Navigator.of(context).pushNamed(
+        ShopInformationScreen.routeName,
+        arguments: args,
+      );
     } else {
       Navigator.of(context).pushNamed(HomeScreen.routeName);
     }

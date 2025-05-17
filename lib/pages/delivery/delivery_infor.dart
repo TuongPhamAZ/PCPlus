@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:pcplus/models/users/ship_infor_model.dart';
 import 'package:pcplus/themes/text_decor.dart';
 import 'package:pcplus/models/orders/order_address_model.dart';
 
 class DeliveryInfor extends StatefulWidget {
-  final OrderAddressModel currentAddress;
+  final ShipInformationModel currentAddress;
   const DeliveryInfor({
     super.key,
     required this.currentAddress
@@ -29,9 +30,9 @@ class _DeliveryInforState extends State<DeliveryInfor> {
     phoneController =
         TextEditingController(text: widget.currentAddress.phone);
     address1Controller =
-        TextEditingController(text: widget.currentAddress.address1);
+        TextEditingController(text: widget.currentAddress.location);
     address2Controller =
-        TextEditingController(text: widget.currentAddress.address2);
+        TextEditingController(text: widget.currentAddress.location);
   }
 
   @override
@@ -122,11 +123,11 @@ class _DeliveryInforState extends State<DeliveryInfor> {
           onTap: () {
             if (_formKey.currentState!.validate()) {
               Navigator.pop(context, {
-                OrderAddressModel(
+                ShipInformationModel(
                   receiverName: nameController.text,
                   phone: phoneController.text,
-                  address1: address1Controller.text,
-                  address2: address2Controller.text,
+                  location: address1Controller.text,
+                  isDefault: true,
                 )
               });
             }
