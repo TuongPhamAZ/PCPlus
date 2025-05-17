@@ -1,8 +1,5 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:pcplus/models/interactions/interaction_model.dart';
-import 'package:pcplus/models/items/item_model.dart';
-import 'package:pcplus/services/utility.dart';
 
 import '../models/users/user_model.dart';
 

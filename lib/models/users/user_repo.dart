@@ -25,12 +25,17 @@ class UserRepository {
     return isSuccess;
   }
 
-  Future<UserModel> getUserById(String id) async {
-    final DocumentReference<Map<String, dynamic>> collectionRef = _storage.collection(UserModel.collectionName).doc(id);
-    DocumentSnapshot<Map<String, dynamic>> documentSnapshot = await collectionRef.get();
+  Future<UserModel?> getUserById(String id) async {
+    try {
+      final DocumentReference<Map<String, dynamic>> collectionRef = _storage.collection(UserModel.collectionName).doc(id);
+      DocumentSnapshot<Map<String, dynamic>> documentSnapshot = await collectionRef.get();
 
-    final UserModel user = UserModel.fromJson(documentSnapshot.data() as Map<String, dynamic>);
-    return user;
+      final UserModel user = UserModel.fromJson(documentSnapshot.data() as Map<String, dynamic>);
+      return user;
+    } catch (e) {
+      return null;
+    }
+
   }
 
   Future<List<UserModel>> getAllUsers() async {

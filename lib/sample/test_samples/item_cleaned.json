@@ -1,0 +1,881 @@
+[
+  {
+    "sellerID": "yrrqggZETt8KVcemuEKT",
+    "name": "Loa Bluetooth",
+    "itemType": "Loa",
+    "price": 5021000,
+    "stock": 1265,
+    "description": "Loa mini gọn nhẹ, âm thanh trong trẻo, dễ dàng mang theo. Hỗ trợ cổng USB, thẻ nhớ và kết nối Bluetooth.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/1034653/pexels-photo-1034653.jpeg",
+      "https://images.pexels.com/photos/157534/pexels-photo-157534.jpeg",
+      "https://images.pexels.com/photos/373632/pexels-photo-373632.jpeg",
+      "https://images.pexels.com/photos/373632/pexels-photo-373632.jpeg",
+      "https://images.pexels.com/photos/373632/pexels-photo-373632.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Đen",
+        "image": "https://images.pexels.com/photos/157534/pexels-photo-157534.jpeg"
+      },
+      {
+        "name": "Nâu",
+        "image": "https://images.pexels.com/photos/373632/pexels-photo-373632.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "yrrqggZETt8KVcemuEKT",
+    "name": "Bàn phím cơ",
+    "itemType": "Bàn phím",
+    "price": 6178000,
+    "stock": 1031,
+    "description": "Bàn phím không dây siêu bền, thiết kế mỏng nhẹ, kết nối Bluetooth ổn định, sử dụng pin sạc tích hợp tiện dụng.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/585752/pexels-photo-585752.jpeg",
+      "https://images.pexels.com/photos/585752/pexels-photo-585752.jpeg",
+      "https://images.pexels.com/photos/265631/pexels-photo-265631.jpeg",
+      "https://images.pexels.com/photos/585752/pexels-photo-585752.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Trắng",
+        "image": "https://images.pexels.com/photos/1772123/pexels-photo-1772123.jpeg"
+      },
+      {
+        "name": "Bạc",
+        "image": "https://images.pexels.com/photos/585752/pexels-photo-585752.jpeg"
+      },
+      {
+        "name": "Xanh",
+        "image": "https://images.pexels.com/photos/265631/pexels-photo-265631.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "yrrqggZETt8KVcemuEKT",
+    "name": "Chuột văn phòng",
+    "itemType": "Chuột",
+    "price": 11120000,
+    "stock": 1989,
+    "description": "Chuột quang không dây đa kết nối, tích hợp nút chỉnh DPI, mang lại trải nghiệm nhấp chuột mượt mà và chính xác.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/31915113/pexels-photo-31915113.jpeg",
+      "https://images.pexels.com/photos/399160/pexels-photo-399160.jpeg",
+      "https://images.pexels.com/photos/31918400/pexels-photo-31918400.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Trắng",
+        "image": "https://images.pexels.com/photos/31915113/pexels-photo-31915113.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "yrrqggZETt8KVcemuEKT",
+    "name": "Tai nghe Bluetooth",
+    "itemType": "Tai nghe",
+    "price": 1843000,
+    "stock": 1803,
+    "description": "Tai nghe có dây Bluetooth gọn nhẹ, pin lâu dài, kết nối nhanh chóng. Micro đàm thoại rõ, phù hợp cho gọi thoại và nghe nhạc.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/1037992/pexels-photo-1037992.jpeg",
+      "https://images.pexels.com/photos/1037992/pexels-photo-1037992.jpeg",
+      "https://images.pexels.com/photos/1037999/pexels-photo-1037999.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Xanh",
+        "image": "https://images.pexels.com/photos/1037992/pexels-photo-1037992.jpeg"
+      },
+      {
+        "name": "Hồng",
+        "image": "https://images.pexels.com/photos/1037999/pexels-photo-1037999.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "yrrqggZETt8KVcemuEKT",
+    "name": "Bàn phím LED",
+    "itemType": "Bàn phím",
+    "price": 3082000,
+    "stock": 1257,
+    "description": "Bàn phím cơ cao cấp với đèn LED RGB, phím bấm êm và nảy, bảo vệ tối ưu cho các game thủ và người dùng văn phòng.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/1772123/pexels-photo-1772123.jpeg",
+      "https://images.pexels.com/photos/585752/pexels-photo-585752.jpeg",
+      "https://images.pexels.com/photos/585752/pexels-photo-585752.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Trắng",
+        "image": "https://images.pexels.com/photos/1772123/pexels-photo-1772123.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "yrrqggZETt8KVcemuEKT",
+    "name": "Loa karaoke Bluetooth",
+    "itemType": "Loa",
+    "price": 1144000,
+    "stock": 1930,
+    "description": "Loa karaoke Bluetooth với công suất mạnh, hỗ trợ micro và các hiệu ứng âm thanh để gia đình bạn có trải nghiệm hát karaoke tốt.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/157534/pexels-photo-157534.jpeg",
+      "https://images.pexels.com/photos/373632/pexels-photo-373632.jpeg",
+      "https://images.pexels.com/photos/157534/pexels-photo-157534.jpeg",
+      "https://images.pexels.com/photos/373632/pexels-photo-373632.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Trắng",
+        "image": "https://images.pexels.com/photos/1034653/pexels-photo-1034653.jpeg"
+      },
+      {
+        "name": "Đen",
+        "image": "https://images.pexels.com/photos/157534/pexels-photo-157534.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "yrrqggZETt8KVcemuEKT",
+    "name": "Chuột LED",
+    "itemType": "Chuột",
+    "price": 4551000,
+    "stock": 1387,
+    "description": "Chuột không dây kết nối đa nền tảng (USB/ Bluetooth), kích thước nhỏ gọn, phù hợp cho laptop và máy tính để bàn.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/31915113/pexels-photo-31915113.jpeg",
+      "https://images.pexels.com/photos/392018/pexels-photo-392018.jpeg",
+      "https://images.pexels.com/photos/399160/pexels-photo-399160.jpeg",
+      "https://images.pexels.com/photos/31915113/pexels-photo-31915113.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Trắng",
+        "image": "https://images.pexels.com/photos/31915113/pexels-photo-31915113.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "yrrqggZETt8KVcemuEKT",
+    "name": "Tay cầm PC",
+    "itemType": "Tay cầm chơi game",
+    "price": 716000,
+    "stock": 1059,
+    "description": "Tay cầm chơi game cho Xbox One/Series, cảm biến nhạy bén, bề mặt có bám chắc tay, sử dụng pin AA dễ thay thế.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/2520829/pexels-photo-2520829.jpeg",
+      "https://images.pexels.com/photos/2520829/pexels-photo-2520829.jpeg",
+      "https://images.pexels.com/photos/3651581/pexels-photo-3651581.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Đen",
+        "image": "https://images.pexels.com/photos/2520829/pexels-photo-2520829.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "N0eK0YGWrrareRRqP0OF",
+    "name": "Bàn phím có dây",
+    "itemType": "Bàn phím",
+    "price": 1225000,
+    "stock": 1547,
+    "description": "Bàn phím có dây với layout chuẩn QWERTY, phím chống tràn nước, tuổi thọ phím lên đến 10 triệu lượt nhấn.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/1772123/pexels-photo-1772123.jpeg",
+      "https://images.pexels.com/photos/1772123/pexels-photo-1772123.jpeg",
+      "https://images.pexels.com/photos/585752/pexels-photo-585752.jpeg",
+      "https://images.pexels.com/photos/265631/pexels-photo-265631.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Bạc",
+        "image": "https://images.pexels.com/photos/585752/pexels-photo-585752.jpeg"
+      },
+      {
+        "name": "Xanh",
+        "image": "https://images.pexels.com/photos/265631/pexels-photo-265631.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "N0eK0YGWrrareRRqP0OF",
+    "name": "Chuột quang",
+    "itemType": "Chuột",
+    "price": 5739000,
+    "stock": 1207,
+    "description": "Chuột quang không dây đa kết nối, tích hợp nút chỉnh DPI, mang lại trải nghiệm nhấp chuột mượt mà và chính xác.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/392018/pexels-photo-392018.jpeg",
+      "https://images.pexels.com/photos/399160/pexels-photo-399160.jpeg",
+      "https://images.pexels.com/photos/392018/pexels-photo-392018.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Trắng",
+        "image": "https://images.pexels.com/photos/31915113/pexels-photo-31915113.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "N0eK0YGWrrareRRqP0OF",
+    "name": "Loa Bluetooth",
+    "itemType": "Loa",
+    "price": 4008000,
+    "stock": 1234,
+    "description": "Loa Bluetooth di động, công suất lớn, âm thanh sống động. Thiết kế chống nước, pin dung lượng cao cho phép nghe nhạc liên tục nhiều giờ.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/373632/pexels-photo-373632.jpeg",
+      "https://images.pexels.com/photos/157534/pexels-photo-157534.jpeg",
+      "https://images.pexels.com/photos/373632/pexels-photo-373632.jpeg",
+      "https://images.pexels.com/photos/1034653/pexels-photo-1034653.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Đen",
+        "image": "https://images.pexels.com/photos/157534/pexels-photo-157534.jpeg"
+      },
+      {
+        "name": "Trắng",
+        "image": "https://images.pexels.com/photos/1034653/pexels-photo-1034653.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "N0eK0YGWrrareRRqP0OF",
+    "name": "Tai nghe gaming",
+    "itemType": "Tai nghe",
+    "price": 5925000,
+    "stock": 1046,
+    "description": "Tai nghe chơi game với micro thu âm chống ồn, âm trường rộng, mang đến trải nghiệm chơi game nhập vai.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/1037992/pexels-photo-1037992.jpeg",
+      "https://images.pexels.com/photos/1037999/pexels-photo-1037999.jpeg",
+      "https://images.pexels.com/photos/1037999/pexels-photo-1037999.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Xanh",
+        "image": "https://images.pexels.com/photos/1037992/pexels-photo-1037992.jpeg"
+      },
+      {
+        "name": "Hồng",
+        "image": "https://images.pexels.com/photos/1037999/pexels-photo-1037999.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "N0eK0YGWrrareRRqP0OF",
+    "name": "Chuột Bluetooth",
+    "itemType": "Chuột",
+    "price": 8639000,
+    "stock": 1272,
+    "description": "Chuột máy tính thiết kế tiện dụng, cho cảm giác cầm nắm thoải mái. Độ nhạy cao với nhiều mức DPI để lựa chọn, phù hợp cho cả văn phòng và game.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/392018/pexels-photo-392018.jpeg",
+      "https://images.pexels.com/photos/31918400/pexels-photo-31918400.jpeg",
+      "https://images.pexels.com/photos/31915113/pexels-photo-31915113.jpeg",
+      "https://images.pexels.com/photos/399160/pexels-photo-399160.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Trắng",
+        "image": "https://images.pexels.com/photos/31915113/pexels-photo-31915113.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "N0eK0YGWrrareRRqP0OF",
+    "name": "Ổ SSD 1TB",
+    "itemType": "Ổ cứng",
+    "price": 4326000,
+    "stock": 1161,
+    "description": "Ổ cứng SSD ngoài gọn nhẹ, tốc độ truyền tải nhanh, chống shock tốt, phù hợp cho việc di chuyển và làm việc thường xuyên.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/18734876/pexels-photo-18734876.jpeg",
+      "https://images.pexels.com/photos/33278/pexels-photo-33278.jpeg",
+      "https://images.pexels.com/photos/28461160/pexels-photo-28461160.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Bạc",
+        "image": "https://images.pexels.com/photos/33278/pexels-photo-33278.jpeg"
+      },
+      {
+        "name": "Đen",
+        "image": "https://images.pexels.com/photos/28461160/pexels-photo-28461160.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "N0eK0YGWrrareRRqP0OF",
+    "name": "Micro không dây",
+    "itemType": "Microphone",
+    "price": 1399000,
+    "stock": 1575,
+    "description": "Microphone thu âm condenser chuyên nghiệp, độ nhạy cao, độ ồn thấp, phù hợp cho streaming và thu âm âm nhạc.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/6190821/pexels-photo-6190821.png",
+      "https://images.pexels.com/photos/302655/pexels-photo-302655.jpeg",
+      "https://images.pexels.com/photos/6190821/pexels-photo-6190821.png"
+    ],
+    "colors": [
+      {
+        "name": "Bạc",
+        "image": "https://images.pexels.com/photos/302655/pexels-photo-302655.jpeg"
+      },
+      {
+        "name": "Đen",
+        "image": "https://images.pexels.com/photos/6190821/pexels-photo-6190821.png"
+      }
+    ]
+  },
+  {
+    "sellerID": "N0eK0YGWrrareRRqP0OF",
+    "name": "Bàn phím gaming",
+    "itemType": "Bàn phím",
+    "price": 642000,
+    "stock": 1966,
+    "description": "Bàn phím chơi game chống ồn, ánh sáng backlit màu sắc, chân đế điều chỉnh được độ cao cho tư thế gõ thoải mái.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/238118/pexels-photo-238118.jpeg",
+      "https://images.pexels.com/photos/238118/pexels-photo-238118.jpeg",
+      "https://images.pexels.com/photos/1772123/pexels-photo-1772123.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Trắng",
+        "image": "https://images.pexels.com/photos/1772123/pexels-photo-1772123.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "N0eK0YGWrrareRRqP0OF",
+    "name": "Tay cầm Nintendo Switch",
+    "itemType": "Tay cầm chơi game",
+    "price": 3184000,
+    "stock": 1317,
+    "description": "Tay cầm không dây hỗ trợ đa nền tảng (PC, Xbox, Android), thiết kế thoải mái, phím chức năng đầy đủ, giúp tăng trải nghiệm chơi game.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/2520829/pexels-photo-2520829.jpeg",
+      "https://images.pexels.com/photos/3651581/pexels-photo-3651581.jpeg",
+      "https://images.pexels.com/photos/2520829/pexels-photo-2520829.jpeg",
+      "https://images.pexels.com/photos/3651581/pexels-photo-3651581.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Đen",
+        "image": "https://images.pexels.com/photos/2520829/pexels-photo-2520829.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "wtaFnEgQtt2uBEWSMQPT",
+    "name": "Chuột không dây",
+    "itemType": "Chuột",
+    "price": 1408000,
+    "stock": 1475,
+    "description": "Chuột máy tính thiết kế tiện dụng, cho cảm giác cầm nắm thoải mái. Độ nhạy cao với nhiều mức DPI để lựa chọn, phù hợp cho cả văn phòng và game.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/31918400/pexels-photo-31918400.jpeg",
+      "https://images.pexels.com/photos/399160/pexels-photo-399160.jpeg",
+      "https://images.pexels.com/photos/392018/pexels-photo-392018.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Trắng",
+        "image": "https://images.pexels.com/photos/31915113/pexels-photo-31915113.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "wtaFnEgQtt2uBEWSMQPT",
+    "name": "Loa Stereo 2.0",
+    "itemType": "Loa",
+    "price": 2782000,
+    "stock": 1293,
+    "description": "Loa nghe nhạc 2.0 với âm bass mạnh mẽ và âm trung-trung thực. Kết nối không dây và có dây linh hoạt, phù hợp cho tiệc tùng hay giải trí tại nhà.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/373632/pexels-photo-373632.jpeg",
+      "https://images.pexels.com/photos/373632/pexels-photo-373632.jpeg",
+      "https://images.pexels.com/photos/157534/pexels-photo-157534.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Nâu",
+        "image": "https://images.pexels.com/photos/373632/pexels-photo-373632.jpeg"
+      },
+      {
+        "name": "Đen",
+        "image": "https://images.pexels.com/photos/157534/pexels-photo-157534.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "wtaFnEgQtt2uBEWSMQPT",
+    "name": "Bàn phím văn phòng",
+    "itemType": "Bàn phím",
+    "price": 4581000,
+    "stock": 1458,
+    "description": "Bàn phím không dây siêu bền, thiết kế mỏng nhẹ, kết nối Bluetooth ổn định, sử dụng pin sạc tích hợp tiện dụng.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/238118/pexels-photo-238118.jpeg",
+      "https://images.pexels.com/photos/238118/pexels-photo-238118.jpeg",
+      "https://images.pexels.com/photos/585752/pexels-photo-585752.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Trắng",
+        "image": "https://images.pexels.com/photos/1772123/pexels-photo-1772123.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "wtaFnEgQtt2uBEWSMQPT",
+    "name": "Chuột USB",
+    "itemType": "Chuột",
+    "price": 1396000,
+    "stock": 1250,
+    "description": "Chuột không dây kết nối đa nền tảng (USB/ Bluetooth), kích thước nhỏ gọn, phù hợp cho laptop và máy tính để bàn.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/31915113/pexels-photo-31915113.jpeg",
+      "https://images.pexels.com/photos/399160/pexels-photo-399160.jpeg",
+      "https://images.pexels.com/photos/31918400/pexels-photo-31918400.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Trắng",
+        "image": "https://images.pexels.com/photos/31915113/pexels-photo-31915113.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "wtaFnEgQtt2uBEWSMQPT",
+    "name": "Tai nghe nhét tai",
+    "itemType": "Tai nghe",
+    "price": 2834000,
+    "stock": 1720,
+    "description": "Tai nghe nhét tai kèm mic, chân đế cắm USB sạc, bass sâu, tiện lợi cho dân nghe nhạc và di chuyển.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/1037999/pexels-photo-1037999.jpeg",
+      "https://images.pexels.com/photos/1037992/pexels-photo-1037992.jpeg",
+      "https://images.pexels.com/photos/1037999/pexels-photo-1037999.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Xanh",
+        "image": "https://images.pexels.com/photos/1037992/pexels-photo-1037992.jpeg"
+      },
+      {
+        "name": "Hồng",
+        "image": "https://images.pexels.com/photos/1037999/pexels-photo-1037999.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "wtaFnEgQtt2uBEWSMQPT",
+    "name": "Bàn phím cơ A",
+    "itemType": "Bàn phím",
+    "price": 874000,
+    "stock": 1321,
+    "description": "Bàn phím có dây với layout chuẩn QWERTY, phím chống tràn nước, tuổi thọ phím lên đến 10 triệu lượt nhấn.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/585752/pexels-photo-585752.jpeg",
+      "https://images.pexels.com/photos/1772123/pexels-photo-1772123.jpeg",
+      "https://images.pexels.com/photos/585752/pexels-photo-585752.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Bạc",
+        "image": "https://images.pexels.com/photos/585752/pexels-photo-585752.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "wtaFnEgQtt2uBEWSMQPT",
+    "name": "Chuột gaming đèn LED",
+    "itemType": "Chuột",
+    "price": 919000,
+    "stock": 1185,
+    "description": "Chuột gaming chuyên dụng với thiết kế ergonomic, độ phân giải cao, đèn LED nhiều màu, tối ưu cho các tựa game FPS lẫn MOBA.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/31915113/pexels-photo-31915113.jpeg",
+      "https://images.pexels.com/photos/392018/pexels-photo-392018.jpeg",
+      "https://images.pexels.com/photos/31918400/pexels-photo-31918400.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Trắng",
+        "image": "https://images.pexels.com/photos/31915113/pexels-photo-31915113.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "wtaFnEgQtt2uBEWSMQPT",
+    "name": "Gamepad PS5",
+    "itemType": "Tay cầm chơi game",
+    "price": 5564000,
+    "stock": 1814,
+    "description": "Tay cầm không dây hỗ trợ đa nền tảng (PC, Xbox, Android), thiết kế thoải mái, phím chức năng đầy đủ, giúp tăng trải nghiệm chơi game.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/2520829/pexels-photo-2520829.jpeg",
+      "https://images.pexels.com/photos/3651581/pexels-photo-3651581.jpeg",
+      "https://images.pexels.com/photos/2520829/pexels-photo-2520829.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Đen",
+        "image": "https://images.pexels.com/photos/2520829/pexels-photo-2520829.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "BECQs2vftJLLRU1kuGep",
+    "name": "Loa di động",
+    "itemType": "Loa",
+    "price": 4979000,
+    "stock": 1433,
+    "description": "Loa mini gọn nhẹ, âm thanh trong trẻo, dễ dàng mang theo. Hỗ trợ cổng USB, thẻ nhớ và kết nối Bluetooth.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/373632/pexels-photo-373632.jpeg",
+      "https://images.pexels.com/photos/157534/pexels-photo-157534.jpeg",
+      "https://images.pexels.com/photos/157534/pexels-photo-157534.jpeg",
+      "https://images.pexels.com/photos/1034653/pexels-photo-1034653.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Nâu",
+        "image": "https://images.pexels.com/photos/373632/pexels-photo-373632.jpeg"
+      },
+      {
+        "name": "Trắng",
+        "image": "https://images.pexels.com/photos/1034653/pexels-photo-1034653.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "BECQs2vftJLLRU1kuGep",
+    "name": "Chuột không dây",
+    "itemType": "Chuột",
+    "price": 3497000,
+    "stock": 1564,
+    "description": "Chuột không dây kết nối đa nền tảng (USB/ Bluetooth), kích thước nhỏ gọn, phù hợp cho laptop và máy tính để bàn.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/399160/pexels-photo-399160.jpeg",
+      "https://images.pexels.com/photos/392018/pexels-photo-392018.jpeg",
+      "https://images.pexels.com/photos/31915113/pexels-photo-31915113.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Trắng",
+        "image": "https://images.pexels.com/photos/31915113/pexels-photo-31915113.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "BECQs2vftJLLRU1kuGep",
+    "name": "Tai nghe Vivo",
+    "itemType": "Tai nghe",
+    "price": 3187000,
+    "stock": 1684,
+    "description": "Tai nghe không dây Bluetooth gọn nhẹ, pin lâu dài, kết nối nhanh chóng. Micro đàm thoại rõ, phù hợp cho gọi thoại và nghe nhạc.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/1037992/pexels-photo-1037992.jpeg",
+      "https://images.pexels.com/photos/1037999/pexels-photo-1037999.jpeg",
+      "https://images.pexels.com/photos/1037992/pexels-photo-1037992.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Xanh",
+        "image": "https://images.pexels.com/photos/1037992/pexels-photo-1037992.jpeg"
+      },
+      {
+        "name": "Hồng",
+        "image": "https://images.pexels.com/photos/1037999/pexels-photo-1037999.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "BECQs2vftJLLRU1kuGep",
+    "name": "Bàn phím học tập",
+    "itemType": "Bàn phím",
+    "price": 314000,
+    "stock": 1683,
+    "description": "Bàn phím có dây với layout chuẩn QWERTY, phím chống tràn nước, tuổi thọ phím lên đến 10 triệu lượt nhấn.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/238118/pexels-photo-238118.jpeg",
+      "https://images.pexels.com/photos/238118/pexels-photo-238118.jpeg",
+      "https://images.pexels.com/photos/1772123/pexels-photo-1772123.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Trắng",
+        "image": "https://images.pexels.com/photos/1772123/pexels-photo-1772123.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "BECQs2vftJLLRU1kuGep",
+    "name": "Loa mini",
+    "itemType": "Loa",
+    "price": 5402000,
+    "stock": 1083,
+    "description": "Loa mini gọn nhẹ, âm thanh trong trẻo, dễ dàng mang theo. Hỗ trợ cổng USB, thẻ nhớ và kết nối Bluetooth.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/157534/pexels-photo-157534.jpeg",
+      "https://images.pexels.com/photos/1034653/pexels-photo-1034653.jpeg",
+      "https://images.pexels.com/photos/157534/pexels-photo-157534.jpeg",
+      "https://images.pexels.com/photos/373632/pexels-photo-373632.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Trắng",
+        "image": "https://images.pexels.com/photos/1034653/pexels-photo-1034653.jpeg"
+      },
+      {
+        "name": "Nâu",
+        "image": "https://images.pexels.com/photos/373632/pexels-photo-373632.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "BECQs2vftJLLRU1kuGep",
+    "name": "Microphone H",
+    "itemType": "Microphone",
+    "price": 2505000,
+    "stock": 1888,
+    "description": "Microphone thu âm condenser chuyên nghiệp, độ nhạy cao, độ ồn thấp, phù hợp cho streaming và thu âm âm nhạc.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/302655/pexels-photo-302655.jpeg",
+      "https://images.pexels.com/photos/6190821/pexels-photo-6190821.png",
+      "https://images.pexels.com/photos/302655/pexels-photo-302655.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Bạc",
+        "image": "https://images.pexels.com/photos/6190821/pexels-photo-6190821.png"
+      },
+      {
+        "name": "Đen",
+        "image": "https://images.pexels.com/photos/302655/pexels-photo-302655.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "BECQs2vftJLLRU1kuGep",
+    "name": "Tay cầm Xbox",
+    "itemType": "Tay cầm chơi game",
+    "price": 4512000,
+    "stock": 1639,
+    "description": "Tay cầm chơi game cho Xbox One/Series, cảm biến nhạy bén, bề mặt có bám chắc tay, sử dụng pin AA dễ thay thế.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/2520829/pexels-photo-2520829.jpeg",
+      "https://images.pexels.com/photos/2520829/pexels-photo-2520829.jpeg",
+      "https://images.pexels.com/photos/2520829/pexels-photo-2520829.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Đen",
+        "image": "https://images.pexels.com/photos/2520829/pexels-photo-2520829.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "oNQR4vq9kPqCgyHZ59z9",
+    "name": "Bàn phím LED RGB",
+    "itemType": "Bàn phím",
+    "price": 6476000,
+    "stock": 1467,
+    "description": "Bàn phím cơ cao cấp với đèn LED RGB, phím bấm êm và nảy, bảo vệ tối ưu cho các game thủ và người dùng văn phòng.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/238118/pexels-photo-238118.jpeg",
+      "https://images.pexels.com/photos/1772123/pexels-photo-1772123.jpeg",
+      "https://images.pexels.com/photos/238118/pexels-photo-238118.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Trắng",
+        "image": "https://images.pexels.com/photos/1772123/pexels-photo-1772123.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "oNQR4vq9kPqCgyHZ59z9",
+    "name": "Chuột gaming",
+    "itemType": "Chuột",
+    "price": 8094000,
+    "stock": 1332,
+    "description": "Chuột quang không dây đa kết nối, tích hợp nút chỉnh DPI, mang lại trải nghiệm nhấp chuột mượt mà và chính xác.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/392018/pexels-photo-392018.jpeg",
+      "https://images.pexels.com/photos/399160/pexels-photo-399160.jpeg",
+      "https://images.pexels.com/photos/31918400/pexels-photo-31918400.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Trắng",
+        "image": "https://images.pexels.com/photos/31915113/pexels-photo-31915113.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "oNQR4vq9kPqCgyHZ59z9",
+    "name": "Tai nghe Jabra",
+    "itemType": "Tai nghe",
+    "price": 4775000,
+    "stock": 1795,
+    "description": "Tai nghe không dây Bluetooth gọn nhẹ, pin lâu dài, kết nối nhanh chóng. Micro đàm thoại rõ, phù hợp cho gọi thoại và nghe nhạc.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/1037992/pexels-photo-1037992.jpeg",
+      "https://images.pexels.com/photos/1037999/pexels-photo-1037999.jpeg",
+      "https://images.pexels.com/photos/1037992/pexels-photo-1037992.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Xanh",
+        "image": "https://images.pexels.com/photos/1037992/pexels-photo-1037992.jpeg"
+      },
+      {
+        "name": "Hồng",
+        "image": "https://images.pexels.com/photos/1037999/pexels-photo-1037999.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "oNQR4vq9kPqCgyHZ59z9",
+    "name": "Bàn phím học",
+    "itemType": "Bàn phím",
+    "price": 994000,
+    "stock": 1435,
+    "description": "Bàn phím chơi game chống ồn, ánh sáng backlit màu sắc, chân đế điều chỉnh được độ cao cho tư thế gõ thoải mái.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/238118/pexels-photo-238118.jpeg",
+      "https://images.pexels.com/photos/238118/pexels-photo-238118.jpeg",
+      "https://images.pexels.com/photos/585752/pexels-photo-585752.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Trắng",
+        "image": "https://images.pexels.com/photos/1772123/pexels-photo-1772123.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "oNQR4vq9kPqCgyHZ59z9",
+    "name": "Chuột gaming RGB",
+    "itemType": "Chuột",
+    "price": 7648000,
+    "stock": 1434,
+    "description": "Chuột chơi game chuyên dụng với thiết kế ergonomic, độ phân giải cao, đèn LED nhiều màu, tối ưu cho các tựa game FPS lẫn MOBA.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/392018/pexels-photo-392018.jpeg",
+      "https://images.pexels.com/photos/31918400/pexels-photo-31918400.jpeg",
+      "https://images.pexels.com/photos/399160/pexels-photo-399160.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Trắng",
+        "image": "https://images.pexels.com/photos/31915113/pexels-photo-31915113.jpeg"
+      }
+    ]
+  },
+  {
+    "sellerID": "oNQR4vq9kPqCgyHZ59z9",
+    "name": "Tay cầm Sony PS4",
+    "itemType": "Tay cầm chơi game",
+    "price": 2881000,
+    "stock": 1206,
+    "description": "Tay cầm chơi game cho Xbox One/Series, cảm biến nhạy bén, bề mặt có bám chắc tay, sử dụng pin AA dễ thay thế. Tay cầm không dây hỗ trợ đa nền tảng (PC, Xbox, Android), thiết kế thoải mái, phím chức năng đầy đủ, giúp tăng trải nghiệm chơi game.",
+    "status": "active",
+    "rating": 0.0,
+    "reviewImages": [
+      "https://images.pexels.com/photos/2520829/pexels-photo-2520829.jpeg",
+      "https://images.pexels.com/photos/3651581/pexels-photo-3651581.jpeg",
+      "https://images.pexels.com/photos/2520829/pexels-photo-2520829.jpeg",
+      "https://images.pexels.com/photos/3651581/pexels-photo-3651581.jpeg",
+      "https://images.pexels.com/photos/3651581/pexels-photo-3651581.jpeg"
+    ],
+    "colors": [
+      {
+        "name": "Đen",
+        "image": "https://images.pexels.com/photos/2520829/pexels-photo-2520829.jpeg"
+      }
+    ]
+  }
+]

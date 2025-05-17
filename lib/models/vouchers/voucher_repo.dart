@@ -44,16 +44,20 @@ class VoucherRepository {
     return isSuccess;
   }
 
-  Future<VoucherModel> getVoucherByID(String shopID, String voucherID) async {
-    final DocumentReference<Map<String, dynamic>> collectionRef
-    = _storage.collection(ShopModel.collectionName)
-        .doc(shopID)
-        .collection(VoucherModel.collectionName)
-        .doc(voucherID);
-    DocumentSnapshot<Map<String, dynamic>> doc = await collectionRef.get();
+  Future<VoucherModel?> getVoucherByID(String shopID, String voucherID) async {
+    try {
+      final DocumentReference<Map<String, dynamic>> collectionRef
+      = _storage.collection(ShopModel.collectionName)
+          .doc(shopID)
+          .collection(VoucherModel.collectionName)
+          .doc(voucherID);
+      DocumentSnapshot<Map<String, dynamic>> doc = await collectionRef.get();
 
-    final VoucherModel item = VoucherModel.fromJson(doc.id, doc.data() as Map<String, dynamic>);
-    return item;
+      final VoucherModel? item = VoucherModel.fromJson(doc.id, doc.data() as Map<String, dynamic>);
+      return item;
+    } catch (e) {
+      return null;
+    }
   }
 
   Stream<List<VoucherModel>> getShopVouchersStream(String shopID) async* {
@@ -69,7 +73,7 @@ class VoucherRepository {
           .collection(VoucherModel.collectionName)
           .snapshots()
           .map((snapshot) => snapshot.docs
-          .map((doc) => VoucherModel.fromJson(doc.id, doc.data()))
+          .map((doc) => VoucherModel.fromJson(doc.id, doc.data())!)
           .toList());
     }).toList();
 

@@ -34,10 +34,10 @@ class BillOfShopRepository {
     return isSuccess;
   }
 
-  Stream<List<BillOfShopModel>> getAllBillsOfShopFromUserStream(String ShopID) {
+  Stream<List<BillOfShopModel>> getAllBillsOfShopFromShopStream(String shopID) {
     return _storage
         .collection(ShopModel.collectionName)
-        .doc(ShopID)
+        .doc(shopID)
         .collection(BillOfShopModel.collectionName)
         .orderBy('orderDate', descending: true)
         .snapshots()
@@ -48,7 +48,7 @@ class BillOfShopRepository {
     });
   }
 
-  Stream<List<BillOfShopModel>> getAllBillsOfShopFromUserByStatusStream(String ShopID, String status) {
+  Stream<List<BillOfShopModel>> getAllBillsOfShopFromShopByStatusStream(String ShopID, String status) {
     return _storage
         .collection(ShopModel.collectionName)
         .doc(ShopID)

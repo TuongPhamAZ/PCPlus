@@ -1,0 +1,67 @@
+[
+  {
+    "userID": "yrrqggZETt8KVcemuEKT",
+    "name": "Nguyễn Văn An",
+    "email": "nguyenvanan@gmail.com",
+    "phone": "0926095770",
+    "dateOfBirth": "1985-09-24T00:00:00",
+    "gender": "male",
+    "userType": "shop",
+    "avatarUrl": "https://images.pexels.com/photos/1438081/pexels-photo-1438081.jpeg",
+    "money": 0,
+    "fcm": [],
+    "shipInformationModel": null
+  },
+  {
+    "userID": "N0eK0YGWrrareRRqP0OF",
+    "name": "Lê Thị Bình",
+    "email": "lethibinh@gmail.com",
+    "phone": "0912123816",
+    "dateOfBirth": "1990-01-02T00:00:00",
+    "gender": "female",
+    "userType": "shop",
+    "avatarUrl": "https://images.pexels.com/photos/2422278/pexels-photo-2422278.jpeg",
+    "money": 0,
+    "fcm": [],
+    "shipInformationModel": null
+  },
+  {
+    "userID": "wtaFnEgQtt2uBEWSMQPT",
+    "name": "Trần Văn Cường",
+    "email": "tranvancuong@gmail.com",
+    "phone": "0986983403",
+    "dateOfBirth": "1992-02-25T00:00:00",
+    "gender": "male",
+    "userType": "shop",
+    "avatarUrl": "https://images.pexels.com/photos/2182969/pexels-photo-2182969.jpeg",
+    "money": 0,
+    "fcm": [],
+    "shipInformationModel": null
+  },
+  {
+    "userID": "BECQs2vftJLLRU1kuGep",
+    "name": "Phạm Thị Duyên",
+    "email": "phamthiduyen@gmail.com",
+    "phone": "0994496295",
+    "dateOfBirth": "1988-11-05T00:00:00",
+    "gender": "female",
+    "userType": "shop",
+    "avatarUrl": "https://images.pexels.com/photos/17621769/pexels-photo-17621769.jpeg",
+    "money": 0,
+    "fcm": [],
+    "shipInformationModel": null
+  },
+  {
+    "userID": "oNQR4vq9kPqCgyHZ59z9",
+    "name": "Vũ Quốc Vương",
+    "email": "vuquocvuong@gmail.com",
+    "phone": "0929088331",
+    "dateOfBirth": "1995-01-20T00:00:00",
+    "gender": "male",
+    "userType": "shop",
+    "avatarUrl": "https://images.pexels.com/photos/12903184/pexels-photo-12903184.jpeg",
+    "money": 0,
+    "fcm": [],
+    "shipInformationModel": null
+  }
+]

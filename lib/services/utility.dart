@@ -105,6 +105,12 @@ abstract class Utility {
   static Duration calculateDuration(DateTime start, DateTime end) {
     return end.difference(start);
   }
+
+  static bool isDateInRange(DateTime targetDate, DateTime startDate, DateTime endDate) {
+    // Kiểm tra targetDate có nằm trong khoảng startDate và endDate không
+    return targetDate.isAfter(startDate.subtract(const Duration(days: 1))) &&
+        targetDate.isBefore(endDate.add(const Duration(days: 1)));
+  }
 }
 
 abstract class TestData {

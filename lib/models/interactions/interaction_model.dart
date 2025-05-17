@@ -5,13 +5,13 @@ class InteractionModel {
   String? itemID;
   int? clickTimes;
   int? buyTimes;
-  int? rating;
+  double? rating;
   bool? isFavor;
 
   static String collectionName = 'Interactions';
 
   InteractionModel({
-    required this.key,
+    this.key,
     required this.userID,
     required this.itemID,
     required this.clickTimes,
@@ -21,7 +21,6 @@ class InteractionModel {
   });
 
   Map<String, dynamic> toJson() => {
-    'key': key,
     'userID': userID,
     'itemID': itemID,
     'clickTimes': clickTimes,
@@ -30,14 +29,14 @@ class InteractionModel {
     'isFavor': isFavor
   };
 
-  static InteractionModel fromJson(Map<String, dynamic> json) {
+  static InteractionModel fromJson(String id, Map<String, dynamic> json) {
     return InteractionModel(
-      key: json['key'] as String,
+      key: id,
       userID: json['userID'] as String,
       itemID: json['itemID'] as String,
       clickTimes: json['clickTimes'] as int,
       buyTimes: json['buyTimes'] as int,
-      rating: json['rating'] as int,
+      rating: json['rating'] as double,
       isFavor: json['isFavor'] as bool
     );
   }

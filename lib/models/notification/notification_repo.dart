@@ -12,7 +12,7 @@ class NotificationRepository {
   final FirebaseFirestore _storage = FirebaseFirestore.instance;
   // final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  void addNotificationToFirestore(String userID, NotificationModel model) async {
+  Future<void> addNotificationToFirestore(String userID, NotificationModel model) async {
     try {
       DocumentReference docRef =
       _storage.collection(UserModel.collectionName)

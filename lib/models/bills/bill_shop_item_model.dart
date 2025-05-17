@@ -1,4 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pcplus/models/await_ratings/await_rating_model.dart';
+
+import '../items/color_model.dart';
 
 class BillShopItemModel {
 
@@ -11,7 +14,7 @@ class BillShopItemModel {
   DateTime? addDate;
   int? price;
   String? image;
-  String? color;
+  ColorModel? color;
   int? amount;
   int? totalCost;
 
@@ -58,9 +61,17 @@ class BillShopItemModel {
       detail: json['detail'] as String,
       price: json['price'] as int,
       image: json['image'] as String,
-      color: json['color'] as String,
+      color: ColorModel.fromJson(json['color']),
       amount: json['amount'] as int,
       totalCost: json['totalCost'] as int,
+    );
+  }
+
+  AwaitRatingModel createAwaitRatingModel(String shopName) {
+    return AwaitRatingModel(
+        item: this,
+        shopName: shopName,
+        createdAt: DateTime.now(),
     );
   }
 

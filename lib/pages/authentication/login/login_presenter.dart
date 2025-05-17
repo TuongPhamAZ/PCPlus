@@ -33,7 +33,14 @@ class LoginPresenter {
         _view.onPopContext();
         _view.onError("Login failed.");
       }
-      UserModel userData = await _userRepo.getUserById(userCredential!.user!.uid);
+      UserModel? userData = await _userRepo.getUserById(userCredential!.user!.uid);
+
+      if (userData == null) {
+        _view.onPopContext();
+        _view.onError("Something was wrong. Please try again.");
+        return;
+      }
+
       await _sessionController.loadUser(userData);
       await PrefService.saveUserData(userData: userData, password: password);
     } catch (e) {

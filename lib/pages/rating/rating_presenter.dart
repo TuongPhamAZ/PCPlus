@@ -1,59 +1,52 @@
-import 'package:pcplus/const/order_status.dart';
 import 'package:pcplus/controller/session_controller.dart';
-import 'package:pcplus/models/bills/bill_of_shop_model.dart';
-import 'package:pcplus/models/bills/bill_of_shop_repo.dart';
-import 'package:pcplus/models/orders/order_repo.dart';
+import 'package:pcplus/models/await_ratings/await_rating_repo.dart';
+import 'package:pcplus/models/interactions/interaction_model.dart';
 import 'package:pcplus/models/ratings/rating_model.dart';
 import 'package:pcplus/models/ratings/rating_repo.dart';
 import 'package:pcplus/pages/rating/rating_contract.dart';
-import '../../models/bills/bill_model.dart';
-import '../../models/bills/bill_repo.dart';
-import '../../models/bills/bill_shop_item_model.dart';
+import '../../models/await_ratings/await_rating_model.dart';
 import '../../models/orders/order_model.dart';
+import '../../services/utility.dart';
 
 class RatingPresenter {
   final RatingScreenContract _view;
   RatingPresenter(this._view);
 
+  final AwaitRatingRepository _awaitRatingRepo = AwaitRatingRepository();
   final SessionController _sessionController = SessionController.getInstance();
-  final BillRepository _billRepo = BillRepository();
-  final BillOfShopRepository _billOfShopRepo = BillOfShopRepository();
   final RatingRepository _ratingRepo = RatingRepository();
 
-  List<OrderModel> orders = [];
-
-  Stream<List<BillModel>>? billStream;
+  Stream<List<AwaitRatingModel>>? awaitRatingStream;
 
   Future<void> getData() async {
-    billStream = null;
-  }
+    awaitRatingStream = _awaitRatingRepo.getAllAwaitRatingStream(_sessionController.userID!);
 
-  Future<void> updateBill(BillModel model, String shopID, String status) async {
-    model.status = status;
+    List<AwaitRatingModel> items = await _awaitRatingRepo.getAllAwaitRating(_sessionController.userID!);
 
-    BillOfShopModel? billOfShopModel = model.toBillOfShopModel(shopID);
-
-    if (billOfShopModel == null) {
-      return;
+    for (AwaitRatingModel item in items) {
+      if (Utility.calculateDuration(item.createdAt!, DateTime.now()).inDays - 30 > 0) {
+        await _awaitRatingRepo.deleteAwaitRatingByKey(SessionController.getInstance().userID!, item.key!);
+      }
     }
-
-    await _billRepo.updateBill(model.userID!, model);
-    await _billOfShopRepo.updateBillOfShop(shopID, billOfShopModel);
   }
 
-  Future<void> sendRating(BillModel model, double rating, String? comment) async {
+  Future<void> sendRating(AwaitRatingModel model, double rating, String? comment) async {
     _view.onWaitingProgressBar();
-    // RatingModel ratingModel = RatingModel(
-    //     userID: _sessionController.userID,
-    //     itemID: model.item,
-    //     rating: rating,
-    //     date: DateTime.now(),
-    //     comment: comment ?? "",
-    //     like: [],
-    //     dislike: [],
-    // );
-    // await _ratingRepo.addRatingToFirestore(model.itemModel!.itemID!, ratingModel);
-    // await updateBill(model, OrderStatus.COMPLETED);
+    RatingModel ratingModel = RatingModel(
+        userID: _sessionController.userID,
+        itemID: model.item!.itemID!,
+        rating: rating,
+        date: DateTime.now(),
+        comment: comment ?? "",
+        like: [],
+        dislike: [],
+    );
+    await _ratingRepo.addRatingToFirestore(model.item!.itemID!, ratingModel);
+    await _awaitRatingRepo.deleteAwaitRatingByKey(_sessionController.userID!, model.key!);
+    InteractionModel interactionModel = await SessionController.getInstance().getInteractionModel(model.item!.itemID!);
+    interactionModel.rating = rating;
+    await SessionController.getInstance().updateInteraction(interactionModel);
+
     _view.onPopContext();
     _view.onLoadDataSucceeded();
   }
