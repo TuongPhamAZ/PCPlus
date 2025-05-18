@@ -1,3 +1,5 @@
+import '../../../models/shops/shop_model.dart';
+
 abstract class DetailProductContract {
   void onLoadDataSucceeded();
   void onAddToCart();
@@ -5,6 +7,6 @@ abstract class DetailProductContract {
   void onBack();
   void onWaitingProgressBar();
   void onPopContext();
-  void onViewShop(String sellerID);
+  void onViewShop(ShopModel seller);
   void onError(String message);
 }

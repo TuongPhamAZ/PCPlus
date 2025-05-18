@@ -32,7 +32,7 @@ class BillModel {
 
     for (BillShopModel billShop in shops!) {
       billShop.toJson();
-      totalPrice = totalPrice! + billShop.totalPrice!;
+      totalPrice = totalPrice! + billShop.totalPrice! + billShop.deliveryCost!;
     }
 
     return {

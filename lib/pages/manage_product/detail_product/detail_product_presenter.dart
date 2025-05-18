@@ -71,7 +71,7 @@ class DetailProductPresenter {
     // _shopSingleton.changeShop(_itemSingleton.itemData!.shop!);
     // await _shopSingleton.initShopData();
     // _view.onPopContext();
-    _view.onViewShop(itemWithSeller!.seller.shopID!);
+    _view.onViewShop(itemWithSeller!.seller);
   }
 
   Future<void> handleAddToCart() async {

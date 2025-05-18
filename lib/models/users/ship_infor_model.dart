@@ -32,4 +32,18 @@ class ShipInformationModel {
       isDefault: json['isDefault'] as bool,
     );
   }
+
+  static final emptyAddress = ShipInformationModel(
+      receiverName: "",
+      phone: "",
+      location: "",
+      isDefault: true,
+  );
+
+  bool isValid() {
+    return
+      receiverName!.isNotEmpty
+          && phone!.isNotEmpty
+          && location!.isNotEmpty;
+  }
 }

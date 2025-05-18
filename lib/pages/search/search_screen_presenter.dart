@@ -77,6 +77,6 @@ class SearchScreenPresenter {
     _view.onWaitingProgressBar();
     //
     _view.onPopContext();
-    _view.onSelectItem();
+    _view.onSelectItem(item);
   }
 }
