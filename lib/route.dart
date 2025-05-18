@@ -27,6 +27,7 @@ import 'package:pcplus/pages/home/shop_home/shop_home.dart';
 import 'package:pcplus/pages/splash/splash.dart';
 import 'package:pcplus/pages/statistic/statistic.dart';
 import 'package:pcplus/sample/comment.dart';
+import 'package:pcplus/sample/voice_search.dart';
 
 import 'models/users/ship_infor_model.dart';
 
@@ -58,4 +59,5 @@ final Map<String, WidgetBuilder> routes = {
   AddProduct.routeName: (context) => const AddProduct(),
   EditProduct.routeName: (context) => const EditProduct(),
   SampleComment.routeName: (context) => const SampleComment(),
+  VoiceSearchSample.routeName: (context) => const VoiceSearchSample(),
 };

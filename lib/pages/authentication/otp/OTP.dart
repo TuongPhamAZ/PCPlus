@@ -26,7 +26,8 @@ class OTPScreen extends StatefulWidget {
 
 class _OTPScreenState extends State<OTPScreen> implements OtpViewContract {
   OtpPresenter? _otpPresenter;
-  final RegisterController _registerController = RegisterController.getInstance();
+  final RegisterController _registerController =
+      RegisterController.getInstance();
   final _formKey = GlobalKey<FormState>();
   StreamController<ErrorAnimationType> errorController =
       StreamController<ErrorAnimationType>();
@@ -37,6 +38,7 @@ class _OTPScreenState extends State<OTPScreen> implements OtpViewContract {
   @override
   void initState() {
     _otpPresenter = OtpPresenter(this);
+    _otpPresenter!.initSendPinCode();
     super.initState();
   }
 
@@ -47,7 +49,7 @@ class _OTPScreenState extends State<OTPScreen> implements OtpViewContract {
     final args = ModalRoute.of(context)!.settings.arguments as RegisterArgument;
 
     _otpPresenter?.email = args.email;
-    _otpPresenter!.initSendPinCode();
+    
   }
 
   @override
@@ -206,22 +208,15 @@ class _OTPScreenState extends State<OTPScreen> implements OtpViewContract {
 
   @override
   void onVerifySucceeded() {
-    // TODO: implement onVerifySucceeded
-    Navigator.of(context).pushNamed(
-        AccountTypeScreen.routeName,
-        arguments: ModalRoute.of(context)!.settings.arguments
-    );
+    Navigator.of(context).pushNamed(AccountTypeScreen.routeName,
+        arguments: ModalRoute.of(context)!.settings.arguments);
   }
 
   @override
   void onWrongPinCodeError() {
     UtilWidgets.createDismissibleDialog(
-        context,
-        UtilWidgets.NOTIFICATION,
-        "Input code is incorrect",
-        () {
-          Navigator.of(context, rootNavigator: true).pop();
-        }
-    );
+        context, UtilWidgets.NOTIFICATION, "Input code is incorrect", () {
+      Navigator.of(context, rootNavigator: true).pop();
+    });
   }
 }

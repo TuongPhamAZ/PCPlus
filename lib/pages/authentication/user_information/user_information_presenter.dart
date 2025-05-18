@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/controller/register_controller.dart';
@@ -25,7 +26,9 @@ class UserInformationPresenter {
   List<String>? fcm;
 
   Future<void> getFcm() async {
-    fcm = [];
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    String? token = await messaging.getToken();
+    fcm = [token!];
   }
 
   Future<void> handleConfirm(
@@ -37,8 +40,7 @@ class UserInformationPresenter {
       required DateTime? birthDate,
       required String password,
       required String rePassword,
-      required bool isSeller
-      }) async {
+      required bool isSeller}) async {
     _view.onWaitingProgressBar();
 
     if (name.isEmpty ||
@@ -83,7 +85,8 @@ class UserInformationPresenter {
     }
 
     try {
-      UserCredential? userCredential = await _auth.signUpWithEmailAndPassword(email, password);
+      UserCredential? userCredential =
+          await _auth.signUpWithEmailAndPassword(email, password);
       if (userCredential == null) {
         _view.onPopContext();
         _view.onConfirmFailed("Something was wrong. Please try again.");
