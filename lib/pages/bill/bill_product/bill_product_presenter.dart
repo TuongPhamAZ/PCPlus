@@ -6,17 +6,17 @@ import 'package:pcplus/models/bills/bill_repo.dart';
 import 'package:pcplus/models/bills/bill_shop_item_model.dart';
 import 'package:pcplus/models/bills/bill_shop_model.dart';
 import 'package:pcplus/models/in_cart_items/in_cart_item_repo.dart';
+import 'package:pcplus/models/items/item_repo.dart';
 import 'package:pcplus/models/users/user_model.dart';
 import 'package:pcplus/models/users/user_repo.dart';
 import 'package:pcplus/pages/bill/bill_product/bill_product_contract.dart';
 import 'package:pcplus/services/pref_service.dart';
 import 'package:pcplus/services/utility.dart';
-import 'package:pcplus/models/orders/order_address_model.dart';
 
-import '../../../const/order_status.dart';
 import '../../../models/in_cart_items/item_in_cart_with_seller.dart';
 import '../../../models/interactions/interaction_model.dart';
 import '../../../models/system/param_store_repo.dart';
+import '../../../models/users/ship_infor_model.dart';
 import '../../../services/notification_service.dart';
 
 class BillProductPresenter {
@@ -24,45 +24,62 @@ class BillProductPresenter {
   BillProductPresenter(this._view);
 
   final InCartItemRepo _inCartItemRepo = InCartItemRepo();
+  final ItemRepository _itemRepo = ItemRepository();
+  final UserRepository _userRepo = UserRepository();
 
-  OrderAddressModel? address;
+  ShipInformationModel? address;
   String? userId;
 
   Stream<List<ItemInCartWithSeller>>? inCartItemsStream;
   List<ItemInCartWithSeller>? onPaymentItems;
+  Map<String, BillShopModel>? billShops;
 
   Future<void> getData() async {
-    address = await PrefService.loadLocationData();
+    if (inCartItemsStream != null) {
+      return;
+    }
+
+    billShops = {};
+
     userId = SessionController.getInstance().userID;
+    UserModel? user = await _userRepo.getUserById(userId!);
+    if (user != null) {
+      address = user.shipInformationModel;
+    } else {
+      address = ShipInformationModel(
+          receiverName: "",
+          location: "",
+          phone: "",
+          isDefault: true,
+      );
+    }
 
     inCartItemsStream = _inCartItemRepo.getAllItemsInCartStream(userId!);
     _view.onLoadDataSucceeded();
   }
 
   Future<void> handleChangeDelivery({
-    required ItemInCartWithSeller data,
+    required BillShopModel data,
     required String deliveryMethod,
     required int cost,
   }) async {
-    data.inCart.deliveryMethod = deliveryMethod;
-    data.inCart.deliveryCost = cost;
-    await _inCartItemRepo.updateItemInCart(userId!, data.inCart);
-    _view.onChangeData();
+    data.deliveryMethod = deliveryMethod;
+    data.deliveryCost = cost;
+    _view.onChangeDelivery();
   }
 
   Future<void> handleNoteForShop({
-    required ItemInCartWithSeller data,
+    required BillShopModel data,
     required String text
   }) async {
-    data.inCart.noteForShop = text;
-    await _inCartItemRepo.updateItemInCart(userId!, data.inCart);
+    data.noteForShop = text;
   }
 
-  void handleChangeLocation(OrderAddressModel address) {
+  void handleChangeLocation(ShipInformationModel address) {
     PrefService.saveLocationData(addressData: address);
   }
 
-  Future<void> handleOrder(OrderAddressModel address) async {
+  Future<void> handleOrder(ShipInformationModel address) async {
     if (address.isValid() == false) {
       _view.onBuyFailed("Vui lòng chọn địa chỉ giao hàng");
       return;
@@ -107,7 +124,7 @@ class BillProductPresenter {
     BillModel newBill = BillModel(
         billID: billID,
         userID: userId,
-        shops: [],
+        shops: billShops!.values.toList(),
         orderDate: orderDate,
         shipInformation: user.shipInformationModel,
         paymentType: PaymentType.byCashOnDelivery,
@@ -115,44 +132,18 @@ class BillProductPresenter {
     );
 
     for (ItemInCartWithSeller data in onPaymentItems!) {
-      String shopId = data.seller.shopID!;
-
-      BillShopModel? billShop;
-
-      for (BillShopModel shop in newBill.shops!) {
-        if (shop.shopID == shopId) {
-          billShop = shop;
-        }
-        break;
-      }
-
-      billShop ??= BillShopModel(
-          shopID: shopId,
-          shopName: data.seller.name,
-          buyItems: [],
-          status: OrderStatus.PENDING_CONFIRMATION,
-          voucher: null,
-        );
-
-      BillShopItemModel newItem = BillShopItemModel(
-          itemID: data.item.itemID,
-          name: data.item.name,
-          itemType: data.item.itemType,
-          sellerID: shopId,
-          addDate: orderDate,
-          price: data.item.price,
-          color: data.inCart.color,
-          amount: data.inCart.amount,
-          totalCost: data.item.price! * data.inCart.amount!,
-      );
-
-      billShop.buyItems!.add(newItem);
-
       InteractionModel interactionModel = await SessionController.getInstance().getInteractionModel(data.item.itemID!);
       interactionModel.buyTimes = interactionModel.buyTimes! + data.inCart.amount!;
       await SessionController.getInstance().updateInteraction(interactionModel);
+
+      // update Item Data
+      data.item.sold = data.item.sold! + data.inCart.amount!;
+      data.item.stock = data.item.stock! - data.inCart.amount!;
+
+      await _itemRepo.updateItem(data.item);
     }
 
+    // Không cần tính tiền. Tổng tiền đã được tính trong hàm ToJson của BillModel
     await billRepository.addBillToFirestore(userId!, newBill);
 
     for (BillShopModel shop in newBill.shops!) {
@@ -190,12 +181,14 @@ class BillProductPresenter {
   String getProductCost() {
     int total = 0;
 
-    if (onPaymentItems == null) {
+    if (billShops == null) {
       return "-";
     }
 
-    for (ItemInCartWithSeller data in onPaymentItems!) {
-      total += data.inCart.amount! * data.item.price!;
+    for (BillShopModel data in billShops!.values) {
+      for (BillShopItemModel item in data.buyItems ?? []) {
+        total += item.amount! * item.price!;
+      }
     }
 
     return Utility.formatCurrency(total);
@@ -204,12 +197,12 @@ class BillProductPresenter {
   String getShippingFee() {
     int total = 0;
 
-    if (onPaymentItems == null) {
+    if (billShops == null) {
       return "-";
     }
 
-    for (ItemInCartWithSeller data in onPaymentItems!) {
-      total += data.inCart.deliveryCost!;
+    for (BillShopModel data in billShops!.values) {
+      total += data.deliveryCost ?? 0;
     }
 
     return Utility.formatCurrency(total);
@@ -218,10 +211,13 @@ class BillProductPresenter {
   String getTotalCost() {
     int total = 0;
 
-    if (onPaymentItems == null) return "-";
+    if (billShops == null) return "-";
 
-    for (ItemInCartWithSeller data in onPaymentItems!) {
-      total += data.inCart.amount! * data.item.price! + data.inCart.deliveryCost!;
+    for (BillShopModel data in billShops!.values) {
+      total += data.deliveryCost ?? 0;
+      for (BillShopItemModel item in data.buyItems ?? []) {
+        total += item.amount! * item.price!;
+      }
     }
 
     return Utility.formatCurrency(total);

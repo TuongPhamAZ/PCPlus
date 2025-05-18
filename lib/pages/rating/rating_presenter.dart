@@ -1,11 +1,12 @@
 import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/models/await_ratings/await_rating_repo.dart';
 import 'package:pcplus/models/interactions/interaction_model.dart';
+import 'package:pcplus/models/items/item_repo.dart';
 import 'package:pcplus/models/ratings/rating_model.dart';
 import 'package:pcplus/models/ratings/rating_repo.dart';
 import 'package:pcplus/pages/rating/rating_contract.dart';
 import '../../models/await_ratings/await_rating_model.dart';
-import '../../models/orders/order_model.dart';
+import '../../models/items/item_model.dart';
 import '../../services/utility.dart';
 
 class RatingPresenter {
@@ -15,6 +16,7 @@ class RatingPresenter {
   final AwaitRatingRepository _awaitRatingRepo = AwaitRatingRepository();
   final SessionController _sessionController = SessionController.getInstance();
   final RatingRepository _ratingRepo = RatingRepository();
+  final ItemRepository _itemRepo = ItemRepository();
 
   Stream<List<AwaitRatingModel>>? awaitRatingStream;
 
@@ -46,6 +48,15 @@ class RatingPresenter {
     InteractionModel interactionModel = await SessionController.getInstance().getInteractionModel(model.item!.itemID!);
     interactionModel.rating = rating;
     await SessionController.getInstance().updateInteraction(interactionModel);
+    ItemModel? itemModel = await _itemRepo.getItemById(model.item!.itemID!);
+    if (itemModel != null) {
+      double sumRating = itemModel.ratingCount! * itemModel.rating!;
+      itemModel.ratingCount = itemModel.ratingCount! + 1;
+      itemModel.rating = (sumRating + rating) / itemModel.ratingCount!;
+      await _itemRepo.updateItem(itemModel);
+    } else {
+      print("Problem with Rating! Can't update Item rating");
+    }
 
     _view.onPopContext();
     _view.onLoadDataSucceeded();

@@ -1,5 +1,7 @@
+import 'package:pcplus/models/items/item_with_seller.dart';
+
 class ItemArgument {
-  Map<String, dynamic> data;
+  ItemWithSeller data;
 
   ItemArgument({required this.data});
 }

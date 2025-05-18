@@ -70,7 +70,7 @@ class UserModel {
         userType: json['userType'] as String,
         avatarUrl: json['avatarUrl'] as String,
         shipInformationModel: ShipInformationModel.fromJson(json['shipInformation']),
-        money: json['money'] as int,
+        money: (json['money'] ?? 0) as int,
         fcm: listFcm.map((raw) => raw as String).toList()
         // shopInfo: shopInfo
     );

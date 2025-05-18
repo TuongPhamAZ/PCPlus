@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:pcplus/commands/shop_home_command.dart';
+import 'package:pcplus/component/item_argument.dart';
+import 'package:pcplus/component/shop_argument.dart';
 import 'package:pcplus/config/asset_helper.dart';
 import 'package:pcplus/const/navigator_arguments.dart';
 import 'package:pcplus/controller/session_controller.dart';
@@ -51,8 +53,8 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
     super.didChangeDependencies();
 
     if (SessionController.getInstance().isShop() == false) {
-      final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-      _presenter!.userId = args[NavigatorArgs.shopID];
+      final args = ModalRoute.of(context)!.settings.arguments as ShopArgument;
+      _presenter!.userId = args.shop.shopID;
     }
 
     loadData();
@@ -277,7 +279,7 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
   void onItemPressed(ItemWithSeller item) {
     Navigator.of(context).pushNamed(
         DetailProduct.routeName,
-        arguments: {NavigatorArgs.itemData : item}
+        arguments: ItemArgument(data: item),
     );
   }
 

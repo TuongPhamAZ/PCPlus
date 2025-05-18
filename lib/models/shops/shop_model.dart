@@ -19,7 +19,6 @@ class ShopModel {
   });
 
   Map<String, dynamic> toJson() => {
-    'shopID': shopID,
     'name': name,
     'location': location,
     'phone': phone,
@@ -27,10 +26,10 @@ class ShopModel {
     'image': image,
   };
 
-  static ShopModel fromJson(Map<String, dynamic> json) {
+  static ShopModel fromJson(String id, Map<String, dynamic> json) {
 
     return ShopModel(
-      shopID: json['shopID'] as String,
+      shopID: id,
       name: json['name'] as String,
       location: json['location'] as String,
       phone: json['phone'] as String,

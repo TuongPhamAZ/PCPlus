@@ -3,6 +3,7 @@ import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:pcplus/config/asset_helper.dart';
 import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/pages/authentication/login/login_contract.dart';
+import 'package:pcplus/pages/home/shop_home/shop_home.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 import 'package:gap/gap.dart';
@@ -141,7 +142,7 @@ class _LoginScreenState extends State<LoginScreen> implements LoginViewContract 
   void onLoginSucceeded() {
     // TODO: implement onLoginSucceeded
     Navigator.of(context).pushNamedAndRemoveUntil(
-      SessionController.getInstance().isShop() ? LoginScreen.routeName : HomeScreen.routeName,
+      SessionController.getInstance().isShop() ? ShopHome.routeName : HomeScreen.routeName,
       (Route<dynamic> route) => false,
     );
   }

@@ -8,6 +8,7 @@ import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 
 import '../../../component/item_argument.dart';
+import '../../../component/user_argument.dart';
 import '../../../models/users/user_model.dart';
 import '../../widgets/button/accept_button.dart';
 import '../../widgets/button/cancel_button.dart';
@@ -44,8 +45,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> implements 
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Lấy arguments từ route
-    final args = ModalRoute.of(context)?.settings.arguments as ItemArgument?;
-    user = args?.data['userModel'] as UserModel;
+    final args = ModalRoute.of(context)?.settings.arguments as UserArgument?;
+    user = args?.user;
     _userAvatarUrl = user!.avatarUrl ?? "";
   }
 

@@ -134,7 +134,7 @@ class TestTool {
 
     final String jsonStringShops = await rootBundle.loadString('lib/sample/test_samples/shop.json');
     final List<dynamic> jsonShopsList = jsonDecode(jsonStringShops);
-    final List<ShopModel> shops = jsonShopsList.map((raw) => ShopModel.fromJson(raw)).toList();
+    final List<ShopModel> shops = jsonShopsList.map((raw) => ShopModel.fromJson(raw['shopID'], raw)).toList();
 
     final UserRepository userRepository = UserRepository();
     final ShopRepository shopRepository = ShopRepository();
@@ -145,6 +145,15 @@ class TestTool {
 
     for (ShopModel shop in shops) {
       await shopRepository.addShopToFirestore(shop);
+    }
+  }
+
+  Future<void> reUpdateItems() async {
+    final ItemRepository itemRepository = ItemRepository();
+    List<ItemModel> items = await itemRepository.getAllItems();
+
+    for (ItemModel item in items) {
+      await itemRepository.updateItem(item);
     }
   }
 
