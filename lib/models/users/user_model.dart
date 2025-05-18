@@ -22,18 +22,18 @@ class UserModel {
   static String billCollectionName = "Bills";
 
   UserModel({
-      required this.userID,
-      required this.name,
-      required this.email,
-      required this.phone,
-      required this.dateOfBirth,
-      required this.gender,
-      required this.userType,
-      this.shipInformationModel,
-      this.avatarUrl,
-      this.money,
-      this.fcm,
-      // this.shopInfo
+    required this.userID,
+    required this.name,
+    required this.email,
+    required this.phone,
+    required this.dateOfBirth,
+    required this.gender,
+    required this.userType,
+    this.shipInformationModel,
+    this.avatarUrl,
+    this.money,
+    this.fcm,
+    // this.shopInfo
   });
 
   Map<String, dynamic> toJson() => {
@@ -45,15 +45,15 @@ class UserModel {
         'gender': gender,
         'userType': userType,
         'avatarUrl': avatarUrl,
-        'shipInformation' : shipInformationModel,
+        'shipInformation': shipInformationModel,
         'money': money,
-        'fcm': (fcm ?? []).map((key) => key).toList(),
+        'fcm': fcm,
         // 'shopInfo': jsonEncode(shopInfo)
       };
 
   static UserModel fromJson(Map<String, dynamic> json) {
     final dataFcm = json['fcm'] as List?;
-    final listFcm = List.castFrom<Object?, Map<String, Object?>>(dataFcm!);
+    // final listFcm = List.castFrom<Object?, Map<String, Object?>>(dataFcm!);
 
     DateTime? dateTime;
     if (json['dateOfBirth'] is Timestamp == false) {
@@ -61,18 +61,19 @@ class UserModel {
     }
 
     return UserModel(
-        userID: json['userID'] as String,
-        name: json['name'] as String,
-        email: json['email'] as String,
-        phone: json['phone'] as String,
-        dateOfBirth: dateTime ?? (json['dateOfBirth'] as Timestamp).toDate(),
-        gender: json['gender'] as String,
-        userType: json['userType'] as String,
-        avatarUrl: json['avatarUrl'] as String,
-        shipInformationModel: ShipInformationModel.fromJson(json['shipInformation']),
-        money: (json['money'] ?? 0) as int,
-        fcm: listFcm.map((raw) => raw as String).toList()
-        // shopInfo: shopInfo
+      userID: json['userID'] as String,
+      name: json['name'] as String,
+      email: json['email'] as String,
+      phone: json['phone'] as String,
+      dateOfBirth: dateTime ?? (json['dateOfBirth'] as Timestamp).toDate(),
+      gender: json['gender'] as String,
+      userType: json['userType'] as String,
+      avatarUrl: json['avatarUrl'] as String,
+      shipInformationModel:
+          ShipInformationModel.fromJson(json['shipInformation']),
+      money: json['money'] as int,
+      fcm: List.castFrom(dataFcm ?? []),
+      // shopInfo: shopInfo
     );
   }
 }

@@ -7,6 +7,7 @@ import 'package:pcplus/firebase_options.dart';
 import 'package:pcplus/route.dart';
 import 'package:pcplus/pages/splash/splash.dart';
 import 'package:pcplus/sample/FCM_notification/thongbao.dart';
+import 'package:pcplus/sample/cloudinary/upload.dart';
 import 'package:pcplus/sample/comment.dart';
 import 'package:pcplus/sample/voice_search.dart';
 import 'package:pcplus/services/fcm_noti.dart';
@@ -54,7 +55,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const SplashScreen(),
+      home: UploadPage(),
       routes: routes,
       debugShowCheckedModeBanner: false,
     );
