@@ -4,7 +4,7 @@ abstract class BillProductContract {
   void onBuy();
   void onBuyFailed(String message);
   void onBack();
-  void onChangeData();
+  void onChangeDelivery();
 
   void onLoadDataSucceeded();
 }

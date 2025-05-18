@@ -40,8 +40,9 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
   );
 
   String? _productCost = "0";
-  String? _shippingFee = "0";
-  String? _totalCost = "0";
+
+  final ValueNotifier<String> shippingCost = ValueNotifier<String>("-");
+  final ValueNotifier<String> totalCost = ValueNotifier<String>("-");
 
   @override
   void initState() {
@@ -57,6 +58,14 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
 
   Future<void> loadData() async {
     await _presenter?.getData();
+  }
+
+  void updateShippingFee(String value) {
+    shippingCost.value = value;
+  }
+
+  void updateTotalCost(String value) {
+    totalCost.value = value;
   }
 
   @override
@@ -213,14 +222,17 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
                     if (billShops.containsKey(shopId)) {
                       billShop = billShops[shopId];
                     }
+                    else {
+                      billShop = BillShopModel(
+                        shopID: shopId,
+                        shopName: data.seller.name,
+                        buyItems: [],
+                        status: OrderStatus.PENDING_CONFIRMATION,
+                        voucher: null,
+                      );
 
-                    billShop ??= BillShopModel(
-                      shopID: shopId,
-                      shopName: data.seller.name,
-                      buyItems: [],
-                      status: OrderStatus.PENDING_CONFIRMATION,
-                      voucher: null,
-                    );
+                      billShops[shopId] = billShop;
+                    }
 
                     BillShopItemModel newItem = BillShopItemModel(
                       itemID: data.item.itemID,
@@ -232,24 +244,22 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
                       color: data.inCart.color,
                       amount: data.inCart.amount,
                       totalCost: data.item.price! * data.inCart.amount!,
+                      image: data.item.image,
+                      detail: data.item.detail,
+                      description: data.item.description,
                     );
 
-                    billShop.buyItems!.add(newItem);
+                    billShop?.buyItems!.add(newItem);
+
                   }
 
                   String remoteProductCost = _presenter!.getProductCost();
-                  String remoteShippingFee = _presenter!.getShippingFee();
-                  String remoteTotalCost = _presenter!.getTotalCost();
 
                   if (_productCost != remoteProductCost
-                      || _shippingFee != remoteShippingFee
-                      || _totalCost != remoteTotalCost
                   ) {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       setState(() {
                         _productCost = remoteProductCost;
-                        _shippingFee = remoteShippingFee;
-                        _totalCost = remoteTotalCost;
                       });
                     });
                   }
@@ -326,7 +336,10 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
                               children: [
                                 Text(_productCost ?? "0", style: TextDecor.robo16),
                                 const Gap(5),
-                                Text(_shippingFee ?? "0", style: TextDecor.robo16),
+                                ValueListenableBuilder<String>(
+                                  valueListenable: shippingCost,
+                                  builder: (context, value, _) => Text(value, style: TextDecor.robo18Semi),
+                                ),
                               ],
                             ),
                           ],
@@ -340,7 +353,10 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
                           children: [
                             Text('Total:', style: TextDecor.robo18Semi),
                             Expanded(child: Container()),
-                            Text(_totalCost ?? "0", style: TextDecor.robo18Semi),
+                            ValueListenableBuilder<String>(
+                              valueListenable: totalCost,
+                              builder: (context, value, _) => Text(value, style: TextDecor.robo18Semi),
+                            ),
                           ],
                         ),
                       ],
@@ -373,11 +389,15 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
           children: [
             Text('Total:', style: TextDecor.robo18Semi),
             const Gap(5),
-            Text(
-              _presenter!.getTotalCost(),
-              style: TextDecor.robo18Semi.copyWith(
-                color: Colors.red,
-              ),
+            ValueListenableBuilder<String>(
+              valueListenable: totalCost,
+              builder: (context, value, _) =>
+                Text(
+                  value,
+                  style: TextDecor.robo18Semi.copyWith(
+                    color: Colors.red,
+                  ),
+                ),
             ),
             const Gap(10),
             InkWell(
@@ -441,7 +461,7 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
               ],
             ),
           ),
-          backgroundColor: Colors.black.withOpacity(0.45),
+          backgroundColor: Colors.black.withValues(alpha: 0.45),
         );
       },
     );
@@ -468,11 +488,12 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
   }
 
   @override
-  void onChangeData() {
+  void onChangeDelivery() {
     if (context.mounted == false) {
       return;
     }
-    setState(() {});
+    updateShippingFee(_presenter!.getShippingFee());
+    updateTotalCost(_presenter!.getTotalCost());
   }
 
   @override

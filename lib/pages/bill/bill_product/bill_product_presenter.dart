@@ -35,6 +35,10 @@ class BillProductPresenter {
   Map<String, BillShopModel>? billShops;
 
   Future<void> getData() async {
+    if (inCartItemsStream != null) {
+      return;
+    }
+
     billShops = {};
 
     userId = SessionController.getInstance().userID;
@@ -61,7 +65,7 @@ class BillProductPresenter {
   }) async {
     data.deliveryMethod = deliveryMethod;
     data.deliveryCost = cost;
-    _view.onChangeData();
+    _view.onChangeDelivery();
   }
 
   Future<void> handleNoteForShop({
@@ -198,7 +202,7 @@ class BillProductPresenter {
     }
 
     for (BillShopModel data in billShops!.values) {
-      total += data.deliveryCost!;
+      total += data.deliveryCost ?? 0;
     }
 
     return Utility.formatCurrency(total);
@@ -210,7 +214,7 @@ class BillProductPresenter {
     if (billShops == null) return "-";
 
     for (BillShopModel data in billShops!.values) {
-      total += data.deliveryCost!;
+      total += data.deliveryCost ?? 0;
       for (BillShopItemModel item in data.buyItems ?? []) {
         total += item.amount! * item.price!;
       }

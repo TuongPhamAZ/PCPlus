@@ -51,7 +51,9 @@ class _PaymentProductItemState extends State<PaymentProductItem> {
         deliveryCost = 120000;
         break;
     }
-    widget.onChangeDeliveryMethod!(method, deliveryCost);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.onChangeDeliveryMethod!(method, deliveryCost);
+    });
 
     return Container(
       margin: const EdgeInsets.all(12),
@@ -81,7 +83,8 @@ class _PaymentProductItemState extends State<PaymentProductItem> {
           ),
           const Gap(5),
           Wrap(
-            spacing: 8,
+            spacing: 10,
+            runSpacing: 10,
             children: widget.items
                 .asMap()
                 .entries
@@ -100,7 +103,7 @@ class _PaymentProductItemState extends State<PaymentProductItem> {
                                     ),
                                     const Gap(10),
                                     SizedBox(
-                                      width: 268,
+                                      width: 263,
                                       height: 100,
                                       child: Column(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -114,7 +117,7 @@ class _PaymentProductItemState extends State<PaymentProductItem> {
                                           Text(
                                             'Loại: ${entry.value.color!.name}',
                                             style: TextDecor.robo15.copyWith(
-                                              color: Colors.black.withOpacity(0.6),
+                                              color: Colors.black.withValues(alpha: 0.6),
                                             ),
                                           ),
                                           Row(
@@ -168,7 +171,7 @@ class _PaymentProductItemState extends State<PaymentProductItem> {
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5),
                 borderSide: BorderSide(
-                  color: Colors.black.withOpacity(0.3),
+                  color: Colors.black.withValues(alpha: 0.3),
                 ),
               ),
             ),
@@ -204,7 +207,7 @@ class _PaymentProductItemState extends State<PaymentProductItem> {
                     Text(
                       'View all ',
                       style: TextDecor.robo15.copyWith(
-                        color: Colors.black.withOpacity(0.5),
+                        color: Colors.black.withValues(alpha: 0.5),
                       ),
                     ),
                     const Icon(
@@ -251,7 +254,7 @@ class _PaymentProductItemState extends State<PaymentProductItem> {
                         Text(
                           'Đảm bảo nhận hàng sau 1-3 ngày',
                           style: TextDecor.robo15.copyWith(
-                            color: Colors.black.withOpacity(0.5),
+                            color: Colors.black.withValues(alpha: 0.5),
                           ),
                         ),
                       ],
@@ -295,7 +298,7 @@ class _PaymentProductItemState extends State<PaymentProductItem> {
                         Text(
                           'Đảm bảo nhận hàng sau 3-10 giờ',
                           style: TextDecor.robo15.copyWith(
-                            color: Colors.black.withOpacity(0.5),
+                            color: Colors.black.withValues(alpha: 0.5),
                           ),
                         ),
                       ],
@@ -340,7 +343,7 @@ class _PaymentProductItemState extends State<PaymentProductItem> {
                         Text(
                           'Đảm bảo nhận hàng sau 5-7 ngày',
                           style: TextDecor.robo15.copyWith(
-                            color: Colors.black.withOpacity(0.5),
+                            color: Colors.black.withValues(alpha: 0.5),
                           ),
                         ),
                       ],
