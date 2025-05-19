@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 import 'interaction_model.dart';
 
@@ -82,12 +83,12 @@ class InteractionRepository {
       }
       double rating = 0;
       for (InteractionModel item in items) {
-        rating = item.rating! as double;
+        rating = item.rating!;
       }
       rating = rating / items.length;
       return rating;
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       return 0;
     }
 

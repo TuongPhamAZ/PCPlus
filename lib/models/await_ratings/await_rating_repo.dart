@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:pcplus/models/system/param_store_repo.dart';
-
-import '../shops/shop_model.dart';
+import 'package:flutter/material.dart';
 import '../users/user_model.dart';
 import 'await_rating_model.dart';
 
@@ -16,9 +14,9 @@ class AwaitRatingRepository {
           .collection(AwaitRatingModel.collectionName)
           .doc();
       await docRef.set(model.toJson()).whenComplete(()
-      => print('AwaitRating added to Firestore with ID: ${docRef.id}'));
+      => debugPrint('AwaitRating added to Firestore with ID: ${docRef.id}'));
     } catch (e) {
-      print('Error adding AwaitRating to Firestore: $e');
+      debugPrint('Error adding AwaitRating to Firestore: $e');
     }
   }
 

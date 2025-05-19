@@ -4,12 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pcplus/component/dependency_injection.dart';
 import 'package:pcplus/firebase_options.dart';
+import 'package:pcplus/pages/manage_product/add_product/add_product.dart';
 import 'package:pcplus/route.dart';
-import 'package:pcplus/pages/splash/splash.dart';
-import 'package:pcplus/sample/FCM_notification/thongbao.dart';
-import 'package:pcplus/sample/cloudinary/upload.dart';
-import 'package:pcplus/sample/comment.dart';
-import 'package:pcplus/sample/voice_search.dart';
+// import 'package:pcplus/pages/splash/splash.dart';
 import 'package:pcplus/services/fcm_noti.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -40,7 +37,7 @@ Future<void> initializeFCM() async {
     await prefs.setBool('notification_permission_requested', true);
     FirebaseMessaging messaging = FirebaseMessaging.instance;
     String? currentToken = await messaging.getToken();
-    print("currentToken PTT: $currentToken");
+    debugPrint("currentToken PTT: $currentToken");
   }
 }
 
@@ -55,7 +52,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: UploadPage(),
+      home: const AddProduct(),
       routes: routes,
       debugShowCheckedModeBanner: false,
     );

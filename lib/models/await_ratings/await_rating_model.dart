@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../bills/bill_shop_item_model.dart';
-import '../users/ship_infor_model.dart';
-import '../vouchers/voucher_model.dart';
 
 class AwaitRatingModel {
 
