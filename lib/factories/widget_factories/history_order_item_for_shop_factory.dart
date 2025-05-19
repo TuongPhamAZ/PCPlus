@@ -1,11 +1,7 @@
 import 'package:pcplus/commands/history_order_item/cancel_order_command.dart';
-import 'package:pcplus/commands/history_order_item/received_order_command.dart';
 import 'package:pcplus/commands/history_order_item/sent_order_command.dart';
 import 'package:pcplus/commands/history_order_item/validate_order_command.dart';
-
-import '../../models/bills/bill_model.dart';
 import '../../models/bills/bill_of_shop_model.dart';
-import '../../models/bills/bill_shop_model.dart';
 import '../../pages/history_order/history_order_presenter.dart';
 import '../../pages/widgets/listItem/history_item.dart';
 

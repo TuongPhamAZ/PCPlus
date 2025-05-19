@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../items/item_model.dart';
@@ -19,10 +20,10 @@ class InCartItemRepo {
                   .collection(UserModel.cartCollectionName)
                   .doc();
       await docRef.set(model.toJson()).whenComplete(()
-      => print('Item ${model.itemID} added to user $userID \'s Cart with ID: ${docRef.id}'));
+      => debugPrint('Item ${model.itemID} added to user $userID \'s Cart with ID: ${docRef.id}'));
       return docRef.id;
     } catch (e) {
-      print('Error adding Item to user cart: $e');
+      debugPrint('Error adding Item to user cart: $e');
       return null;
     }
   }
@@ -150,6 +151,7 @@ class InCartItemRepo {
       );
 
       Map<String, ShopModel> sellerMap = {
+        // ignore: unnecessary_null_comparison
         for (var seller in sellers.where((s) => s != null)) seller.shopID!: seller
       };
 
@@ -214,6 +216,7 @@ class InCartItemRepo {
       );
 
       Map<String, ShopModel> sellerMap = {
+        // ignore: unnecessary_null_comparison
         for (var seller in sellers.where((s) => s != null)) seller.shopID!: seller
       };
 
