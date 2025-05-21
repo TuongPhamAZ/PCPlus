@@ -22,6 +22,8 @@ class ItemModel {
   String? status;
   List<String>? reviewImages = [];
   List<ColorModel>? colors = [];
+  int? discountPrice;
+  DateTime? discountTime;
 
   static String collectionName = 'Items';
 
@@ -41,11 +43,13 @@ class ItemModel {
       this.ratingCount,
       this.reviewImages,
       required this.colors,
-      this.sold
+      this.sold,
+      this.discountPrice,
+      this.discountTime,
     }
   );
 
-  String? get image => reviewImages?.first;
+  String? get image => reviewImages?.first ?? "";
 
   Map<String, dynamic> toJson() => {
     'name': name,
@@ -62,6 +66,8 @@ class ItemModel {
     'colors': (colors ?? []).map((color) => color.toJson()).toList(),
     'rating': rating,
     'ratingCount': ratingCount ?? 0,
+    'discountPrice': discountPrice ?? 0,
+    'discountTime': discountTime ?? DateTime.now(),
   };
 
   static ItemModel fromJson(String key, Map<String, dynamic> json) {
@@ -85,6 +91,8 @@ class ItemModel {
       colors: listColors.map((raw) => ColorModel.fromJson(raw)).toList(),
       rating: (json['rating'] ?? 0.0) as double,
       ratingCount: (json['ratingCount'] ?? 0) as int,
+      discountPrice: (json['discountPrice'] ?? json['price']) as int,
+      discountTime: ((json['discountTime'] ?? Timestamp.now()) as Timestamp).toDate(),
     );
   }
 

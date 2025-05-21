@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:image_picker/image_picker.dart';
@@ -20,7 +21,7 @@ class UserInformationPresenter {
   final UserRepository _userRepo = UserRepository();
   final AuthenticationService _auth = AuthenticationService();
 
-  XFile? pickedImage;
+  PlatformFile? pickedImage;
   bool? isShop;
 
   List<String>? fcm;
@@ -72,18 +73,6 @@ class UserInformationPresenter {
       return;
     }
 
-    String? imagePath;
-
-    if (pickedImage != null) {
-      imagePath = await _imageStorageService.uploadImage(
-          StorageFolderNames.AVATARS, File(pickedImage!.path));
-      if (imagePath == null) {
-        _view.onPopContext();
-        _view.onConfirmFailed("Something was wrong. Please try again.");
-        return;
-      }
-    }
-
     try {
       UserCredential? userCredential =
           await _auth.signUpWithEmailAndPassword(email, password);
@@ -97,6 +86,19 @@ class UserInformationPresenter {
         await userCredential.user?.delete();
       } else {
         await getFcm();
+      }
+
+
+      String? imagePath;
+
+      if (pickedImage != null) {
+        imagePath = await _imageStorageService.uploadImage(
+          _imageStorageService.formatAvatarFolderName(), pickedImage!, userCredential.user!.uid);
+        if (imagePath == null) {
+          _view.onPopContext();
+          _view.onConfirmFailed("Something was wrong. Please try again.");
+          return;
+        }
       }
 
       String avatarUrl =

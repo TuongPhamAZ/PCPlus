@@ -1,9 +1,10 @@
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:pcplus/const/product_types.dart';
+import 'package:pcplus/const/item_type.dart';
 import 'package:pcplus/pages/manage_product/add_product/add_product_contract.dart';
 import 'package:pcplus/pages/manage_product/add_product/add_product_presenter.dart';
 import 'package:pcplus/themes/palette/palette.dart';
@@ -81,15 +82,14 @@ class _AddProductState extends State<AddProduct> implements AddProductContract {
 
   final _formKey = GlobalKey<FormState>();
 
-  final List<File> _images = [];
+  List<PlatformFile> _images = [];
   final List<ColorInfo> _colors = [];
   final ImagePicker _picker = ImagePicker();
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _detailController = TextEditingController();
-  final TextEditingController _priceOriginalController =
-      TextEditingController();
+  final TextEditingController _priceOriginalController = TextEditingController();
   final TextEditingController _priceSaleController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
 
@@ -103,11 +103,14 @@ class _AddProductState extends State<AddProduct> implements AddProductContract {
 
   // Hàm chọn ảnh từ thiết bị
   Future<void> _pickImage() async {
-    final XFile? pickedFile =
-        await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      allowMultiple: true,
+      withData: true, // cần thiết để lấy bytes
+    );
+    if (result != null) {
       setState(() {
-        _images.add(File(pickedFile.path));
+        _images = result.files;
       });
     }
   }
@@ -223,7 +226,7 @@ class _AddProductState extends State<AddProduct> implements AddProductContract {
         ),
       ),
       value: _selectedProductType,
-      items: ProductTypes.all.map((String type) {
+      items: ItemType.collections.map((String type) {
         return DropdownMenuItem<String>(
           value: type,
           child: Text(type),
@@ -312,7 +315,7 @@ class _AddProductState extends State<AddProduct> implements AddProductContract {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -322,10 +325,8 @@ class _AddProductState extends State<AddProduct> implements AddProductContract {
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: Image.file(
-                      _images[index],
-                      width: double.infinity,
-                      height: double.infinity,
+                    child: Image.memory(
+                      _images[index].bytes!,
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -341,7 +342,7 @@ class _AddProductState extends State<AddProduct> implements AddProductContract {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
+                              color: Colors.black.withValues(alpha: 0.2),
                               blurRadius: 4,
                               offset: const Offset(0, 2),
                             ),
@@ -368,7 +369,7 @@ class _AddProductState extends State<AddProduct> implements AddProductContract {
             label: Text("Tải ảnh lên", style: TextDecor.robo16),
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              side: BorderSide(color: Palette.main1),
+              side: const BorderSide(color: Palette.main1),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -405,7 +406,7 @@ class _AddProductState extends State<AddProduct> implements AddProductContract {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -468,7 +469,7 @@ class _AddProductState extends State<AddProduct> implements AddProductContract {
                                           boxShadow: [
                                             BoxShadow(
                                               color:
-                                                  Colors.black.withOpacity(0.2),
+                                                  Colors.black.withValues(alpha: 0.2),
                                               blurRadius: 4,
                                               offset: const Offset(0, 2),
                                             ),
@@ -503,7 +504,7 @@ class _AddProductState extends State<AddProduct> implements AddProductContract {
                 ],
               ),
             );
-          }).toList(),
+          }),
           const SizedBox(height: 16),
           Center(
             child: OutlinedButton.icon(
@@ -513,7 +514,7 @@ class _AddProductState extends State<AddProduct> implements AddProductContract {
               style: OutlinedButton.styleFrom(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                side: BorderSide(color: Palette.main1),
+                side: const BorderSide(color: Palette.main1),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -524,6 +525,8 @@ class _AddProductState extends State<AddProduct> implements AddProductContract {
       ),
     );
   }
+
+  // ==============================================================
 
   Widget _buildAddButton() {
     return ElevatedButton(
@@ -536,7 +539,10 @@ class _AddProductState extends State<AddProduct> implements AddProductContract {
               detail: _detailController.text.trim(),
               price: int.parse(_priceOriginalController.text.trim()),
               amount: int.parse(_amountController.text.trim()),
-              images: _images);
+              discountPrice: int.parse(_priceSaleController.text.trim()),
+              images: _images,
+              colors: _colors,
+          );
         }
       },
       style: ElevatedButton.styleFrom(
@@ -553,6 +559,8 @@ class _AddProductState extends State<AddProduct> implements AddProductContract {
       ),
     );
   }
+
+  // =================================================================
 
   @override
   void onPopContext() {

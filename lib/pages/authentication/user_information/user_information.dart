@@ -1,8 +1,8 @@
 import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:gap/gap.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:pcplus/config/asset_helper.dart';
 import 'package:pcplus/pages/authentication/shop_information/shop_information_screen.dart';
 import 'package:pcplus/pages/authentication/user_information/user_information_contract.dart';
@@ -71,13 +71,15 @@ class _UserInformationState extends State<UserInformation>
   }
 
   void selectImageFromGallery() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? pickedImage =
-        await picker.pickImage(source: ImageSource.gallery);
-    if (pickedImage != null) {
-      _presenter!.pickedImage = pickedImage;
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      allowMultiple: false,
+      withData: true, // cần thiết để lấy bytes
+    );
+    if (result != null) {
+      _presenter!.pickedImage = result.files.first;
       setState(() {
-        _imageFile = pickedImage.path;
+        _imageFile = result.files.first.path!;
       });
     }
   }

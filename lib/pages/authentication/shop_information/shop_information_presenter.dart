@@ -1,7 +1,6 @@
-import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:pcplus/models/shops/shop_repo.dart';
 import 'package:pcplus/models/users/user_model.dart';
 import 'package:pcplus/pages/authentication/shop_information/shop_information_contract.dart';
@@ -21,7 +20,7 @@ class ShopInformationPresenter {
   final UserRepository _userRepo = UserRepository();
   final ShopRepository _shopRepo = ShopRepository();
   final AuthenticationService _auth = AuthenticationService();
-  XFile? pickedImage;
+  PlatformFile? pickedImage;
 
   UserModel? userModel;
   String? password;
@@ -47,18 +46,6 @@ class ShopInformationPresenter {
       return;
     }
 
-    String? imagePath;
-
-    if (pickedImage != null) {
-      imagePath = await _imageStorageService.uploadImage(
-          StorageFolderNames.AVATARS, File(pickedImage!.path));
-      if (imagePath == null) {
-        _view.onPopContext();
-        _view.onConfirmFailed("Something was wrong. Please try again.");
-        return;
-      }
-    }
-
     try {
       UserCredential? userCredential =
           await _auth.signUpWithEmailAndPassword(userModel!.email!, password!);
@@ -70,12 +57,34 @@ class ShopInformationPresenter {
 
       await getFcm();
 
-      String avatarUrl =
-          imagePath != null && imagePath.isNotEmpty ? imagePath : "";
-
       userModel!.userID = userCredential.user!.uid;
       userModel!.userType = UserType.SHOP;
       userModel!.fcm = fcm;
+
+      // Rename avatar
+      String userAvatarPath = await _imageStorageService.renameCloudinaryImage(
+          fromPublicPath: userModel!.avatarUrl!,
+          toPublicId: "${_imageStorageService.formatAvatarFolderName()}/${userModel!.userID!}"
+      );
+
+      userModel!.avatarUrl = userAvatarPath;
+
+      String? imagePath;
+
+      if (pickedImage != null) {
+        imagePath = await _imageStorageService.uploadImage(
+            _imageStorageService.formatShopFolderName(userModel!.userID!),
+            pickedImage!,
+            "${userModel!.userID}"
+        );
+        if (imagePath == null) {
+          _view.onPopContext();
+          _view.onConfirmFailed("Something was wrong. Please try again.");
+          return;
+        }
+      }
+
+      String avatarUrl = imagePath != null && imagePath.isNotEmpty ? imagePath : "";
 
       ShopModel shopModel = ShopModel(
         shopID: userCredential.user!.uid,
