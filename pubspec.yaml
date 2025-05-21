@@ -21,6 +21,7 @@ dependencies:
   flutter_local_notifications: ^17.1.2
   fuzzy: ^0.5.1
   rxdart: ^0.27.7
+  crypto: ^3.0.6
 
   connectivity_plus: ^2.3.0
   cupertino_icons: ^1.0.6

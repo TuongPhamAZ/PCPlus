@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:pcplus/component/dependency_injection.dart';
 import 'package:pcplus/firebase_options.dart';
 import 'package:pcplus/pages/manage_product/add_product/add_product.dart';
+import 'package:pcplus/pages/splash/splash.dart';
 import 'package:pcplus/route.dart';
 // import 'package:pcplus/pages/splash/splash.dart';
 import 'package:pcplus/services/fcm_noti.dart';
@@ -52,7 +53,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const AddProduct(),
+      home: const SplashScreen(),
       routes: routes,
       debugShowCheckedModeBanner: false,
     );

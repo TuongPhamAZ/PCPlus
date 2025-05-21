@@ -71,7 +71,7 @@ class UserModel {
       avatarUrl: json['avatarUrl'] as String,
       shipInformationModel:
           ShipInformationModel.fromJson(json['shipInformation']),
-      money: json['money'] as int,
+      money: (json['money'] ?? 0) as int,
       fcm: List.castFrom(dataFcm ?? []),
       // shopInfo: shopInfo
     );
