@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:pcplus/models/shops/shop_repo.dart';
 import 'package:pcplus/models/users/user_repo.dart';
 import 'package:pcplus/pages/widgets/util_widgets.dart';
+import 'package:pcplus/services/authentication_service.dart';
 import 'package:pcplus/services/nav_service.dart';
 import 'package:pcplus/services/pref_service.dart';
 
@@ -75,8 +76,10 @@ class SessionController {
     currentUser = null;
   }
 
-  void onUserModelChange() {
+  Future<void> onUserModelChange() async {
     if (currentFcm != currentUser!.activeFcm) {
+      AuthenticationService _auth = AuthenticationService();
+      await _auth.signOut();
       NavService.nav!.pushNamedAndRemoveUntil(
         LoginScreen.routeName,
             (Route<dynamic> route) => false,
