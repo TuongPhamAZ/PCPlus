@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:pcplus/config/asset_helper.dart';
 import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/models/users/user_model.dart';
+import 'package:pcplus/models/users/user_repo.dart';
 import 'package:pcplus/services/authentication_service.dart';
 import 'package:pcplus/services/pref_service.dart';
 import 'package:pcplus/services/test_tool.dart';
@@ -60,12 +62,31 @@ class _SplashScreenState extends State<SplashScreen>
     if (loggedUser == null) {
       return;
     }
+
     String password = await PrefService.getPassword();
     UserCredential? userCredential =
         await _auth.signInWithEmailAndPassword(loggedUser.email!, password, AuthResult());
+
     if (userCredential != null) {
+
+      final UserRepository userRepo = UserRepository();
+
+      UserModel? userData = await userRepo.getUserById(userCredential.user!.uid);
+
+      FirebaseMessaging messaging = FirebaseMessaging.instance;
+      String? currentToken = await messaging.getToken();
+
+      if (currentToken != null) {
+        userData!.activeFcm = currentToken;
+        // Kiểm tra nếu token chưa tồn tại trong danh sách token của người dùng
+        if (!userData.fcm!.contains(currentToken)) {
+          userData.fcm!.add(currentToken);
+        }
+        await userRepo.updateUser(userData);
+      }
+
       loginSucceeded = true;
-      SessionController.getInstance().loadUser(loggedUser);
+      SessionController.getInstance().loadUser(userData!);
     }
   }
 

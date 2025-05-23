@@ -4,11 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pcplus/component/dependency_injection.dart';
 import 'package:pcplus/firebase_options.dart';
-import 'package:pcplus/pages/manage_product/add_product/add_product.dart';
 import 'package:pcplus/pages/splash/splash.dart';
 import 'package:pcplus/route.dart';
-// import 'package:pcplus/pages/splash/splash.dart';
 import 'package:pcplus/services/fcm_noti.dart';
+import 'package:pcplus/services/nav_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
@@ -49,6 +48,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       title: 'PC Plus',
+      navigatorKey: NavService.key,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,

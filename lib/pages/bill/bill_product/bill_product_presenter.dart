@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+import 'package:momo_vn/momo_vn.dart';
 import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/models/bills/bill_model.dart';
 import 'package:pcplus/models/bills/bill_of_shop_model.dart';
@@ -21,7 +23,16 @@ import '../../../services/notification_service.dart';
 
 class BillProductPresenter {
   final BillProductContract _view;
-  BillProductPresenter(this._view);
+  BillProductPresenter(this._view) {
+    _momoPay = MomoVn();
+    _momoPay.on(MomoVn.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _momoPay.on(MomoVn.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _paymentStatus = "";
+  }
+
+  late MomoVn _momoPay;
+  late PaymentResponse _momoPaymentResult;
+  late String _paymentStatus;
 
   final InCartItemRepo _inCartItemRepo = InCartItemRepo();
   final ItemRepository _itemRepo = ItemRepository();
@@ -227,5 +238,38 @@ class BillProductPresenter {
     _view.onBack();
   }
 
+  // TODO: MOMO HANDLER
 
+  void _createMomoPaymentRequest() {
+    MomoPaymentInfo options = MomoPaymentInfo(
+        merchantName: "TTN",
+        appScheme: "MOxx",
+        merchantCode: 'MOxx',
+        partnerCode: 'Mxx',
+        amount: 60000,
+        orderId: '12321312',
+        orderLabel: 'Gói combo',
+        merchantNameLabel: "HLGD",
+        fee: 10,
+        description: 'Thanh toán combo',
+        username: '01234567890',
+        partner: 'merchant',
+        extra: "{\"key1\":\"value1\",\"key2\":\"value2\"}",
+        isTestMode: true
+    );
+    try {
+      _momoPay.open(options);
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  void _handlePaymentSuccess(PaymentResponse response) {
+    _momoPaymentResult = response;
+
+  }
+
+  void _handlePaymentError(PaymentResponse response) {
+    _momoPaymentResult = response;
+  }
 }

@@ -45,3 +45,4 @@ app.*.map.json
 /macos
 /windows
 lib/sample/test_samples/apikey.json
+lib/sample/test_samples/momo_info.json
