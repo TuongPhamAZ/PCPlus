@@ -118,7 +118,7 @@ class NotificationService {
   Future<void> sendFcmNotification(UserModel user, NotificationModel notification) async {
     try {
       await FCMNotificationService().sendNotification(
-        tokens: user.fcm!,
+        topic: user.userID!,
         title: notification.title!,
         body: notification.content!,
         data: {

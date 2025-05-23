@@ -6,6 +6,7 @@ import 'package:pcplus/component/dependency_injection.dart';
 import 'package:pcplus/firebase_options.dart';
 import 'package:pcplus/pages/manage_product/add_product/add_product.dart';
 import 'package:pcplus/route.dart';
+import 'package:pcplus/sample/FCM_notification/thongbao.dart';
 // import 'package:pcplus/pages/splash/splash.dart';
 import 'package:pcplus/services/fcm_noti.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,6 +31,7 @@ Future<void> initializeFCM() async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   final bool hasRequestedPermission =
       prefs.getBool('notification_permission_requested') ?? false;
+  // await FirebaseMessaging.instance.subscribeToTopic('test_topic');
 
   if (!hasRequestedPermission) {
     // Nếu chưa yêu cầu quyền, thực hiện yêu cầu và lưu trạng thái
@@ -52,7 +54,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const AddProduct(),
+      home: const ThongBaoScreen(),
       routes: routes,
       debugShowCheckedModeBanner: false,
     );

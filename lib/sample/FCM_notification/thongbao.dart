@@ -35,12 +35,8 @@ class _ThongBaoScreenState extends State<ThongBaoScreen> {
     });
 
     try {
-      // Sử dụng token cố định cho mục đích kiểm thử
-      const String testToken =
-          'cRJtUdlCRIuXBU7YSejjKx:APA91bEIAkp74G7B4Vhj5Sp7k0zC0hExVNvoVUK3NHEwUD2AP0FhyybAQ1uGTdE3cLb61SSVD6R9Cac7wR8MwNPpBqkbZpjHKKp5bS4u9m1z_xwQjh24rpA';
-
       final bool success = await FCMNotificationService().sendNotification(
-        tokens: [testToken],
+        topic: 'test_topic', //Lấy user ID làm tên topic
         title: _titleController.text,
         body: _contentController.text,
         data: {
