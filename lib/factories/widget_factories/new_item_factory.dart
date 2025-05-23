@@ -13,7 +13,7 @@ class NewItemFactory {
         command: command,
         location: itemWithSeller.seller.location!,
         rating: itemWithSeller.item.rating!,
-        price: itemWithSeller.item.price!,
+        price: itemWithSeller.item.discountPrice!,
         sold: itemWithSeller.item.sold!
     );
   }
