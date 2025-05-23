@@ -231,7 +231,7 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
   @override
   void onItemEdit(ItemWithSeller item) {
     Navigator.of(context).pushNamed(
-      DetailProduct.routeName,
+      EditProduct.routeName,
       arguments: ItemArgument(data: item),
     );
   }
