@@ -1,3 +1,4 @@
+import 'package:pcplus/models/items/item_with_seller.dart';
 import 'package:pcplus/pages/manage_product/edit_product/edit_product_contract.dart';
 import 'package:pcplus/services/image_storage_service.dart';
 import 'package:pcplus/objects/image_data.dart';
@@ -10,6 +11,8 @@ class EditProductPresenter {
   EditProductPresenter(this._view);
 
   final ImageStorageService _imageStorageService = ImageStorageService();
+
+  ItemWithSeller? itemWithSeller;
 
   Future<void> handleEditProduct({
     required String name,
