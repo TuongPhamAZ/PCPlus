@@ -4,6 +4,7 @@ import 'package:crypto/crypto.dart';
 import 'package:file_picker/file_picker.dart';
 // import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 
@@ -60,8 +61,11 @@ class ImageStorageService {
 
   // Xóa ảnh khỏi Cloudinary
   Future<void> deleteImage(String imageUrl) async {
-    final apiKey = 'YOUR_API_KEY';
-    final apiSecret = 'YOUR_API_SECRET';
+    final String jsonString = await rootBundle.loadString('lib/sample/test_samples/user_seller.json');
+    final Map<String, dynamic> data = jsonDecode(jsonString);
+
+    final apiKey = data["apiKey"];
+    final apiSecret = data["apiSecret"];
 
     final timestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
@@ -91,8 +95,11 @@ class ImageStorageService {
     required String fromPublicPath,
     required String toPublicId,
   }) async {
-    final apiKey = 'YOUR_API_KEY';
-    final apiSecret = 'YOUR_API_SECRET';
+    final String jsonString = await rootBundle.loadString('lib/sample/test_samples/user_seller.json');
+    final Map<String, dynamic> data = jsonDecode(jsonString);
+
+    final apiKey = data["apiKey"];
+    final apiSecret = data["apiSecret"];
 
     final fromPublicId = extractPublicId(fromPublicPath);
 
@@ -160,7 +167,6 @@ class ImageStorageService {
       bytes: bytes,
     );
   }
-
 }
 
 abstract class StorageFolderNames {

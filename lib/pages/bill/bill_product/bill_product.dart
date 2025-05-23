@@ -240,7 +240,7 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
                       itemType: data.item.itemType,
                       sellerID: shopId,
                       addDate: data.item.addDate,
-                      price: data.item.price,
+                      price: data.item.discountPrice,
                       color: data.inCart.color,
                       amount: data.inCart.amount,
                       totalCost: data.item.price! * data.inCart.amount!,
