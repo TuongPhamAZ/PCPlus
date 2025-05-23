@@ -35,7 +35,6 @@ class UserRepository {
     } catch (e) {
       return null;
     }
-
   }
 
   Future<List<UserModel>> getAllUsers() async {
@@ -90,4 +89,16 @@ class UserRepository {
   //   int count = users.length;
   //   return count.toString().padLeft(8, '0');
   // }
+
+  Stream<UserModel?> getUserByIdStream(String id) {
+    final docRef = _storage.collection(UserModel.collectionName).doc(id);
+
+    return docRef.snapshots().map((docSnapshot) {
+      if (docSnapshot.exists && docSnapshot.data() != null) {
+        return UserModel.fromJson(docSnapshot.data()!);
+      } else {
+        return null;
+      }
+    });
+  }
 }

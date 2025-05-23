@@ -38,21 +38,22 @@ class LoginPresenter {
       UserModel? userData =
           await _userRepo.getUserById(userCredential!.user!.uid);
 
-      FirebaseMessaging messaging = FirebaseMessaging.instance;
-      String? currentToken = await messaging.getToken();
-
-      if (currentToken != null) {
-        // Kiểm tra nếu token chưa tồn tại trong danh sách token của người dùng
-        if (!userData!.fcm!.contains(currentToken)) {
-          userData.fcm!.add(currentToken);
-          await _userRepo.updateUser(userData);
-        }
-      }
-
       if (userData == null) {
         _view.onPopContext();
         _view.onError("Something was wrong. Please try again.");
         return;
+      }
+
+      FirebaseMessaging messaging = FirebaseMessaging.instance;
+      String? currentToken = await messaging.getToken();
+
+      if (currentToken != null) {
+        userData.activeFcm = currentToken;
+        // Kiểm tra nếu token chưa tồn tại trong danh sách token của người dùng
+        if (!userData.fcm!.contains(currentToken)) {
+          userData.fcm!.add(currentToken);
+        }
+        await _userRepo.updateUser(userData);
       }
 
       await _sessionController.loadUser(userData);
