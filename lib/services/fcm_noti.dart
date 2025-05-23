@@ -121,42 +121,39 @@ class FCMNotificationService {
 
   // Gửi thông báo FCM đến danh sách token
   Future<bool> sendNotification({
-    required List<String> tokens,
+    required String topic,
     required String title,
     required String body,
     Map<String, dynamic>? data,
   }) async {
     try {
-      // Kiểm tra dữ liệu đầu vào
-      if (tokens.isEmpty) {
-        debugPrint('❌ Không có token nào để gửi thông báo');
+      // 1) Validate input
+      if (topic.isEmpty) {
+        debugPrint('❌ Topic không được để trống');
         return false;
       }
-
       if (title.isEmpty || body.isEmpty) {
         debugPrint('❌ Title hoặc body không được để trống');
         return false;
       }
 
-      // Sử dụng server FCM tùy chỉnh
+      // 2) Prepare request
       const String fcmServerUrl =
           'https://fcm-server-ylrh.onrender.com/send-fcm';
-
       final Map<String, dynamic> requestBody = {
-        'tokens': tokens,
+        'topic': topic,
         'title': title,
         'body': body,
         'data': data ?? {},
       };
 
-      debugPrint('📤 Đang gửi thông báo đến ${tokens.length} thiết bị...');
+      debugPrint('📤 Đang gửi thông báo đến topic: $topic');
 
+      // 3) Send
       final http.Response response = await http
           .post(
         Uri.parse(fcmServerUrl),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
         body: jsonEncode(requestBody),
       )
           .timeout(
@@ -169,36 +166,27 @@ class FCMNotificationService {
       debugPrint("📥 Response status: ${response.statusCode}");
       debugPrint("📥 Response body: ${response.body}");
 
+      // 4) Handle server’s format:
       if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        final successCount = responseData['successCount'] ?? 0;
-        final failureCount = responseData['failureCount'] ?? 0;
-
-        if (failureCount > 0) {
-          final failures = responseData['failure'] as List;
-          for (var failure in failures) {
-            debugPrint(
-                '❌ Lỗi gửi đến token ${failure['token']}: ${failure['error']}');
-          }
+        // server returns { success: true, topic, messageId } on success
+        final Map<String, dynamic> resp = jsonDecode(response.body);
+        if (resp['success'] == true) {
+          final String messageId = resp['messageId'] as String? ?? '';
+          debugPrint('✅ Gửi thành công đến topic $topic, messageId=$messageId');
+          return true;
+        } else {
+          // (theoretically shouldn't happen with your code, but just in case)
+          debugPrint('❌ Server trả về success=false');
+          return false;
         }
-
-        debugPrint(
-            '📊 Kết quả gửi thông báo: ${successCount} thành công, ${failureCount} thất bại');
-
-        // Trả về true nếu có ít nhất một thông báo được gửi thành công
-        return successCount > 0;
-      } else if (response.statusCode == 400) {
-        debugPrint('❌ Lỗi 400: Dữ liệu gửi đi không hợp lệ');
-        return false;
-      } else if (response.statusCode == 404) {
-        debugPrint('❌ Lỗi 404: Không tìm thấy địa chỉ server FCM');
-        return false;
-      } else if (response.statusCode == 500) {
-        debugPrint('❌ Lỗi 500: Lỗi server FCM');
-        return false;
       } else {
-        debugPrint(
-            '❌ Lỗi không xác định (${response.statusCode}): ${response.body}');
+        // non-200: error body has { error: '...' }
+        String errorMessage = 'Không xác định';
+        try {
+          final Map<String, dynamic> err = jsonDecode(response.body);
+          errorMessage = err['error'] as String? ?? errorMessage;
+        } catch (_) {}
+        debugPrint('❌ Lỗi ${response.statusCode}: $errorMessage');
         return false;
       }
     } catch (e) {

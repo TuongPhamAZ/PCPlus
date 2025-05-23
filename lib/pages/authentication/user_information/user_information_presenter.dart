@@ -26,11 +26,7 @@ class UserInformationPresenter {
 
   List<String>? fcm;
 
-  Future<void> getFcm() async {
-    FirebaseMessaging messaging = FirebaseMessaging.instance;
-    String? token = await messaging.getToken();
-    fcm = [token!];
-  }
+  Future<void> getFcm() async {}
 
   Future<void> handleConfirm(
       {required String name,
@@ -119,6 +115,7 @@ class UserInformationPresenter {
       if (isShop! == false) {
         await _userRepo.addUserToFirestore(user);
         await PrefService.saveUserData(userData: user, password: password);
+        await FirebaseMessaging.instance.subscribeToTopic('${user.userID}');
         SessionController.getInstance().loadUser(user);
       }
 

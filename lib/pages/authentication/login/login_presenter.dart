@@ -44,18 +44,7 @@ class LoginPresenter {
         return;
       }
 
-      FirebaseMessaging messaging = FirebaseMessaging.instance;
-      String? currentToken = await messaging.getToken();
-
-      if (currentToken != null) {
-        userData.activeFcm = currentToken;
-        // Kiểm tra nếu token chưa tồn tại trong danh sách token của người dùng
-        if (!userData.fcm!.contains(currentToken)) {
-          userData.fcm!.add(currentToken);
-        }
-        await _userRepo.updateUser(userData);
-      }
-
+      await FirebaseMessaging.instance.subscribeToTopic('${userData.userID}');
       await _sessionController.loadUser(userData);
       await PrefService.saveUserData(userData: userData, password: password);
     } catch (e) {

@@ -28,9 +28,6 @@ class ShopInformationPresenter {
   List<String>? fcm;
 
   Future<void> getFcm() async {
-    FirebaseMessaging messaging = FirebaseMessaging.instance;
-    String? token = await messaging.getToken();
-    fcm = [token!];
   }
 
   Future<void> handleConfirm({
@@ -102,6 +99,8 @@ class ShopInformationPresenter {
       await _shopRepo.addShopToFirestore(shopModel);
       await PrefService.saveShopData(shopData: shopModel);
       await SessionController.getInstance().loadUser(userModel!);
+
+      await FirebaseMessaging.instance.subscribeToTopic('${userModel!.userID}');
 
       _view.onPopContext();
       _view.onConfirmSucceeded();
