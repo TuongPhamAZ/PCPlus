@@ -8,6 +8,7 @@ import 'package:pcplus/pages/manage_product/edit_product/edit_product_presenter.
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 import 'package:pcplus/objects/image_data.dart';
+import '../../../component/item_argument.dart';
 import '../../../models/items/item_model.dart';
 import '../../widgets/util_widgets.dart';
 
@@ -34,21 +35,28 @@ class _EditProductState extends State<EditProduct> implements EditProductContrac
   @override
   void initState() {
     _presenter = EditProductPresenter(this);
-    // ItemModel itemModel = _shopSingleton.editedItem!.product!;
-    // _nameController.text = itemModel.name!;
-    // _detailController.text = itemModel.detail!;
-    // _descriptionController.text = itemModel.description!;
-    // _priceController.text = itemModel.price.toString();
-    // _amountController.text = itemModel.stock.toString();
-    // for (String url in itemModel.reviewImages!) {
-    //   ImageData imageData = ImageData(
-    //       path: url,
-    //       isNew: false
-    //   );
-    //   _images.add(imageData);
-    // }
-
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args = ModalRoute.of(context)!.settings.arguments as ItemArgument;
+
+    if (_presenter!.itemWithSeller == null) {
+      _presenter!.itemWithSeller = args.data;
+      ItemModel itemModel = args.data.item;
+
+      // TODO: Gán thông tin vô đây
+
+      _nameController.text = itemModel.name!;
+      _detailController.text = itemModel.detail!;
+      _descriptionController.text = itemModel.description!;
+      _priceController.text = itemModel.price.toString();
+      _amountController.text = itemModel.stock.toString();
+
+      // ...
+    }
   }
 
   // Hàm chọn ảnh từ thiết bị
