@@ -13,6 +13,7 @@ class UserModel {
   String? userType;
   String? avatarUrl;
   ShipInformationModel? shipInformationModel;
+  String? activeFcm;
   List<String>? fcm;
   int? money = 0;
   // Map<String, Object?>? shopInfo = {};
@@ -33,6 +34,7 @@ class UserModel {
     this.avatarUrl,
     this.money,
     this.fcm,
+    this.activeFcm,
     // this.shopInfo
   });
 
@@ -48,6 +50,7 @@ class UserModel {
         'shipInformation': shipInformationModel,
         'money': money,
         'fcm': fcm,
+        'activeFcm': activeFcm,
         // 'shopInfo': jsonEncode(shopInfo)
       };
 
@@ -71,8 +74,9 @@ class UserModel {
       avatarUrl: json['avatarUrl'] as String,
       shipInformationModel:
           ShipInformationModel.fromJson(json['shipInformation']),
-      money: json['money'] as int,
+      money: (json['money'] ?? 0) as int,
       fcm: List.castFrom(dataFcm ?? []),
+      activeFcm: (json['activeFcm'] ?? "") as String,
       // shopInfo: shopInfo
     );
   }

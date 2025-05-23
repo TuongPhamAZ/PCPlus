@@ -2,7 +2,9 @@ import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/models/items/item_repo.dart';
 import 'package:pcplus/models/shops/shop_repo.dart';
 import 'package:pcplus/pages/home/shop_home/shop_home_contract.dart';
+import 'package:pcplus/services/image_storage_service.dart';
 import 'package:pcplus/services/pref_service.dart';
+import '../../../models/items/color_model.dart';
 import '../../../models/items/item_with_seller.dart';
 import '../../../models/shops/shop_model.dart';
 
@@ -14,6 +16,7 @@ class ShopHomePresenter {
   final ItemRepository _itemRepo = ItemRepository();
   // final UserRepository _userRepo = UserRepository();
   final ShopRepository _shopRepo = ShopRepository();
+  final ImageStorageService _imageStorageService = ImageStorageService();
 
   String? userId;
   ShopModel? seller;
@@ -55,26 +58,17 @@ class ShopHomePresenter {
     // await _shopSingleton.deleteData(itemData);
     _view.onWaitingProgressBar();
     await _itemRepo.deleteItemById(itemData.item.itemID!);
+    for (String imagePath in itemData.item.reviewImages!) {
+      await _imageStorageService.deleteImage(imagePath);
+    }
+    for (ColorModel colorImg in itemData.item.colors!) {
+      await _imageStorageService.deleteImage(colorImg.image!);
+    }
     _view.onPopContext();
     _view.onItemDelete();
   }
 
-  // void dispose() {
-  //   _shopSingleton.unsubscribe(this);
-  // }
-
-  // @override
-  // void updateSubscriber() {
-  //   // TODO: implement updateSubscriber
-  //   itemModels = _shopSingleton.itemModels;
-  //   itemsData = _shopSingleton.itemsData;
-  //   _view.onFetchDataSucceeded();
-  // }
-
   Future<void> handleItemPressed(ItemWithSeller item) async {
-    // _view.onWaitingProgressBar();
-    // await _itemSingleton.storeItemData(item);
-    // _view.onPopContext();
     _view.onItemPressed(item);
   }
 

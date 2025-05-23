@@ -17,7 +17,7 @@ class ShopItemFactory {
       imagePath: data.item.image!,
       location: data.seller.location!,
       rating: data.item.rating!,
-      price: data.item.price!,
+      price: data.item.discountPrice!,
       sold: data.item.sold!,
       editCommand: editCommand,
       deleteCommand: deleteCommand,

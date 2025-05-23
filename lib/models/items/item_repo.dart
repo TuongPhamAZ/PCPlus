@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fuzzy/fuzzy.dart';
 import 'package:pcplus/models/items/item_model.dart';
 import 'package:async/async.dart';
 
 import '../shops/shop_model.dart';
 import '../shops/shop_repo.dart';
+import 'color_model.dart';
 import 'item_with_seller.dart';
 
 class ItemRepository {
@@ -211,12 +213,55 @@ class ItemRepository {
           .map((item) => ItemWithSeller(item: item, seller: sellerMap[item.sellerID]!))
           .toList();
 
-      // Lọc theo searchQuery
-      if (searchQuery.isNotEmpty) {
-        String query = searchQuery.toLowerCase(); // Chuyển về lowercase để so sánh
+      // TODO: Lọc theo searchQuery
+      // Lấy danh sách các từ khóa trước
+      Set<String> keywords = {};
+      for (ItemWithSeller itemWithSeller in itemsWithSeller) {
+        List<String> availableKeywords = [];
+        // Tên sản phẩm
+        availableKeywords.add(itemWithSeller.item.name!);
+        // Tên loại sản phẩm
+        availableKeywords.add(itemWithSeller.item.itemType!);
+        // Tên màu
+        availableKeywords.addAll(itemWithSeller.item.colors!.map((color) => color.name!).toList());
+        // Tên shop
+        availableKeywords.add(itemWithSeller.seller.name!);
+        // Tên địa chỉ shop
+        availableKeywords.add(itemWithSeller.seller.location!);
+
+        // Add vào danh sách từ khóa
+        for (String keyword in availableKeywords) {
+          if (keywords.contains(keyword) == false) {
+            keywords.add(keyword);
+          }
+        }
+      }
+
+      // Fuzzy Search
+      final Fuzzy fuzzy = Fuzzy(keywords.toList(), options: FuzzyOptions(threshold: 0.5));
+      final searchResults = fuzzy.search(searchQuery).map((r) => r.item as String).toList();
+
+      if (searchResults.isNotEmpty) {
         itemsWithSeller = itemsWithSeller.where((itemWithSeller) {
-          return itemWithSeller.item.name!.toLowerCase().contains(query) ||
-              itemWithSeller.seller.name!.toLowerCase().contains(query);
+
+          bool result =
+              searchResults.contains(itemWithSeller.item.name!) // Tên sản phẩm
+              || searchResults.contains(itemWithSeller.item.itemType!) // Loại sản phẩm
+              || searchResults.contains(itemWithSeller.seller.name!) // Tên shop
+              || searchResults.contains(itemWithSeller.seller.location!); // Địa chỉ shop
+
+          if (result) {
+            return true;
+          }
+
+          // Tìm kiếm màu sắc
+          for (ColorModel colorModel in itemWithSeller.item.colors!) {
+            if (searchResults.contains(colorModel.name!)) {
+              return true;
+            }
+          }
+
+          return false;
         }).toList();
       }
 
