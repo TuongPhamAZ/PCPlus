@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:momo_vn/momo_vn.dart';
+// import 'package:momo_vn/momo_vn.dart';
 import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/models/bills/bill_model.dart';
 import 'package:pcplus/models/bills/bill_of_shop_model.dart';
@@ -24,14 +24,14 @@ import '../../../services/notification_service.dart';
 class BillProductPresenter {
   final BillProductContract _view;
   BillProductPresenter(this._view) {
-    _momoPay = MomoVn();
-    _momoPay.on(MomoVn.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
-    _momoPay.on(MomoVn.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    // _momoPay = MomoVn();
+    // _momoPay.on(MomoVn.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    // _momoPay.on(MomoVn.EVENT_PAYMENT_ERROR, _handlePaymentError);
     _paymentStatus = "";
   }
 
-  late MomoVn _momoPay;
-  late PaymentResponse _momoPaymentResult;
+  // late MomoVn _momoPay;
+  // late PaymentResponse _momoPaymentResult;
   late String _paymentStatus;
 
   final InCartItemRepo _inCartItemRepo = InCartItemRepo();
@@ -58,10 +58,10 @@ class BillProductPresenter {
       address = user.shipInformationModel;
     } else {
       address = ShipInformationModel(
-          receiverName: "",
-          location: "",
-          phone: "",
-          isDefault: true,
+        receiverName: "",
+        location: "",
+        phone: "",
+        isDefault: true,
       );
     }
 
@@ -79,10 +79,8 @@ class BillProductPresenter {
     _view.onChangeDelivery();
   }
 
-  Future<void> handleNoteForShop({
-    required BillShopModel data,
-    required String text
-  }) async {
+  Future<void> handleNoteForShop(
+      {required BillShopModel data, required String text}) async {
     data.noteForShop = text;
   }
 
@@ -100,7 +98,7 @@ class BillProductPresenter {
 
     bool canBuy = validateOnPaymentItem();
 
-    if (canBuy){
+    if (canBuy) {
       // Create Order
       await performPayment();
       _view.onPopContext();
@@ -133,18 +131,20 @@ class BillProductPresenter {
     DateTime orderDate = DateTime.now();
 
     BillModel newBill = BillModel(
-        billID: billID,
-        userID: userId,
-        shops: billShops!.values.toList(),
-        orderDate: orderDate,
-        shipInformation: user.shipInformationModel,
-        paymentType: PaymentType.byCashOnDelivery,
-        totalPrice: 0,
+      billID: billID,
+      userID: userId,
+      shops: billShops!.values.toList(),
+      orderDate: orderDate,
+      shipInformation: user.shipInformationModel,
+      paymentType: PaymentType.byCashOnDelivery,
+      totalPrice: 0,
     );
 
     for (ItemInCartWithSeller data in onPaymentItems!) {
-      InteractionModel interactionModel = await SessionController.getInstance().getInteractionModel(data.item.itemID!);
-      interactionModel.buyTimes = interactionModel.buyTimes! + data.inCart.amount!;
+      InteractionModel interactionModel = await SessionController.getInstance()
+          .getInteractionModel(data.item.itemID!);
+      interactionModel.buyTimes =
+          interactionModel.buyTimes! + data.inCart.amount!;
       await SessionController.getInstance().updateInteraction(interactionModel);
 
       // update Item Data
@@ -158,14 +158,17 @@ class BillProductPresenter {
     await billRepository.addBillToFirestore(userId!, newBill);
 
     for (BillShopModel shop in newBill.shops!) {
-      BillOfShopModel? billOfShopModel = newBill.toBillOfShopModel(shop.shopID!);
+      BillOfShopModel? billOfShopModel =
+          newBill.toBillOfShopModel(shop.shopID!);
       if (billOfShopModel == null) {
         return false;
       }
       // Tạo Bill trong shop
-      await billOfShopRepository.addBillOfShopToFirestore(shop.shopID!, billOfShopModel);
+      await billOfShopRepository.addBillOfShopToFirestore(
+          shop.shopID!, billOfShopModel);
       // Gửi thông báo tới shop
-      await notificationService.createOrderingNotification(shop.shopID!, billOfShopModel);
+      await notificationService.createOrderingNotification(
+          shop.shopID!, billOfShopModel);
     }
     // Xóa item trong giỏ hàng
     for (ItemInCartWithSeller data in onPaymentItems!) {
@@ -240,36 +243,36 @@ class BillProductPresenter {
 
   // TODO: MOMO HANDLER
 
-  void _createMomoPaymentRequest() {
-    MomoPaymentInfo options = MomoPaymentInfo(
-        merchantName: "TTN",
-        appScheme: "MOxx",
-        merchantCode: 'MOxx',
-        partnerCode: 'Mxx',
-        amount: 60000,
-        orderId: '12321312',
-        orderLabel: 'Gói combo',
-        merchantNameLabel: "HLGD",
-        fee: 10,
-        description: 'Thanh toán combo',
-        username: '01234567890',
-        partner: 'merchant',
-        extra: "{\"key1\":\"value1\",\"key2\":\"value2\"}",
-        isTestMode: true
-    );
-    try {
-      _momoPay.open(options);
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-  }
+  // void _createMomoPaymentRequest() {
+  //   MomoPaymentInfo options = MomoPaymentInfo(
+  //       merchantName: "TTN",
+  //       appScheme: "MOxx",
+  //       merchantCode: 'MOxx',
+  //       partnerCode: 'Mxx',
+  //       amount: 60000,
+  //       orderId: '12321312',
+  //       orderLabel: 'Gói combo',
+  //       merchantNameLabel: "HLGD",
+  //       fee: 10,
+  //       description: 'Thanh toán combo',
+  //       username: '01234567890',
+  //       partner: 'merchant',
+  //       extra: "{\"key1\":\"value1\",\"key2\":\"value2\"}",
+  //       isTestMode: true
+  //   );
+  //   try {
+  //     _momoPay.open(options);
+  //   } catch (e) {
+  //     debugPrint(e.toString());
+  //   }
+  // }
 
-  void _handlePaymentSuccess(PaymentResponse response) {
-    _momoPaymentResult = response;
+  // void _handlePaymentSuccess(PaymentResponse response) {
+  //   _momoPaymentResult = response;
 
-  }
+  // }
 
-  void _handlePaymentError(PaymentResponse response) {
-    _momoPaymentResult = response;
-  }
+  // void _handlePaymentError(PaymentResponse response) {
+  //   _momoPaymentResult = response;
+  // }
 }
