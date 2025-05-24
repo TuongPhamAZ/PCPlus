@@ -109,7 +109,6 @@ class UserInformationPresenter {
         gender: isMale ? "male" : "female",
         userType: UserType.USER,
         avatarUrl: avatarUrl,
-        fcm: fcm,
       );
 
       if (isShop! == false) {

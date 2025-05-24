@@ -1,5 +1,3 @@
-import 'package:flutter/cupertino.dart';
-// import 'package:momo_vn/momo_vn.dart';
 import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/models/bills/bill_model.dart';
 import 'package:pcplus/models/bills/bill_of_shop_model.dart';
@@ -16,7 +14,6 @@ import 'package:pcplus/services/pref_service.dart';
 import 'package:pcplus/services/utility.dart';
 
 import '../../../models/in_cart_items/item_in_cart_with_seller.dart';
-import '../../../models/interactions/interaction_model.dart';
 import '../../../models/system/param_store_repo.dart';
 import '../../../models/users/ship_infor_model.dart';
 import '../../../services/notification_service.dart';
@@ -27,12 +24,12 @@ class BillProductPresenter {
     // _momoPay = MomoVn();
     // _momoPay.on(MomoVn.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     // _momoPay.on(MomoVn.EVENT_PAYMENT_ERROR, _handlePaymentError);
-    _paymentStatus = "";
+    // _paymentStatus = "";
   }
 
   // late MomoVn _momoPay;
   // late PaymentResponse _momoPaymentResult;
-  late String _paymentStatus;
+  // late String _paymentStatus;
 
   final InCartItemRepo _inCartItemRepo = InCartItemRepo();
   final ItemRepository _itemRepo = ItemRepository();
@@ -141,11 +138,7 @@ class BillProductPresenter {
     );
 
     for (ItemInCartWithSeller data in onPaymentItems!) {
-      InteractionModel interactionModel = await SessionController.getInstance()
-          .getInteractionModel(data.item.itemID!);
-      interactionModel.buyTimes =
-          interactionModel.buyTimes! + data.inCart.amount!;
-      await SessionController.getInstance().updateInteraction(interactionModel);
+      await SessionController.getInstance().onBuyProduct(data.item.itemID!, data.inCart.amount!);
 
       // update Item Data
       data.item.sold = data.item.sold! + data.inCart.amount!;

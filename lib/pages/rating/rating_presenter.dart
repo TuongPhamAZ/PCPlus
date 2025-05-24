@@ -45,9 +45,7 @@ class RatingPresenter {
     );
     await _ratingRepo.addRatingToFirestore(model.item!.itemID!, ratingModel);
     await _awaitRatingRepo.deleteAwaitRatingByKey(_sessionController.userID!, model.key!);
-    InteractionModel interactionModel = await SessionController.getInstance().getInteractionModel(model.item!.itemID!);
-    interactionModel.rating = rating;
-    await SessionController.getInstance().updateInteraction(interactionModel);
+    await SessionController.getInstance().onRating(model.item!.itemID!, rating);
     ItemModel? itemModel = await _itemRepo.getItemById(model.item!.itemID!);
     if (itemModel != null) {
       double sumRating = itemModel.ratingCount! * itemModel.rating!;

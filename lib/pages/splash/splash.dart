@@ -73,20 +73,8 @@ class _SplashScreenState extends State<SplashScreen>
 
       UserModel? userData = await userRepo.getUserById(userCredential.user!.uid);
 
-      FirebaseMessaging messaging = FirebaseMessaging.instance;
-      String? currentToken = await messaging.getToken();
-
-      if (currentToken != null) {
-        userData!.activeFcm = currentToken;
-        // Kiểm tra nếu token chưa tồn tại trong danh sách token của người dùng
-        if (!userData.fcm!.contains(currentToken)) {
-          userData.fcm!.add(currentToken);
-        }
-        await userRepo.updateUser(userData);
-      }
-
       loginSucceeded = true;
-      SessionController.getInstance().loadUser(userData!);
+      await SessionController.getInstance().loadUser(userData!);
     }
   }
 

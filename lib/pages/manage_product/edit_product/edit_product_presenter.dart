@@ -1,16 +1,20 @@
+import 'package:file_picker/file_picker.dart';
+import 'package:pcplus/models/items/item_repo.dart';
 import 'package:pcplus/models/items/item_with_seller.dart';
 import 'package:pcplus/pages/manage_product/edit_product/edit_product_contract.dart';
 import 'package:pcplus/services/image_storage_service.dart';
 import 'package:pcplus/objects/image_data.dart';
 
+import '../../../models/items/color_model.dart';
 import '../../../models/items/item_model.dart';
-import '../../../objects/suggest_item_data.dart';
+import '../edit_product/edit_product.dart';
 
 class EditProductPresenter {
   final EditProductContract _view;
   EditProductPresenter(this._view);
 
   final ImageStorageService _imageStorageService = ImageStorageService();
+  final ItemRepository _itemRepo = ItemRepository();
 
   ItemWithSeller? itemWithSeller;
 
@@ -19,8 +23,10 @@ class EditProductPresenter {
     required String description,
     required String detail,
     required int price,
+    required int salePrice,
     required int amount,
     required List<ImageData> images,
+    required List<ColorInfo> colors,
   }) async {
     _view.onWaitingProgressBar();
 
@@ -30,40 +36,100 @@ class EditProductPresenter {
       return;
     }
 
-    // ItemData editedItemData = _shopSingleton.editedItem!;
-    // ItemModel editedItemModel = _shopSingleton.editedItem!.product!;
+    ItemModel itemModel = itemWithSeller!.item;
 
-    // List<String> deleteUrls = List.from(editedItemModel.reviewImages!);
-    // List<String> urls = [];
-    //
-    // for (ImageData image in images) {
-    //   if (image.isNew) {
-    //     String? imagePath = await _imageStorageService.uploadImage(
-    //         StorageFolderNames.PRODUCTS, image.file!);
-    //     if (imagePath == null) {
-    //       _view.onPopContext();
-    //       _view.onEditFailed("Something was wrong. Please try again.");
-    //       return;
-    //     }
-    //     urls.add(imagePath);
-    //   } else {
-    //     urls.add(image.path);
-    //     deleteUrls.remove(image.path);
-    //   }
-    // }
-    //
-    // editedItemModel.reviewImages = urls;
-    // for (String url in deleteUrls) {
-    //   await _imageStorageService.deleteImage(url);
-    // }
-    //
-    // editedItemModel.name = name;
-    // editedItemModel.description = description;
-    // editedItemModel.detail = detail;
-    // editedItemModel.price = price;
-    // editedItemModel.stock = amount;
-    //
-    // _shopSingleton.updateData(editedItemData);
+    // Cập nhật các field
+    itemModel.name = name;
+    itemModel.description = description;
+    itemModel.detail = detail;
+    itemModel.price = price;
+    itemModel.discountPrice = salePrice;
+    itemModel.stock = amount;
+
+    // CẬP NHẬT ẢNH
+    Set<String> deleteUrls = Set.from(itemModel.reviewImages!);
+    deleteUrls.addAll(itemModel.colors!.map((color) => color.image!).toSet());
+
+    // Cập nhật review Images
+    itemModel.reviewImages = [];
+
+    int index = 0;
+    for (ImageData imageData in images) {
+      if (imageData.isNew) {
+        String pathName = _imageStorageService.formatProductImagePath(
+            itemModel.itemID!,
+            index
+        );
+
+        String? imagePath = await _imageStorageService.uploadImage(
+            _imageStorageService.formatShopFolderName(itemModel.sellerID!),
+            await _imageStorageService.convertFileToPlatformFile(imageData.file!),
+            pathName
+        );
+
+        if (imagePath == null) {
+          _view.onPopContext();
+          _view.onEditFailed("Something was wrong. Please try again.");
+          return;
+        }
+
+        itemModel.reviewImages!.add(imagePath);
+        index++;
+      }
+      else
+      {
+        itemModel.reviewImages!.add(imageData.path);
+        deleteUrls.remove(imageData.path);
+      }
+
+    }
+
+    // Cập nhật color
+    itemModel.colors = [];
+
+    index = 0;
+    for (ColorInfo colorInfo in colors) {
+      if (colorInfo.isNew) {
+        // Post new color
+        String pathName = "${_imageStorageService.formatProductImageColorPath(
+          itemModel.itemID!,
+          colorInfo.name,
+        )}_$index";
+
+        PlatformFile platformFile = await _imageStorageService.convertFileToPlatformFile(colorInfo.imageFile!);
+
+        String? imagePath = await _imageStorageService.uploadImage(
+            _imageStorageService.formatShopFolderName(itemModel.sellerID!),
+            platformFile,
+            pathName
+        );
+
+        index ++;
+
+        ColorModel colorModel = ColorModel(
+          name: colorInfo.name,
+          image: imagePath,
+        );
+
+        itemModel.colors?.add(colorModel);
+      } else {
+        // Save old color
+        ColorModel colorModel = ColorModel(
+          name: colorInfo.name,
+          image: colorInfo.imageUrl,
+        );
+        itemModel.colors?.add(colorModel);
+        deleteUrls.remove(colorModel.image);
+      }
+    }
+
+    // Xóa ảnh
+    for (String deleteUrl in deleteUrls) {
+      await _imageStorageService.deleteImage(deleteUrl);
+    }
+
+    await _itemRepo.updateItem(itemModel);
+
     _view.onPopContext();
     _view.onEditSucceeded();
   }
