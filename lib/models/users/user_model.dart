@@ -14,7 +14,6 @@ class UserModel {
   String? avatarUrl;
   ShipInformationModel? shipInformationModel;
   String? activeFcm;
-  List<String>? fcm;
   int? money = 0;
   // Map<String, Object?>? shopInfo = {};
 
@@ -33,7 +32,6 @@ class UserModel {
     this.shipInformationModel,
     this.avatarUrl,
     this.money,
-    this.fcm,
     this.activeFcm,
     // this.shopInfo
   });
@@ -49,15 +47,11 @@ class UserModel {
         'avatarUrl': avatarUrl,
         'shipInformation': shipInformationModel,
         'money': money,
-        'fcm': fcm,
         'activeFcm': activeFcm,
         // 'shopInfo': jsonEncode(shopInfo)
       };
 
   static UserModel fromJson(Map<String, dynamic> json) {
-    final dataFcm = json['fcm'] as List?;
-    // final listFcm = List.castFrom<Object?, Map<String, Object?>>(dataFcm!);
-
     DateTime? dateTime;
     if (json['dateOfBirth'] is Timestamp == false) {
       dateTime = DateTime.parse(json['dateOfBirth']);
@@ -75,7 +69,6 @@ class UserModel {
       shipInformationModel:
           ShipInformationModel.fromJson(json['shipInformation']),
       money: (json['money'] ?? 0) as int,
-      fcm: List.castFrom(dataFcm ?? []),
       activeFcm: (json['activeFcm'] ?? "") as String,
       // shopInfo: shopInfo
     );

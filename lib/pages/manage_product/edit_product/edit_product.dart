@@ -371,7 +371,7 @@ class _EditProductState extends State<EditProduct>
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -405,7 +405,7 @@ class _EditProductState extends State<EditProduct>
                                 shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
+                              color: Colors.black.withValues(alpha: 0.2),
                               blurRadius: 4,
                               offset: const Offset(0, 2),
                             ),
@@ -469,7 +469,7 @@ class _EditProductState extends State<EditProduct>
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -566,7 +566,7 @@ class _EditProductState extends State<EditProduct>
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
+                      color: Colors.black.withValues(alpha: 0.2),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
@@ -611,7 +611,7 @@ class _EditProductState extends State<EditProduct>
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
+                      color: Colors.black.withValues(alpha: 0.2),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
@@ -647,9 +647,12 @@ class _EditProductState extends State<EditProduct>
                           name: _nameController.text.trim(),
                           description: _descriptionController.text.trim(),
                           detail: _detailController.text.trim(),
-              price: int.parse(_priceOriginalController.text.trim()),
+                          price: int.parse(_priceOriginalController.text.trim()),
+                          salePrice: int.parse(_priceSaleController.text.trim()),
                           amount: int.parse(_amountController.text.trim()),
-              images: _images);
+                          images: _images,
+                          colors: _colors,
+                      );
         }
       },
       style: ElevatedButton.styleFrom(

@@ -1,6 +1,7 @@
 
 import 'dart:async';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:pcplus/models/shops/shop_repo.dart';
 import 'package:pcplus/models/users/user_repo.dart';
@@ -38,8 +39,6 @@ class SessionController {
   Future<void> loadUser(UserModel user) async {
     userID = user.userID;
     firstEnter = true;
-    currentFcm = user.activeFcm;
-
     isSeller = user.userType == UserType.SHOP;
 
     if (isSeller) {
@@ -47,6 +46,10 @@ class SessionController {
       await PrefService.saveShopData(shopData: shop);
     }
 
+    // Update FCM
+    currentFcm = await getToken();
+    user.activeFcm = currentFcm;
+    await _userRepository.updateUser(user);
     userStream = _userRepository.getUserByIdStream(userID!);
     listenToUserStream();
   }
@@ -119,5 +122,38 @@ class SessionController {
   Future<void> updateInteraction(InteractionModel interactionModel) async {
     InteractionRepository interactionRepo = InteractionRepository();
     await interactionRepo.updateInteraction(interactionModel);
+  }
+
+  Future<void> onViewProduct(String itemID) async {
+    if (isShop()) {
+      return;
+    }
+    InteractionModel interactionModel = await getInteractionModel(itemID);
+    interactionModel.clickTimes = interactionModel.clickTimes! + 1;
+    await updateInteraction(interactionModel);
+  }
+
+  Future<void> onBuyProduct(String itemID, int amount) async {
+    if (isShop()) {
+      return;
+    }
+    InteractionModel interactionModel = await getInteractionModel(itemID);
+    interactionModel.buyTimes = (interactionModel.buyTimes ?? 0) + amount;
+    await updateInteraction(interactionModel);
+  }
+
+  Future<void> onRating(String itemID, double rating) async {
+    if (isShop()) {
+      return;
+    }
+    InteractionModel interactionModel = await getInteractionModel(itemID);
+    interactionModel.rating = rating;
+    await updateInteraction(interactionModel);
+  }
+
+  Future<String?> getToken() async {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    String? token = await messaging.getToken();
+    return token;
   }
 }

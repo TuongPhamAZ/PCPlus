@@ -40,10 +40,7 @@ class DetailProductPresenter {
     ratings.clear();
     ratingsData.clear();
 
-    InteractionModel interactionModel = await SessionController.getInstance()
-        .getInteractionModel(itemWithSeller!.item.itemID!);
-    interactionModel.clickTimes = interactionModel.clickTimes! + 1;
-    await SessionController.getInstance().updateInteraction(interactionModel);
+    await SessionController.getInstance().onViewProduct(itemWithSeller!.item.itemID!);
 
     List<ItemModel> sellerProducts =
         await _itemRepo.getItemsBySeller(itemWithSeller!.seller.shopID!);

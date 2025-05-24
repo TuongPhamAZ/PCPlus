@@ -27,9 +27,6 @@ class ShopInformationPresenter {
 
   List<String>? fcm;
 
-  Future<void> getFcm() async {
-  }
-
   Future<void> handleConfirm({
     required String name,
     required String location,
@@ -52,11 +49,8 @@ class ShopInformationPresenter {
         return;
       }
 
-      await getFcm();
-
       userModel!.userID = userCredential.user!.uid;
       userModel!.userType = UserType.SHOP;
-      userModel!.fcm = fcm;
 
       // Rename avatar
       String userAvatarPath = await _imageStorageService.renameCloudinaryImage(
