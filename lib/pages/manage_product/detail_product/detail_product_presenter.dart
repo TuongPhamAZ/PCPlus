@@ -6,6 +6,7 @@ import 'package:pcplus/models/items/item_with_seller.dart';
 import 'package:pcplus/models/ratings/rating_repo.dart';
 import 'package:pcplus/models/users/user_repo.dart';
 import 'package:pcplus/pages/manage_product/detail_product/detail_product_contract.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../models/interactions/interaction_model.dart';
 import '../../../models/items/item_model.dart';
@@ -29,36 +30,127 @@ class DetailProductPresenter {
   int shopProductsCount = 0;
 
   Future<void> getData() async {
+    // Kiểm tra nếu đang chạy trong debug mode và có mock data
+    if (kDebugMode && itemWithSeller?.item.itemID == "mock_id_123") {
+      await _loadMockData();
+      return;
+    }
+
+    // Logic gốc để load data từ API
     ratings.clear();
     ratingsData.clear();
 
-    InteractionModel interactionModel = await SessionController.getInstance().getInteractionModel(itemWithSeller!.item.itemID!);
+    InteractionModel interactionModel = await SessionController.getInstance()
+        .getInteractionModel(itemWithSeller!.item.itemID!);
     interactionModel.clickTimes = interactionModel.clickTimes! + 1;
     await SessionController.getInstance().updateInteraction(interactionModel);
 
-    List<ItemModel> sellerProducts = await _itemRepo.getItemsBySeller(itemWithSeller!.seller.shopID!);
+    List<ItemModel> sellerProducts =
+        await _itemRepo.getItemsBySeller(itemWithSeller!.seller.shopID!);
     shopProductsCount = sellerProducts.length;
 
-    ratings = await _ratingRepo.getAllRatingsByItemID(itemWithSeller!.item.itemID!);
+    ratings =
+        await _ratingRepo.getAllRatingsByItemID(itemWithSeller!.item.itemID!);
 
     Map<String, UserModel?> users = {};
     for (RatingModel rating in ratings) {
       users[rating.userID!] = null;
     }
 
-    List<UserModel> userModels = await _userRepo.getAllUsersByIdList(users.keys.toList());
+    List<UserModel> userModels =
+        await _userRepo.getAllUsersByIdList(users.keys.toList());
 
     for (UserModel model in userModels) {
       users[model.userID!] = model;
     }
 
     for (RatingModel rating in ratings) {
-      ratingsData.add(ReviewData(
-        rating: rating,
-        user: users[rating.userID!]
-      ));
+      ratingsData.add(ReviewData(rating: rating, user: users[rating.userID!]));
     }
 
+    _view.onLoadDataSucceeded();
+  }
+
+  // Hàm load mock data
+  Future<void> _loadMockData() async {
+    // Tạo mock reviews
+    final mockRating1 = RatingModel(
+        key: "rating_1",
+        userID: "user_1",
+        itemID: "mock_id_123",
+        rating: 5.0,
+        date: DateTime.now().subtract(const Duration(days: 5)),
+        comment:
+            "Sản phẩm tuyệt vời, hiệu năng mạnh mẽ, đáp ứng tốt nhu cầu chơi game và làm việc. Màn hình 144Hz rất mượt.",
+        like: ["user_2", "user_3"],
+        dislike: [],
+        response: "Cảm ơn bạn đã đánh giá tích cực về sản phẩm.");
+
+    final mockRating2 = RatingModel(
+        key: "rating_2",
+        userID: "user_2",
+        itemID: "mock_id_123",
+        rating: 4.0,
+        date: DateTime.now().subtract(const Duration(days: 10)),
+        comment:
+            "Laptop chạy khá mát, thiết kế đẹp. Chỉ tiếc là pin không được lâu lắm.",
+        like: ["user_1"],
+        dislike: [],
+        response: null);
+
+    final mockRating3 = RatingModel(
+        key: "rating_3",
+        userID: "user_3",
+        itemID: "mock_id_123",
+        rating: 4.5,
+        date: DateTime.now().subtract(const Duration(days: 15)),
+        comment:
+            "Máy rất ổn với tầm giá, màn hình đẹp, hiệu năng tốt. Giao hàng nhanh và đóng gói cẩn thận.",
+        like: ["user_2", "user_4"],
+        dislike: [],
+        response: "Cảm ơn bạn đã ủng hộ shop!");
+
+    // Tạo mock users
+    final mockUser1 = UserModel(
+        userID: "user_1",
+        name: "Nguyễn Văn A",
+        email: "nguyenvana@gmail.com",
+        phone: "0901234567",
+        dateOfBirth: DateTime(1995, 5, 20),
+        gender: "Nam",
+        userType: "user",
+        avatarUrl: "https://i.pravatar.cc/150?img=1");
+
+    final mockUser2 = UserModel(
+        userID: "user_2",
+        name: "Trần Thị B",
+        email: "tranthib@gmail.com",
+        phone: "0909876543",
+        dateOfBirth: DateTime(1998, 8, 15),
+        gender: "Nữ",
+        userType: "user",
+        avatarUrl: "https://i.pravatar.cc/150?img=5");
+
+    final mockUser3 = UserModel(
+        userID: "user_3",
+        name: "Lê Văn C",
+        email: "levanc@gmail.com",
+        phone: "0912345678",
+        dateOfBirth: DateTime(1990, 3, 10),
+        gender: "Nam",
+        userType: "user",
+        avatarUrl: "https://i.pravatar.cc/150?img=8");
+
+    // Tạo ReviewData
+    ratingsData = [
+      ReviewData(rating: mockRating1, user: mockUser1),
+      ReviewData(rating: mockRating2, user: mockUser2),
+      ReviewData(rating: mockRating3, user: mockUser3),
+    ];
+
+    shopProductsCount = 50; // Mock số lượng sản phẩm của shop
+
+    // Báo thành công
     _view.onLoadDataSucceeded();
   }
 
@@ -75,17 +167,24 @@ class DetailProductPresenter {
   }
 
   Future<void> handleAddToCart() async {
-    // _cartSingleton.addItemToCart(
-    //     itemData: _itemSingleton.itemData!,
-    //     colorIndex: 0,
-    //     amount: 1
-    // );
+    // Nếu đang trong mock mode, chỉ cần hiển thị progress và callback
+    if (kDebugMode && itemWithSeller?.item.itemID == "mock_id_123") {
+      _view.onWaitingProgressBar();
+      await Future.delayed(
+          const Duration(milliseconds: 500)); // Giả lập thời gian xử lý
+      _view.onPopContext();
+      _view.onAddToCart();
+      return;
+    }
+
+    // Logic gốc để thêm vào giỏ hàng
     _view.onWaitingProgressBar();
 
     String userId = SessionController.getInstance().userID!;
     String itemId = itemWithSeller!.item.itemID!;
 
-    InCartItemModel? temp = await _inCartItemRepo.getItemInCartByItemID(userId, itemId);
+    InCartItemModel? temp =
+        await _inCartItemRepo.getItemInCartByItemID(userId, itemId);
 
     if (temp == null) {
       InCartItemModel model = InCartItemModel(
@@ -95,17 +194,26 @@ class DetailProductPresenter {
         isSelected: false,
       );
 
-       await _inCartItemRepo.addItemToUserCart(userId, model);
+      await _inCartItemRepo.addItemToUserCart(userId, model);
     }
 
     _view.onPopContext();
     _view.onAddToCart();
   }
 
-  Future<void> handleBuyNow({
-    required int colorIndex,
-    required int amount
-  }) async {
+  Future<void> handleBuyNow(
+      {required int colorIndex, required int amount}) async {
+    // Nếu đang trong mock mode, chỉ cần hiển thị progress và callback
+    if (kDebugMode && itemWithSeller?.item.itemID == "mock_id_123") {
+      _view.onWaitingProgressBar();
+      await Future.delayed(
+          const Duration(milliseconds: 500)); // Giả lập thời gian xử lý
+      _view.onPopContext();
+      _view.onBuyNow();
+      return;
+    }
+
+    // Logic gốc để mua ngay
     _view.onWaitingProgressBar();
 
     String userId = SessionController.getInstance().userID!;
@@ -123,7 +231,8 @@ class DetailProductPresenter {
 
     await _inCartItemRepo.selectAllItemInCart(userId, false);
 
-    InCartItemModel? inCartItemTemp = await _inCartItemRepo.getItemInCartByItemID(userId, itemId);
+    InCartItemModel? inCartItemTemp =
+        await _inCartItemRepo.getItemInCartByItemID(userId, itemId);
     if (inCartItemTemp == null) {
       inCartItemTemp = InCartItemModel(
         itemID: itemWithSeller!.item.itemID!,
@@ -133,8 +242,7 @@ class DetailProductPresenter {
       );
 
       await _inCartItemRepo.addItemToUserCart(userId, inCartItemTemp);
-    }
-    else {
+    } else {
       inCartItemTemp.color = itemWithSeller!.item.colors![colorIndex];
       inCartItemTemp.amount = amount;
       inCartItemTemp.isSelected = true;

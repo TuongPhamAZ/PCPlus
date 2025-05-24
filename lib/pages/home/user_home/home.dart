@@ -231,7 +231,7 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
   void onItemPressed(ItemWithSeller itemData) {
     Navigator.of(context).pushNamed(
         DetailProduct.routeName,
-        arguments: {NavigatorArgs.itemData : itemData}
+        arguments: ItemArgument(data: itemData),
     );
   }
 
