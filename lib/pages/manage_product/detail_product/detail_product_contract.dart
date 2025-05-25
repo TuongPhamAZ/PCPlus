@@ -9,4 +9,6 @@ abstract class DetailProductContract {
   void onPopContext();
   void onViewShop(ShopModel seller);
   void onError(String message);
+  void onResponseRatingFailed(String message);
+  void onResponseRatingSuccess();
 }

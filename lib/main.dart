@@ -62,7 +62,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: Dashboard(title: 'PC Plus', version: '1.0.0'),
+      // home: Dashboard(title: 'PC Plus', version: '1.0.0'),
+      home: const SplashScreen(),
       routes: routes,
       debugShowCheckedModeBanner: false,
     );

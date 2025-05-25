@@ -87,6 +87,7 @@ class _DetailProductState extends State<DetailProduct>
   }
 
   Future<void> loadData() async {
+    isShop = SessionController.getInstance().isSeller;
     await _presenter?.getData();
   }
 
@@ -602,16 +603,7 @@ class _DetailProductState extends State<DetailProduct>
                                     response: rating.response,
                                     isShop: isShop,
                                     onResponseSubmit: (responseText) {
-                                      print('Phản hồi được gửi: $responseText');
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                              'Phản hồi đã được gửi thành công!'),
-                                          backgroundColor: Colors.green,
-                                          duration: Duration(seconds: 2),
-                                        ),
-                                      );
+                                      _presenter!.onSendResponse(rating, responseText);
                                     },
                                   );
                                 },
@@ -650,7 +642,7 @@ class _DetailProductState extends State<DetailProduct>
                         buttonColor: Colors.blueGrey,
                         onAction: () {
                           Navigator.pop(context);
-                          _presenter?.handleAddToCart();
+                          _presenter?.handleAddToCart(amount: soluong, colorIndex: selectedColorIndex);
                         },
                       );
                     },
@@ -725,7 +717,7 @@ class _DetailProductState extends State<DetailProduct>
                 // Chuyển đến màn hình EditProduct
                 Navigator.of(context).pushNamed(
                   EditProduct.routeName,
-                  arguments: _presenter?.itemWithSeller,
+                  arguments: ItemArgument(data: _presenter!.itemWithSeller!),
                 );
               },
               backgroundColor: Palette.primaryColor,
@@ -904,6 +896,20 @@ class _DetailProductState extends State<DetailProduct>
           },
         );
       },
+    );
+  }
+
+  @override
+  void onResponseRatingFailed(String message) {
+    // TODO: implement onResponseRatingFailed
+  }
+
+  @override
+  void onResponseRatingSuccess() {
+    UtilWidgets.createSnackBar(
+      context,
+      'Phản hồi đã được gửi thành công!',
+      backgroundColor: Colors.green,
     );
   }
 }

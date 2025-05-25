@@ -163,7 +163,7 @@ class DetailProductPresenter {
     _view.onViewShop(itemWithSeller!.seller);
   }
 
-  Future<void> handleAddToCart() async {
+  Future<void> handleAddToCart({required int colorIndex, required int amount}) async {
     // Nếu đang trong mock mode, chỉ cần hiển thị progress và callback
     if (kDebugMode && itemWithSeller?.item.itemID == "mock_id_123") {
       _view.onWaitingProgressBar();
@@ -233,8 +233,8 @@ class DetailProductPresenter {
     if (inCartItemTemp == null) {
       inCartItemTemp = InCartItemModel(
         itemID: itemWithSeller!.item.itemID!,
-        color: itemWithSeller!.item.colors!.first,
-        amount: 1,
+        color: itemWithSeller!.item.colors![colorIndex],
+        amount: amount,
         isSelected: true,
       );
 
@@ -248,5 +248,13 @@ class DetailProductPresenter {
 
     _view.onPopContext();
     _view.onBuyNow();
+  }
+
+  Future<void> onSendResponse(RatingModel rating, String message) async {
+    _view.onWaitingProgressBar();
+    rating.response = message;
+    await _ratingRepo.updateRating(rating);
+    _view.onPopContext();
+    _view.onResponseRatingSuccess();
   }
 }

@@ -602,6 +602,9 @@ class _EditProductState extends State<EditProduct>
               onTap: () {
                 setState(() {
                   color.imageUrl = null;
+                  if (color.isNew == false) {
+                    color.isNew = true;
+                  }
                 });
               },
               child: Container(

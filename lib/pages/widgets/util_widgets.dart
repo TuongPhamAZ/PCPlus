@@ -57,10 +57,10 @@ abstract class UtilWidgets {
     );
   }
 
-  static void createSnackBar(BuildContext context, String content) {
+  static void createSnackBar(BuildContext context, String content, {Color? backgroundColor}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        backgroundColor: Palette.primaryColor,
+        backgroundColor: backgroundColor ?? Palette.primaryColor,
         content: Text(
           content,
           style: TextDecor.robo17.copyWith(color: Colors.white),

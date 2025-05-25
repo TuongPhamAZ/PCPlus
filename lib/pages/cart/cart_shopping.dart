@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:pcplus/component/item_argument.dart';
+import 'package:pcplus/models/items/item_with_seller.dart';
 import 'package:pcplus/pages/cart/cart_shopping_screen_contract.dart';
 import 'package:pcplus/pages/cart/cart_shopping_screen_presenter.dart';
 import 'package:pcplus/themes/palette/palette.dart';
@@ -130,7 +132,7 @@ class _CartShoppingScreenState extends State<CartShoppingScreen> implements Cart
                       return ListView.builder(
                         shrinkWrap: true,
                         padding: EdgeInsets.zero,
-                        physics: const NeverScrollableScrollPhysics(),
+                        // physics: const NeverScrollableScrollPhysics(),
                         scrollDirection: Axis.vertical,
                         itemCount: itemsWithSeller.length,
                         itemBuilder: (context, index) {
@@ -148,7 +150,12 @@ class _CartShoppingScreenState extends State<CartShoppingScreen> implements Cart
                             price: itemData.item.price!,
                             stock: itemData.item.stock!,
                             onDelete: () => _deleteItem(itemData.inCart),
-                            onPressed: () => _presenter?.handleItemPressed(itemData.inCart),
+                            onPressed: () => _presenter?.handleItemPressed(
+                                ItemWithSeller(
+                                    item: itemData.item,
+                                    seller: itemData.seller
+                                )
+                            ),
                             onChangeAmount: (value) => _presenter?.handleChangeItemAmount(itemData.inCart, value),
                           );
                         },
@@ -258,10 +265,11 @@ class _CartShoppingScreenState extends State<CartShoppingScreen> implements Cart
   }
 
   @override
-  void onItemPressed(String itemID) {
-    Navigator.of(context).pushNamed(DetailProduct.routeName, arguments: {
-      "itemID" : itemID,
-    });
+  void onItemPressed(ItemWithSeller item) {
+    Navigator.of(context).pushNamed(
+        DetailProduct.routeName,
+        arguments: ItemArgument(data: item),
+    );
   }
 
   @override

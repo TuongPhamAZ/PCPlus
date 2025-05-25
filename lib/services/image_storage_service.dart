@@ -61,19 +61,17 @@ class ImageStorageService {
 
   // Xóa ảnh khỏi Cloudinary
   Future<void> deleteImage(String imageUrl) async {
-    final String jsonString = await rootBundle.loadString('lib/sample/test_samples/user_seller.json');
+    final String jsonString = await rootBundle.loadString('lib/sample/test_samples/apikey.json');
     final Map<String, dynamic> data = jsonDecode(jsonString);
 
     final apiKey = data["apiKey"];
-    final apiSecret = data["apiSecret"];
+    final apiSecret = data["secretKey"];
 
     final timestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-
     final publicId = extractPublicId(imageUrl);
 
-    // Tạo signature
-    final signatureData = 'public_id=$publicId&timestamp=$timestamp$apiSecret';
-    final signature = sha1.convert(utf8.encode(signatureData)).toString();
+    final stringToSign = 'public_id=$publicId&timestamp=$timestamp';
+    final signature = sha1.convert(utf8.encode(stringToSign + apiSecret)).toString();
 
     final uri = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/destroy');
 
@@ -95,19 +93,20 @@ class ImageStorageService {
     required String fromPublicPath,
     required String toPublicId,
   }) async {
-    final String jsonString = await rootBundle.loadString('lib/sample/test_samples/user_seller.json');
+    final String jsonString = await rootBundle.loadString('lib/sample/test_samples/apikey.json');
     final Map<String, dynamic> data = jsonDecode(jsonString);
 
     final apiKey = data["apiKey"];
-    final apiSecret = data["apiSecret"];
+    final apiSecret = data["secretKey"];
 
     final fromPublicId = extractPublicId(fromPublicPath);
-
     final timestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
-    // Tạo signature
-    final dataToSign = 'from_public_id=$fromPublicId&timestamp=$timestamp&to_public_id=$toPublicId$apiSecret';
-    final signature = sha1.convert(utf8.encode(dataToSign)).toString();
+    // Đúng thứ tự A-Z: from_public_id, timestamp, to_public_id
+    final stringToSign = 'from_public_id=$fromPublicId&timestamp=$timestamp&to_public_id=$toPublicId';
+
+    // SHA1 của stringToSign + apiSecret
+    final signature = sha1.convert(utf8.encode(stringToSign + apiSecret)).toString();
 
     final uri = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/rename');
 
@@ -121,8 +120,7 @@ class ImageStorageService {
 
     if (response.statusCode == 200) {
       debugPrint('Đổi tên thành công: ${response.body}');
-      var jsonRes = json.decode(response.body);
-      debugPrint('Uploaded: ${jsonRes['secure_url']}');
+      final jsonRes = json.decode(response.body);
       return jsonRes['secure_url'];
     } else {
       print('Lỗi khi đổi tên: ${response.body}');
@@ -133,10 +131,25 @@ class ImageStorageService {
   String extractPublicId(String url) {
     final uri = Uri.parse(url);
     final segments = uri.pathSegments;
-    final uploadIndex = segments.indexOf('upload');
-    final publicPath = segments.sublist(uploadIndex + 1).join('/');
 
-    return publicPath.replaceAll(RegExp(r'\.\w+$'), ''); // bỏ đuôi .jpg, .png, v.v.
+    // Tìm vị trí của "upload"
+    final uploadIndex = segments.indexOf('upload');
+
+    // Lấy phần sau "upload"
+    final publicPathSegments = segments.sublist(uploadIndex + 1);
+
+    // Nếu phần đầu là version (vd: v1234567890), bỏ đi
+    final firstSegment = publicPathSegments.first;
+    final isVersion = RegExp(r'^v\d+$').hasMatch(firstSegment);
+    final cleanedSegments = isVersion
+        ? publicPathSegments.sublist(1)
+        : publicPathSegments;
+
+    // Nối lại thành đường dẫn public_id
+    final publicPath = cleanedSegments.join('/');
+
+    // Loại bỏ phần mở rộng (.jpg, .png,...)
+    return publicPath.replaceAll(RegExp(r'\.\w+$'), '');
   }
 
   String formatProductImagePath(String productID, int index) {
