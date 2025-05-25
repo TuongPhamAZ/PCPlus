@@ -2,6 +2,7 @@ import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/models/in_cart_items/in_cart_item_model.dart';
 import 'package:pcplus/models/in_cart_items/in_cart_item_repo.dart';
 import 'package:pcplus/models/in_cart_items/item_in_cart_with_seller.dart';
+import 'package:pcplus/models/items/item_with_seller.dart';
 import 'package:pcplus/pages/cart/cart_shopping_screen_contract.dart';
 import '../../services/utility.dart';
 
@@ -30,8 +31,8 @@ class CartShoppingScreenPresenter {
     _view.onDeleteItem();
   }
 
-  Future<void> handleItemPressed(InCartItemModel model) async {
-    _view.onItemPressed(model.itemID!);
+  Future<void> handleItemPressed(ItemWithSeller data) async {
+    _view.onItemPressed(data);
   }
 
   Future<void> handleSelectItem(InCartItemModel model, bool check) async {

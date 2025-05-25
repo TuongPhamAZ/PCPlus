@@ -1,3 +1,5 @@
+import 'package:pcplus/models/items/item_with_seller.dart';
+
 abstract class CartShoppingScreenContract {
   void onLoadDataSucceeded();
   void onWaitingProgressBar();
@@ -6,7 +8,7 @@ abstract class CartShoppingScreenContract {
   void onSelectItem();
   void onSelectAll();
   void onDeleteItem();
-  void onItemPressed(String itemID);
+  void onItemPressed(ItemWithSeller data);
   void onBuyFailed(String message);
   void onChangeItemAmount();
 }

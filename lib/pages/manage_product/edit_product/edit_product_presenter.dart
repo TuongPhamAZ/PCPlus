@@ -36,6 +36,21 @@ class EditProductPresenter {
       return;
     }
 
+    // Check ảnh color
+    for (ColorInfo color in colors) {
+      if (color.isNew == false || color.imageFile != null) {
+        continue;
+      }
+      if (color.name.isEmpty) {
+        _view.onPopContext();
+        _view.onEditFailed("Hãy điền tên màu cho sản phẩm");
+        return;
+      }
+      _view.onPopContext();
+      _view.onEditFailed("Hãy chọn ảnh cho sản phẩm");
+      return;
+    }
+
     ItemModel itemModel = itemWithSeller!.item;
 
     // Cập nhật các field
