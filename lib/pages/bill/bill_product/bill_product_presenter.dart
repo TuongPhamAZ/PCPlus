@@ -138,7 +138,8 @@ class BillProductPresenter {
     );
 
     for (ItemInCartWithSeller data in onPaymentItems!) {
-      await SessionController.getInstance().onBuyProduct(data.item.itemID!, data.inCart.amount!);
+      await SessionController.getInstance()
+          .onBuyProduct(data.item.itemID!, data.inCart.amount!);
 
       // update Item Data
       data.item.sold = data.item.sold! + data.inCart.amount!;
