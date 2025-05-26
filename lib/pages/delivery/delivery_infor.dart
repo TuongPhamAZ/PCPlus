@@ -20,8 +20,7 @@ class _DeliveryInforState extends State<DeliveryInfor> {
 
   late TextEditingController nameController;
   late TextEditingController phoneController;
-  late TextEditingController address1Controller;
-  late TextEditingController address2Controller;
+  late TextEditingController addressController;
 
   @override
   void initState() {
@@ -29,9 +28,7 @@ class _DeliveryInforState extends State<DeliveryInfor> {
     nameController = TextEditingController(text: widget.currentAddress.receiverName);
     phoneController =
         TextEditingController(text: widget.currentAddress.phone);
-    address1Controller =
-        TextEditingController(text: widget.currentAddress.location);
-    address2Controller =
+    addressController =
         TextEditingController(text: widget.currentAddress.location);
   }
 
@@ -39,8 +36,7 @@ class _DeliveryInforState extends State<DeliveryInfor> {
   void dispose() {
     nameController.dispose();
     phoneController.dispose();
-    address1Controller.dispose();
-    address2Controller.dispose();
+    addressController.dispose();
     super.dispose();
   }
 
@@ -83,19 +79,10 @@ class _DeliveryInforState extends State<DeliveryInfor> {
                     value!.isEmpty ? "Vui lòng nhập số điện thoại" : null,
               ),
               TextFormField(
-                controller: address1Controller,
+                controller: addressController,
                 decoration: const InputDecoration(
-                  hintText: "số nhà, tên đường",
-                  labelText: "Địa chỉ 1",
-                ),
-                validator: (value) =>
-                    value!.isEmpty ? "Vui lòng nhập địa chỉ" : null,
-              ),
-              TextFormField(
-                controller: address2Controller,
-                decoration: const InputDecoration(
-                  labelText: "Địa chỉ 2",
-                  hintText: "xã/phường, quận/huyện, tỉnh/thành phố",
+                  // hintText: "Số nhà, tên đường",
+                  labelText: "Địa chỉ",
                 ),
                 validator: (value) =>
                     value!.isEmpty ? "Vui lòng nhập địa chỉ" : null,
@@ -126,7 +113,7 @@ class _DeliveryInforState extends State<DeliveryInfor> {
                 ShipInformationModel(
                   receiverName: nameController.text,
                   phone: phoneController.text,
-                  location: address1Controller.text,
+                  location: addressController.text,
                   isDefault: true,
                 )
               });
