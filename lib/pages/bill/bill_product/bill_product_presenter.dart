@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/models/bills/bill_model.dart';
 import 'package:pcplus/models/bills/bill_of_shop_model.dart';
@@ -12,6 +13,7 @@ import 'package:pcplus/models/users/user_repo.dart';
 import 'package:pcplus/pages/bill/bill_product/bill_product_contract.dart';
 import 'package:pcplus/services/pref_service.dart';
 import 'package:pcplus/services/utility.dart';
+import 'package:pcplus/services/zalo_pay_service.dart';
 
 import '../../../models/in_cart_items/item_in_cart_with_seller.dart';
 import '../../../models/system/param_store_repo.dart';
@@ -20,20 +22,18 @@ import '../../../services/notification_service.dart';
 
 class BillProductPresenter {
   final BillProductContract _view;
-  BillProductPresenter(this._view) {
-    // _momoPay = MomoVn();
-    // _momoPay.on(MomoVn.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
-    // _momoPay.on(MomoVn.EVENT_PAYMENT_ERROR, _handlePaymentError);
-    // _paymentStatus = "";
-  }
+  BillProductPresenter(this._view);
 
-  // late MomoVn _momoPay;
-  // late PaymentResponse _momoPaymentResult;
-  // late String _paymentStatus;
+  final ZaloPayService _zaloPayService = ZaloPayService();
 
   final InCartItemRepo _inCartItemRepo = InCartItemRepo();
   final ItemRepository _itemRepo = ItemRepository();
   final UserRepository _userRepo = UserRepository();
+
+  final BillRepository _billRepository = BillRepository();
+  final BillOfShopRepository _billOfShopRepository = BillOfShopRepository();
+  final ParamStoreRepository _paramRepository = ParamStoreRepository();
+  final NotificationService _notificationService = NotificationService();
 
   ShipInformationModel? address;
   String? userId;
@@ -81,8 +81,12 @@ class BillProductPresenter {
     data.noteForShop = text;
   }
 
-  void handleChangeLocation(ShipInformationModel address) {
+  Future<void> handleChangeLocation(ShipInformationModel address) async {
     PrefService.saveLocationData(addressData: address);
+    UserModel? user = SessionController.getInstance().currentUser;
+    user!.shipInformationModel = address;
+
+    await _userRepo.updateUser(user);
   }
 
   Future<void> handleOrder(ShipInformationModel address) async {
@@ -91,38 +95,34 @@ class BillProductPresenter {
       return;
     }
 
-    _view.onWaitingProgressBar();
+    _view.onWaitingForPayment();
 
     bool canBuy = validateOnPaymentItem();
 
     if (canBuy) {
       // Create Order
       await performPayment();
-      _view.onPopContext();
-      _view.onBuy();
     } else {
       _view.onPopContext();
       _view.onBuyFailed("Có mặt hàng không thể mua được");
     }
   }
 
-  Future<bool> performPayment() async {
+  Future<void> performPayment() async {
     if (validateOnPaymentItem() == false) {
-      return false;
+      _view.onPopContext();
+      _view.onBuyFailed("Đã có lỗi xảy ra. Hãy thử lại sau");
+      return;
     }
 
-    BillRepository billRepository = BillRepository();
-    BillOfShopRepository billOfShopRepository = BillOfShopRepository();
-    UserRepository userRepository = UserRepository();
-    ParamStoreRepository paramRepository = ParamStoreRepository();
-    NotificationService notificationService = NotificationService();
+    UserModel? user = await _userRepo.getUserById(userId!);
 
-    UserModel? user = await userRepository.getUserById(userId!);
-
-    String? billID = await billRepository.generateID();
+    String? billID = await _billRepository.generateID();
 
     if (billID == null || user == null) {
-      return false;
+      _view.onPopContext();
+      _view.onBuyFailed("Đã có lỗi xảy ra. Hãy thử lại sau");
+      return;
     }
 
     DateTime orderDate = DateTime.now();
@@ -137,6 +137,12 @@ class BillProductPresenter {
       totalPrice: 0,
     );
 
+    // Tính tiền
+    newBill.toJson();
+    await _handleZaloPayRequest(newBill.totalPrice!, newBill);
+  }
+
+  Future<void> _processDataAfterPayment(BillModel newBill) async {
     for (ItemInCartWithSeller data in onPaymentItems!) {
       await SessionController.getInstance()
           .onBuyProduct(data.item.itemID!, data.inCart.amount!);
@@ -148,20 +154,20 @@ class BillProductPresenter {
       await _itemRepo.updateItem(data.item);
     }
 
-    // Không cần tính tiền. Tổng tiền đã được tính trong hàm ToJson của BillModel
-    await billRepository.addBillToFirestore(userId!, newBill);
+    await _billRepository.addBillToFirestore(userId!, newBill);
 
     for (BillShopModel shop in newBill.shops!) {
       BillOfShopModel? billOfShopModel =
-          newBill.toBillOfShopModel(shop.shopID!);
+      newBill.toBillOfShopModel(shop.shopID!);
       if (billOfShopModel == null) {
-        return false;
+        debugPrint("Line 159 (bill_product_presenter): billOfShopModel == null!");
+        return;
       }
       // Tạo Bill trong shop
-      await billOfShopRepository.addBillOfShopToFirestore(
+      await _billOfShopRepository.addBillOfShopToFirestore(
           shop.shopID!, billOfShopModel);
       // Gửi thông báo tới shop
-      await notificationService.createOrderingNotification(
+      await _notificationService.createOrderingNotification(
           shop.shopID!, billOfShopModel);
     }
     // Xóa item trong giỏ hàng
@@ -169,9 +175,7 @@ class BillProductPresenter {
       await _inCartItemRepo.deleteItemInCart(userId!, data.inCart);
     }
 
-    await paramRepository.increaseOrderIdIndex();
-
-    return true;
+    await _paramRepository.increaseOrderIdIndex();
   }
 
   bool validateOnPaymentItem() {
@@ -235,38 +239,37 @@ class BillProductPresenter {
     _view.onBack();
   }
 
-  // TODO: MOMO HANDLER
+  // TODO: ZALOPAY HANDLER
 
-  // void _createMomoPaymentRequest() {
-  //   MomoPaymentInfo options = MomoPaymentInfo(
-  //       merchantName: "TTN",
-  //       appScheme: "MOxx",
-  //       merchantCode: 'MOxx',
-  //       partnerCode: 'Mxx',
-  //       amount: 60000,
-  //       orderId: '12321312',
-  //       orderLabel: 'Gói combo',
-  //       merchantNameLabel: "HLGD",
-  //       fee: 10,
-  //       description: 'Thanh toán combo',
-  //       username: '01234567890',
-  //       partner: 'merchant',
-  //       extra: "{\"key1\":\"value1\",\"key2\":\"value2\"}",
-  //       isTestMode: true
-  //   );
-  //   try {
-  //     _momoPay.open(options);
-  //   } catch (e) {
-  //     debugPrint(e.toString());
-  //   }
-  // }
+  Future<void> _handleZaloPayRequest(int amount, BillModel newBill) async {
+    try {
+      _view.onWaitingForPayment();
 
-  // void _handlePaymentSuccess(PaymentResponse response) {
-  //   _momoPaymentResult = response;
+      // Tạo order
+      ZaloResult zaloResult = ZaloResult();
+      var orderResult = await _zaloPayService.createZaloPayOrder(amount, zaloResult);
 
-  // }
+      if (orderResult != null &&
+          orderResult.zptranstoken.isNotEmpty) {
+        // Thực hiện payment
+        ZaloStatus? zaloStatus = await _zaloPayService.handleZaloPayOrder(orderResult, amount);
 
-  // void _handlePaymentError(PaymentResponse response) {
-  //   _momoPaymentResult = response;
-  // }
+        if (zaloStatus != null) {
+          await _processDataAfterPayment(newBill);
+          _view.onPopContext();
+          _view.onShowResultDialog(zaloStatus.title, zaloStatus.message, zaloStatus.isSuccess);
+        } else {
+          _view.onPopContext();
+          _view.onShowResultDialog("Lỗi", "Không thể tạo đơn hàng. Vui lòng thử lại", false);
+        }
+
+      } else {
+        _view.onPopContext();
+        _view.onShowResultDialog("Lỗi", "Không thể tạo đơn hàng. Vui lòng thử lại", false);
+      }
+    } catch (e) {
+      _view.onPopContext();
+      _view.onShowResultDialog("Lỗi", "Có lỗi xảy ra: $e", false);
+    }
+  }
 }
