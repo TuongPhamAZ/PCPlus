@@ -8,6 +8,7 @@ import 'package:pcplus/factories/widget_factories/suggest_item_factory.dart';
 import 'package:pcplus/pages/search/search_screen_contract.dart';
 import 'package:pcplus/pages/search/search_screen_presenter.dart';
 import 'package:pcplus/themes/palette/palette.dart';
+import 'package:speech_to_text_google_dialog/speech_to_text_google_dialog.dart';
 
 import '../../component/search_argument.dart';
 import '../../models/items/item_with_seller.dart';
@@ -115,6 +116,17 @@ class _SearchScreenState extends State<SearchScreen> implements SearchScreenCont
                           },
                           child: const Icon(
                             FontAwesomeIcons.magnifyingGlass,
+                            size: 16,
+                            //color: Palette.greenText,
+                          ),
+                        ),
+                        suffixIcon: InkWell(
+                          customBorder: const CircleBorder(),
+                          onTap: () {
+                            _startListening();
+                          },
+                          child: const Icon(
+                            FontAwesomeIcons.microphone,
                             size: 16,
                             //color: Palette.greenText,
                           ),
@@ -322,6 +334,27 @@ class _SearchScreenState extends State<SearchScreen> implements SearchScreenCont
       ),
     );
   }
+
+  // ===========================================================================
+
+  Future<void> _startListening() async {
+    bool isAvailable = await SpeechToTextGoogleDialog.getInstance().showGoogleDialog(
+      onTextReceived: (text) {
+        _presenter?.handleSearch(text);
+      },
+      locale: 'vi-VN',
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    if (!isAvailable) {
+      UtilWidgets.createSnackBar(context, 'Không thể mở Google Speech Dialog', backgroundColor: Colors.red);
+    }
+  }
+
+  // ===========================================================================
 
   @override
   void onBack() {
