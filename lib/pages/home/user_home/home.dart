@@ -4,7 +4,6 @@ import 'package:gap/gap.dart';
 import 'package:pcplus/commands/home_command.dart';
 import 'package:pcplus/component/item_argument.dart';
 import 'package:pcplus/config/asset_helper.dart';
-import 'package:pcplus/const/navigator_arguments.dart';
 import 'package:pcplus/factories/widget_factories/new_item_factory.dart';
 import 'package:pcplus/factories/widget_factories/suggest_item_factory.dart';
 import 'package:pcplus/models/items/item_with_seller.dart';
@@ -13,6 +12,7 @@ import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 import 'package:pcplus/pages/manage_product/detail_product/detail_product.dart';
 import 'package:pcplus/pages/search/search_screen.dart';
+import 'package:speech_to_text_google_dialog/speech_to_text_google_dialog.dart';
 import '../../../component/search_argument.dart';
 import '../../widgets/bottom/bottom_bar_custom.dart';
 import '../../widgets/util_widgets.dart';
@@ -93,6 +93,17 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
                       },
                       child: const Icon(
                         FontAwesomeIcons.magnifyingGlass,
+                        size: 16,
+                        //color: Palette.greenText,
+                      ),
+                    ),
+                    suffixIcon: InkWell(
+                      customBorder: const CircleBorder(),
+                      onTap: () {
+                        _startListening();
+                      },
+                      child: const Icon(
+                        FontAwesomeIcons.microphone,
                         size: 16,
                         //color: Palette.greenText,
                       ),
@@ -219,6 +230,27 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
       bottomNavigationBar: const BottomBarCustom(currentIndex: 0),
     );
   }
+
+  // ===========================================================================
+
+  Future<void> _startListening() async {
+    bool isAvailable = await SpeechToTextGoogleDialog.getInstance().showGoogleDialog(
+      onTextReceived: (text) {
+        _presenter?.handleSearch(text);
+      },
+      locale: 'vi-VN',
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    if (!isAvailable) {
+      UtilWidgets.createSnackBar(context, 'Không thể mở Google Speech Dialog', backgroundColor: Colors.red);
+    }
+  }
+
+  // ===========================================================================
 
   @override
   Future<void> onLoadDataSucceed() async {

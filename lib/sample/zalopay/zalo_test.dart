@@ -1,43 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_zalopay_sdk/flutter_zalopay_sdk.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:crypto/crypto.dart';
-
-class ZaloPayCreateOrderResponse {
-  final int returnCode;
-  final String returnMessage;
-  final int subReturnCode;
-  final String subReturnMessage;
-  final String zptranstoken;
-  final String orderUrl;
-  final String orderToken;
-  final String qrCode;
-
-  ZaloPayCreateOrderResponse({
-    required this.returnCode,
-    required this.returnMessage,
-    required this.subReturnCode,
-    required this.subReturnMessage,
-    required this.zptranstoken,
-    required this.orderUrl,
-    required this.orderToken,
-    required this.qrCode,
-  });
-
-  factory ZaloPayCreateOrderResponse.fromJson(Map<String, dynamic> json) {
-    return ZaloPayCreateOrderResponse(
-      returnCode: json['return_code'] ?? 0,
-      returnMessage: json['return_message'] ?? '',
-      subReturnCode: json['sub_return_code'] ?? 0,
-      subReturnMessage: json['sub_return_message'] ?? '',
-      zptranstoken: json['zp_trans_token'] ?? '',
-      orderUrl: json['order_url'] ?? '',
-      orderToken: json['order_token'] ?? '',
-      qrCode: json['qr_code'] ?? '',
-    );
-  }
-}
+import 'package:pcplus/services/zalo_pay_service.dart';
 
 class Dashboard extends StatefulWidget {
   final String title;
@@ -93,6 +56,8 @@ class _HomeZaloPayState extends State<HomeZaloPay> {
       color: Colors.black, fontSize: 18.0, fontWeight: FontWeight.w400);
   String payAmount = "10000";
   bool isProcessing = false;
+
+  ZaloPayService zaloPayService = ZaloPayService();
 
   @override
   void initState() {
@@ -318,7 +283,8 @@ class _HomeZaloPayState extends State<HomeZaloPay> {
   }
 
   createOrder(int amount) {
-    return _createZaloPayOrder(amount);
+    ZaloResult zaloResult = ZaloResult();
+    return zaloPayService.createZaloPayOrder(amount, zaloResult);
   }
 
   // ZaloPay sandbox configuration
@@ -327,85 +293,7 @@ class _HomeZaloPayState extends State<HomeZaloPay> {
   final String key2 = "kLtgPl8HHhfvMuDHPwKfgfsY4Ydm9eIz";
   final String endpoint = "https://sb-openapi.zalopay.vn/v2/create";
 
-  Future<ZaloPayCreateOrderResponse?> _createZaloPayOrder(int amount) async {
-    try {
-      // Generate unique transaction ID
-      final now = DateTime.now();
-      final appTransId =
-          "${now.year.toString().substring(2)}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}_${now.millisecondsSinceEpoch}";
 
-      // Prepare order data
-      final embedData = json.encode({"merchantinfo": "ZaloPay Flutter Demo"});
-      final items = json.encode([
-        {
-          "itemid": "demo_item",
-          "itemname": "Demo Item",
-          "itemprice": amount,
-          "itemquantity": 1
-        }
-      ]);
-
-      final orderData = {
-        "app_id": int.parse(appId),
-        "app_user": "ZaloPay_Demo_User",
-        "app_time": now.millisecondsSinceEpoch,
-        "amount": amount,
-        "app_trans_id": appTransId,
-        "bank_code": "zalopayapp",
-        "embed_data": embedData,
-        "item": items,
-        "description":
-            "ZaloPay Flutter Demo - Thanh toán cho đơn hàng #$appTransId",
-      };
-
-      // Create MAC for authentication
-      final data =
-          "${orderData['app_id']}|${orderData['app_trans_id']}|${orderData['app_user']}|${orderData['amount']}|${orderData['app_time']}|${orderData['embed_data']}|${orderData['item']}";
-      final mac = _generateMac(data, key1);
-      orderData['mac'] = mac;
-
-      print("Calling ZaloPay API with data: $orderData");
-
-      // Make HTTP request to ZaloPay API
-      final response = await http.post(
-        Uri.parse(endpoint),
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: orderData.map((key, value) => MapEntry(key, value.toString())),
-      );
-
-      print("ZaloPay API Response: ${response.statusCode} - ${response.body}");
-
-      if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-        final zaloPayResponse =
-            ZaloPayCreateOrderResponse.fromJson(responseData);
-
-        if (zaloPayResponse.returnCode == 1) {
-          return zaloPayResponse;
-        } else {
-          print("ZaloPay Error: ${zaloPayResponse.returnMessage}");
-          _showError("Lỗi tạo đơn hàng: ${zaloPayResponse.returnMessage}");
-          return null;
-        }
-      } else {
-        print("HTTP Error: ${response.statusCode}");
-        _showError("Lỗi kết nối: ${response.statusCode}");
-        return null;
-      }
-    } catch (e) {
-      print("Exception: $e");
-      _showError("Lỗi: $e");
-      return null;
-    }
-  }
-
-  String _generateMac(String data, String key) {
-    var hmacSha256 = Hmac(sha256, utf8.encode(key));
-    var digest = hmacSha256.convert(utf8.encode(data));
-    return digest.toString();
-  }
 
   void _showError(String message) {
     if (Navigator.canPop(context)) {
