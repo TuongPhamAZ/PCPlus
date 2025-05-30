@@ -139,7 +139,7 @@ class FCMNotificationService {
 
       // 2) Prepare request
       const String fcmServerUrl =
-          'https://fcm-server-ylrh.onrender.com/send-fcm';
+          'https://fcm-server-kltn-2a7faffaa501.herokuapp.com/send-fcm';
       final Map<String, dynamic> requestBody = {
         'topic': topic,
         'title': title,
