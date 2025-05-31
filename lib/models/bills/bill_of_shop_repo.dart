@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:pcplus/models/system/param_store_repo.dart';
 
 import '../shops/shop_model.dart';
@@ -15,9 +16,9 @@ class BillOfShopRepository {
           .collection(BillOfShopModel.collectionName)
           .doc(model.billID);
       await docRef.set(model.toJson()).whenComplete(()
-      => print('Bill of Shop added to Firestore with ID: ${docRef.id}'));
+      => debugPrint('Bill of Shop added to Firestore with ID: ${docRef.id}'));
     } catch (e) {
-      print('Error adding Bill of Shop to Firestore: $e');
+      debugPrint('Error adding Bill of Shop to Firestore: $e');
     }
   }
 
@@ -48,6 +49,7 @@ class BillOfShopRepository {
     });
   }
 
+  // ignore: non_constant_identifier_names
   Stream<List<BillOfShopModel>> getAllBillsOfShopFromShopByStatusStream(String ShopID, String status) {
     return _storage
         .collection(ShopModel.collectionName)

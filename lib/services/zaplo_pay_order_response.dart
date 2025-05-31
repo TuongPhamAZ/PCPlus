@@ -1,5 +1,3 @@
-import 'package:flutter_zalopay_sdk/flutter_zalopay_sdk.dart';
-
 class ZaloPayCreateOrderResponse {
   final int returnCode;
   final String returnMessage;

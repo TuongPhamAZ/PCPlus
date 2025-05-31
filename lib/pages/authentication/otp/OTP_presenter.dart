@@ -15,7 +15,7 @@ class OtpPresenter {
 
   Future<void> initSendPinCode() async {
     pinCode = _generateRandomCode();
-    print("pinCode firstInit: ${pinCode}");
+    debugPrint("pinCode firstInit: $pinCode");
     if (firstInit) {
       firstInit = false;
       await _sendConfirmationCode(pinCode);
@@ -23,8 +23,8 @@ class OtpPresenter {
   }
 
   Future<void> pinCodeVerify(String? pinCode) async {
-    print("pinCode 1213: ${this.pinCode}");
-    print("pinCode 123456: $pinCode");
+    debugPrint("pinCode 1213: ${this.pinCode}");
+    debugPrint("pinCode 123456: $pinCode");
     if (this.pinCode == pinCode) {
       _view?.onVerifySucceeded();
     } else {

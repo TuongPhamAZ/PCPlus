@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/pages/manage_product/add_product/add_product_contract.dart';

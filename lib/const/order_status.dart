@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 abstract class OrderStatus {
   // Cho xac nhan
   static const PENDING_CONFIRMATION = "PendingConfirmation";

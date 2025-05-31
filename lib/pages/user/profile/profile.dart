@@ -53,6 +53,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       await launchUrl(emailLaunchUri);
     } catch (e) {
       showDialog(
+          // ignore: use_build_context_synchronously
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
@@ -588,6 +589,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                                   width: 50,
                                   alignment: Alignment.center,
                                   child: const Icon(
+                                    // ignore: deprecated_member_use
                                     FontAwesomeIcons.signOut,
                                     color: Palette.primaryColor,
                                     size: 25,

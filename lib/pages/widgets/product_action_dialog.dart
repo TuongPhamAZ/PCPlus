@@ -312,6 +312,7 @@ class _ProductActionDialogState extends State<ProductActionDialog> {
     );
   }
 
+  // ignore: unused_element
   Color _getDefaultColor(int index) {
     switch (index % 3) {
       case 0:

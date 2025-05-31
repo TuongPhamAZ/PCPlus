@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:pcplus/models/system/param_store_repo.dart';
 
 import '../users/user_model.dart';
@@ -15,9 +16,9 @@ class BillRepository {
           .collection(BillModel.collectionName)
           .doc(model.billID);
       await docRef.set(model.toJson()).whenComplete(()
-      => print('Bill added to Firestore with ID: ${docRef.id}'));
+      => debugPrint('Bill added to Firestore with ID: ${docRef.id}'));
     } catch (e) {
-      print('Error adding Bill to Firestore: $e');
+      debugPrint('Error adding Bill to Firestore: $e');
     }
   }
 

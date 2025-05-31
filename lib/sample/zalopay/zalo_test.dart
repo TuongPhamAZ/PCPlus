@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_zalopay_sdk/flutter_zalopay_sdk.dart';
 import 'package:pcplus/services/zalo_pay_service.dart';
@@ -5,9 +7,10 @@ import 'package:pcplus/services/zalo_pay_service.dart';
 class Dashboard extends StatefulWidget {
   final String title;
   final String version;
-  Dashboard({required this.title, required this.version});
+  const Dashboard({super.key, required this.title, required this.version});
 
   @override
+  // ignore: library_private_types_in_public_api
   _DashboardState createState() => _DashboardState();
 }
 
@@ -44,15 +47,16 @@ class _DashboardState extends State<Dashboard> {
 class HomeZaloPay extends StatefulWidget {
   final String title;
 
-  HomeZaloPay(this.title);
+  const HomeZaloPay(this.title, {super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _HomeZaloPayState createState() => _HomeZaloPayState();
 }
 
 class _HomeZaloPayState extends State<HomeZaloPay> {
-  final textStyle = TextStyle(color: Colors.black54);
-  final valueStyle = TextStyle(
+  final textStyle = const TextStyle(color: Colors.black54);
+  final valueStyle = const TextStyle(
       color: Colors.black, fontSize: 18.0, fontWeight: FontWeight.w400);
   String payAmount = "10000";
   bool isProcessing = false;
@@ -91,12 +95,12 @@ class _HomeZaloPayState extends State<HomeZaloPay> {
                       builder: (BuildContext context) {
                         return Center(
                           child: Container(
-                            padding: EdgeInsets.all(20),
+                            padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: Column(
+                            child: const Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 CircularProgressIndicator(),
@@ -176,7 +180,7 @@ class _HomeZaloPayState extends State<HomeZaloPay> {
                 borderRadius: BorderRadius.circular(8.0),
               ),
               child: isProcessing
-                  ? Row(
+                  ? const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         SizedBox(
@@ -193,7 +197,7 @@ class _HomeZaloPayState extends State<HomeZaloPay> {
                                 TextStyle(color: Colors.white, fontSize: 16.0))
                       ],
                     )
-                  : Text("Thanh toán",
+                  : const Text("Thanh toán",
                       style: TextStyle(color: Colors.white, fontSize: 20.0))),
         ),
       );
@@ -212,7 +216,7 @@ class _HomeZaloPayState extends State<HomeZaloPay> {
                 color: isSuccess ? Colors.green : Colors.red,
                 size: 28,
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(title),
             ],
           ),
@@ -222,7 +226,7 @@ class _HomeZaloPayState extends State<HomeZaloPay> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text("OK"),
+              child: const Text("OK"),
             ),
           ],
         );
@@ -265,13 +269,13 @@ class _HomeZaloPayState extends State<HomeZaloPay> {
               enabled: !isProcessing,
             ),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Text(
             "Số tiền: ${_formatCurrency(int.tryParse(payAmount) ?? 0)} VND",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
           ),
           _btnPay(payAmount),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Text(
             "Bấm nút 'Thanh toán' để thực hiện giao dịch",
             style: TextStyle(color: Colors.grey[600], fontSize: 14),
@@ -295,6 +299,7 @@ class _HomeZaloPayState extends State<HomeZaloPay> {
 
 
 
+  // ignore: unused_element
   void _showError(String message) {
     if (Navigator.canPop(context)) {
       Navigator.pop(context);
@@ -321,7 +326,7 @@ Widget _quickConfig = Container(
         children: <Widget>[
           Container(
             padding: const EdgeInsets.symmetric(vertical: 10.0),
-            child: Text("AppID: 2553"),
+            child: const Text("AppID: 2553"),
           ),
         ],
       ),

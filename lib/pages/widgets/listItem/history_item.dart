@@ -237,7 +237,7 @@ class _HistoryItemState extends State<HistoryItem> {
                 // Thực hiện logic với lý do huỷ
                 widget.onCancelOrder!.reason = reason;
                 widget.onCancelOrder!.execute();
-                print("Lý do huỷ đơn: $reason");
+                debugPrint("Lý do huỷ đơn: $reason");
               },
               child: const Text("Confirm"),
             ),

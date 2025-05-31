@@ -22,7 +22,7 @@ class ImageStorageService {
       File file = File(pickedFile.path);
       return file;
     }
-    print("No image selected.");
+    debugPrint("No image selected.");
     return null;
   }
 
@@ -54,7 +54,7 @@ class ImageStorageService {
         debugPrint('Upload lỗi: ${response.statusCode}');
       }
     } catch (e) {
-      print('Lỗi khi upload ảnh: $e');
+      debugPrint('Lỗi khi upload ảnh: $e');
     }
     return null;
   }
@@ -83,9 +83,9 @@ class ImageStorageService {
     });
 
     if (response.statusCode == 200) {
-      print('Xoá thành công: ${response.body}');
+      debugPrint('Xoá thành công: ${response.body}');
     } else {
-      print('Lỗi xoá ảnh: ${response.body}');
+      debugPrint('Lỗi xoá ảnh: ${response.body}');
     }
   }
 
@@ -123,7 +123,7 @@ class ImageStorageService {
       final jsonRes = json.decode(response.body);
       return jsonRes['secure_url'];
     } else {
-      print('Lỗi khi đổi tên: ${response.body}');
+      debugPrint('Lỗi khi đổi tên: ${response.body}');
       return "";
     }
   }

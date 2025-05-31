@@ -44,7 +44,6 @@ class _NotificationScreenState extends State<NotificationScreen> implements Noti
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -57,6 +56,7 @@ class _NotificationScreenState extends State<NotificationScreen> implements Noti
       body: Container(
         padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
+          // ignore: deprecated_member_use
           color: Colors.grey.withOpacity(0.0),
         ),
         child:

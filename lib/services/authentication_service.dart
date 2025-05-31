@@ -1,5 +1,7 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:pcplus/services/pref_service.dart';
+import 'package:flutter/material.dart';
 // import 'package:pcplus/models/users/user_repo.dart';
 
 class AuthenticationService {
@@ -30,11 +32,11 @@ class AuthenticationService {
 
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
-        print('No user found for that email.');
+        debugPrint('No user found for that email.');
         authResult.code = AuthResult.UserNotFound;
         authResult.text = 'No user found for that email.';
       } else if (e.code == 'wrong-password') {
-        print('Wrong password provided for that user.');
+        debugPrint('Wrong password provided for that user.');
         authResult.code = AuthResult.WrongPassword;
         authResult.text = 'Invalid password';
       } else if (e.code == AuthResult.NetworkRequestFailed) {
@@ -64,6 +66,7 @@ class AuthenticationService {
       );
       // authResult.code = AuthResult.Success;
       return credential;
+    // ignore: unused_catch_clause
     } on FirebaseAuthException catch (e) {
       // authResult.code = e.code;
       // authResult.text = e.code;
@@ -125,27 +128,27 @@ class AuthenticationService {
       if (user != null) {
         await user.updatePassword(newPassword);
         // authResult.code = AuthResult.Success;
-        print("Password changed successfully.");
+        debugPrint("Password changed successfully.");
         return true;
       } else {
         // authResult.code = AuthResult.UnknownError;
         // authResult.text = "No user is signed in.";
-        print("No user is signed in.");
+        debugPrint("No user is signed in.");
         return false;
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         // authResult.code = AuthResult.WeakPassword;
         // authResult.text = 'The password is too weak.';
-        print('The password is too weak.');
+        debugPrint('The password is too weak.');
       } else if (e.code == 'requires-recent-login') {
         // authResult.code = AuthResult.RequiresRecentLogin;
         // authResult.text = 'Please re-authenticate to change your password.';
-        print('Please re-authenticate to change your password.');
+        debugPrint('Please re-authenticate to change your password.');
       } else {
         // authResult.code = AuthResult.UnknownError;
         // authResult.text = '${e.message}';
-        print('Error: ${e.message}');
+        debugPrint('Error: ${e.message}');
       }
       return false;
     }

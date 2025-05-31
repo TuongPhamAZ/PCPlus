@@ -1,5 +1,6 @@
 import 'package:async/async.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:pcplus/models/vouchers/voucher_model.dart';
 
 import '../shops/shop_model.dart';
@@ -15,11 +16,11 @@ class VoucherRepository {
           .collection(VoucherModel.collectionName)
           .doc();
       await docRef.set(model.toJson()).whenComplete(()
-      => print('Voucher added to Firestore with ID: ${docRef.id}'));
+      => debugPrint('Voucher added to Firestore with ID: ${docRef.id}'));
       model.voucherID = docRef.id;
       return docRef.id;
     } catch (e) {
-      print('Error adding Rating to Firestore: $e');
+      debugPrint('Error adding Rating to Firestore: $e');
       return null;
     }
   }

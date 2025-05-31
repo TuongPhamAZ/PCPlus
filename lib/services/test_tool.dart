@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pcplus/models/items/item_model.dart';
 import 'package:pcplus/models/items/item_repo.dart';
@@ -70,7 +71,7 @@ class TestTool {
       email: randomTool.generateRandomEmail(),
       phone: randomTool.generateRandomPhoneNumber(),
       dateOfBirth: randomTool.generateRandomDate(DateTime(1970, 1, 1),
-          DateTime.now().subtract(Duration(days: 365 * 18))),
+          DateTime.now().subtract(const Duration(days: 365 * 18))),
       gender: randomTool.generateRandomNumber(0, 100) < 50 ? 'male' : 'female',
       userType: userType,
       avatarUrl:
@@ -124,7 +125,7 @@ class TestTool {
       await waitRandomDuration(500, 600);
       await itemRepo.addItemToFirestore(item);
     }
-    print('Done!');
+    debugPrint('Done!');
   }
 
   Future<void> createSampleSellers() async {

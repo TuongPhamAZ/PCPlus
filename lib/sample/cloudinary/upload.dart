@@ -1,5 +1,6 @@
+// ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api, use_build_context_synchronously
+
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
@@ -69,12 +70,12 @@ class _UploadPageState extends State<UploadPage> {
       if (response.statusCode == 200) {
         var resStr = await response.stream.bytesToString();
         var jsonRes = json.decode(resStr);
-        print('Uploaded: ${jsonRes['secure_url']}');
+        debugPrint('Uploaded: ${jsonRes['secure_url']}');
       } else {
-        print('Upload lỗi: ${response.statusCode}');
+        debugPrint('Upload lỗi: ${response.statusCode}');
       }
     } catch (e) {
-      print('Lỗi khi upload ảnh: $e');
+      debugPrint('Lỗi khi upload ảnh: $e');
     }
   }
 
@@ -82,7 +83,7 @@ class _UploadPageState extends State<UploadPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Upload Ảnh lên Cloudinary'),
+        title: const Text('Upload Ảnh lên Cloudinary'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -90,14 +91,14 @@ class _UploadPageState extends State<UploadPage> {
           children: [
             ElevatedButton.icon(
               onPressed: _pickImages,
-              icon: Icon(Icons.photo_library),
-              label: Text('Chọn ảnh'),
+              icon: const Icon(Icons.photo_library),
+              label: const Text('Chọn ảnh'),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             _images != null && _images!.isNotEmpty
                 ? Expanded(
                     child: GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 3,
                         crossAxisSpacing: 4,
                         mainAxisSpacing: 4,
@@ -111,16 +112,16 @@ class _UploadPageState extends State<UploadPage> {
                       },
                     ),
                   )
-                : Expanded(
+                : const Expanded(
                     child: Center(
                       child: Text('Chưa có ảnh nào được chọn'),
                     ),
                   ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             ElevatedButton.icon(
               onPressed: _isUploading ? null : _uploadAll,
               icon: _isUploading
-                  ? SizedBox(
+                  ? const SizedBox(
                       width: 16,
                       height: 16,
                       child: CircularProgressIndicator(
@@ -128,7 +129,7 @@ class _UploadPageState extends State<UploadPage> {
                         color: Colors.white,
                       ),
                     )
-                  : Icon(Icons.cloud_upload),
+                  : const Icon(Icons.cloud_upload),
               label:
                   Text(_isUploading ? 'Đang tải lên...' : 'Gửi lên Cloudinary'),
             ),

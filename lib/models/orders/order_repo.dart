@@ -1,9 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:pcplus/models/orders/order_model.dart';
-import 'package:pcplus/models/system/param_store_model.dart';
 import 'package:pcplus/models/system/param_store_repo.dart';
-
-import '../../services/utility.dart';
 import '../users/user_model.dart';
 // import 'package:firebase_auth/firebase_auth.dart';
 
@@ -19,9 +17,9 @@ class OrderRepository {
                 .collection(OrderModel.collectionName)
                 .doc(model.orderID);
       await docRef.set(model.toJson()).whenComplete(()
-      => print('Order added to Firestore with ID: ${docRef.id}'));
+      => debugPrint('Order added to Firestore with ID: ${docRef.id}'));
     } catch (e) {
-      print('Error adding Order to Firestore: $e');
+      debugPrint('Error adding Order to Firestore: $e');
     }
   }
 

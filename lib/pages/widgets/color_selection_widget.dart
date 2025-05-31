@@ -54,6 +54,7 @@ class ColorSelectionWidget extends StatelessWidget {
               ),
               borderRadius: BorderRadius.circular(12),
               color: isSelected
+                  // ignore: deprecated_member_use
                   ? Palette.primaryColor.withOpacity(0.1)
                   : Colors.transparent,
             ),

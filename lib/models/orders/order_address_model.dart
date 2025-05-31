@@ -1,5 +1,3 @@
-import 'package:mailer/mailer.dart';
-
 class OrderAddressModel {
 
   String? receiverName;

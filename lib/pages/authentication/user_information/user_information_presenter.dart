@@ -1,11 +1,8 @@
-import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:flutter/material.dart';
 import 'package:pcplus/controller/session_controller.dart';
-import 'package:pcplus/controller/register_controller.dart';
 import 'package:pcplus/models/users/user_model.dart';
 import 'package:pcplus/models/users/user_repo.dart';
 import 'package:pcplus/pages/authentication/user_information/user_information_contract.dart';
@@ -121,7 +118,7 @@ class UserInformationPresenter {
       _view.onPopContext();
       _view.onConfirmSucceeded(user, password);
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       _view.onPopContext();
       _view.onConfirmFailed("Something was wrong. Please try again.");
     }

@@ -10,10 +10,10 @@ class InteractionRepository {
     try {
       DocumentReference docRef = _storage.collection(InteractionModel.collectionName).doc(model.itemID);
       await docRef.set(model.toJson()).whenComplete(()
-      => print('Interaction added to Firestore with ID: ${docRef.id}'));
+      => debugPrint('Interaction added to Firestore with ID: ${docRef.id}'));
       return docRef.id;
     } catch (e) {
-      print('Error adding Interaction to Firestore: $e');
+      debugPrint('Error adding Interaction to Firestore: $e');
       return null;
     }
   }

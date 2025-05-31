@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pcplus/services/fcm_noti.dart';
 
 class ThongBaoScreen extends StatefulWidget {
-  const ThongBaoScreen({Key? key}) : super(key: key);
+  const ThongBaoScreen({super.key});
 
   @override
   State<ThongBaoScreen> createState() => _ThongBaoScreenState();

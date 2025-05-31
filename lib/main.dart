@@ -4,20 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pcplus/component/dependency_injection.dart';
 import 'package:pcplus/firebase_options.dart';
-import 'package:pcplus/pages/manage_product/detail_product/detail_product.dart';
 import 'package:pcplus/pages/splash/splash.dart';
 import 'package:pcplus/route.dart';
-import 'package:pcplus/sample/FCM_notification/thongbao.dart';
-import 'package:pcplus/sample/zalopay/zalo_test.dart';
 // import 'package:pcplus/pages/splash/splash.dart';
 import 'package:pcplus/services/fcm_noti.dart';
-import 'package:pcplus/services/nav_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:pcplus/component/item_argument.dart';
-import 'package:pcplus/models/items/item_model.dart';
-import 'package:pcplus/models/items/item_with_seller.dart';
-import 'package:pcplus/models/shops/shop_model.dart';
-import 'package:pcplus/models/items/color_model.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

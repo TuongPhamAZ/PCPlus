@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:fuzzy/fuzzy.dart';
 import 'package:pcplus/models/items/item_model.dart';
 import 'package:async/async.dart';
@@ -15,11 +16,11 @@ class ItemRepository {
     try {
       DocumentReference docRef = _storage.collection(ItemModel.collectionName).doc();
       await docRef.set(model.toJson()).whenComplete(()
-      => print('Item added to Firestore with ID: ${docRef.id}'));
+      => debugPrint('Item added to Firestore with ID: ${docRef.id}'));
       model.itemID = docRef.id;
       return docRef.id;
     } catch (e) {
-      print('Error adding Item to Firestore: $e');
+      debugPrint('Error adding Item to Firestore: $e');
     }
     return "";
   }
@@ -86,7 +87,7 @@ class ItemRepository {
           .where('sellerID', isEqualTo: sellerID)
           .get();
 
-      print("Số lượng tài liệu: ${querySnapshot.docs.length}");
+      debugPrint("Số lượng tài liệu: ${querySnapshot.docs.length}");
       final items = querySnapshot
           .docs
           .map((doc) => ItemModel.fromJson(doc.id, doc.data() as Map<String, dynamic>))
@@ -162,7 +163,7 @@ class ItemRepository {
         .where('sellerID', isEqualTo: sellerID)
         .snapshots()
         .map((snapshot) {
-      print("Số lượng tài liệu: ${snapshot.docs.length}");
+      debugPrint("Số lượng tài liệu: ${snapshot.docs.length}");
       return snapshot.docs
           .map((doc) => ItemModel.fromJson(doc.id, doc.data()))
           .toList();
@@ -176,7 +177,7 @@ class ItemRepository {
         .limit(limit)
         .snapshots()
         .map((snapshot) {
-      print("Số lượng tài liệu: ${snapshot.docs.length}");
+      debugPrint("Số lượng tài liệu: ${snapshot.docs.length}");
       return snapshot.docs
           .map((doc) => ItemModel.fromJson(doc.id, doc.data()))
           .toList();
@@ -205,6 +206,7 @@ class ItemRepository {
 
       // Tạo Map sellerId -> UserModel để tra cứu nhanh
       Map<String, ShopModel> sellerMap = {
+        // ignore: unnecessary_null_comparison
         for (var seller in sellers.where((s) => s != null)) seller.shopID!: seller
       };
 
@@ -293,6 +295,7 @@ class ItemRepository {
 
       // Tạo Map sellerId -> UserModel để tra cứu nhanh
       Map<String, ShopModel> sellerMap = {
+        // ignore: unnecessary_null_comparison
         for (var seller in sellers.where((s) => s != null)) seller.shopID!: seller
       };
 
@@ -337,6 +340,7 @@ class ItemRepository {
       );
 
       final sellerMap = {
+        // ignore: unnecessary_null_comparison
         for (var s in sellers.where((e) => e != null)) s.shopID!: s
       };
 
@@ -374,6 +378,7 @@ class ItemRepository {
 
       // Tạo Map sellerId -> UserModel để tra cứu nhanh
       Map<String, ShopModel> sellerMap = {
+        // ignore: unnecessary_null_comparison
         for (var seller in sellers.where((s) => s != null)) seller.shopID!: seller
       };
 

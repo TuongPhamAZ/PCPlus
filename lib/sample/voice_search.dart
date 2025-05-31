@@ -12,7 +12,7 @@ class VoiceSearchSample extends StatefulWidget {
 
 class _VoiceSearchSampleState extends State<VoiceSearchSample> {
   String _spokenText = '';
-  List<String> _items = [
+  final List<String> _items = [
     'Macbook Pro',
     'Dell XPS 13',
     'Asus Vivobook',
@@ -45,6 +45,7 @@ class _VoiceSearchSampleState extends State<VoiceSearchSample> {
     );
 
     if (!isAvailable && context.mounted) {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Không thể mở Google Speech Dialog'),

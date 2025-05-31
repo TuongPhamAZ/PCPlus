@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:pcplus/models/users/user_model.dart';
 
 class UserRepository {
@@ -8,9 +9,9 @@ class UserRepository {
     try {
       DocumentReference docRef = _storage.collection(UserModel.collectionName).doc(user.userID);
       await docRef.set(user.toJson()).whenComplete(()
-      => print('User added to Firestore with ID: ${docRef.id}'));
+      => debugPrint('User added to Firestore with ID: ${docRef.id}'));
     } catch (e) {
-      print('Error adding user to Firestore: $e');
+      debugPrint('Error adding user to Firestore: $e');
     }
   }
 
@@ -75,6 +76,7 @@ class UserRepository {
           .get();
 
       final batchUsers = querySnapshot.docs
+          // ignore: unnecessary_cast
           .map((doc) => UserModel.fromJson(doc.data() as Map<String, dynamic>))
           .toList();
 
