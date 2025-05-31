@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/services/authentication_service.dart';
 import 'package:pcplus/services/pref_service.dart';
@@ -48,7 +49,7 @@ class LoginPresenter {
       await _sessionController.loadUser(userData);
       await PrefService.saveUserData(userData: userData, password: password);
     } catch (e) {
-      print(e);
+      debugPrint(e as String?);
       _view.onPopContext();
       _view.onError("Something was wrong. Please try again.");
       return;

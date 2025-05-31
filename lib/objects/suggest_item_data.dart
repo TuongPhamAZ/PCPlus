@@ -1,4 +1,3 @@
-import 'package:pcplus/models/interactions/interaction_repo.dart';
 import 'package:pcplus/models/items/item_model.dart';
 import 'package:pcplus/models/ratings/rating_repo.dart';
 import 'package:pcplus/models/users/user_model.dart';

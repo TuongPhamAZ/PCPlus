@@ -1,3 +1,7 @@
+
+
+// ignore_for_file: deprecated_member_use
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
@@ -26,6 +30,7 @@ class OTPScreen extends StatefulWidget {
 
 class _OTPScreenState extends State<OTPScreen> implements OtpViewContract {
   OtpPresenter? _otpPresenter;
+  // ignore: unused_field
   final RegisterController _registerController =
       RegisterController.getInstance();
   final _formKey = GlobalKey<FormState>();

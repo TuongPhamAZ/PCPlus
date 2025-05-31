@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:pcplus/models/shops/shop_model.dart';
 
 class ShopRepository {
@@ -8,9 +9,9 @@ class ShopRepository {
     try {
       DocumentReference docRef = _storage.collection(ShopModel.collectionName).doc(shop.shopID);
       await docRef.set(shop.toJson()).whenComplete(()
-      => print('Shop added to Firestore with ID: ${docRef.id}'));
+      => debugPrint('Shop added to Firestore with ID: ${docRef.id}'));
     } catch (e) {
-      print('Error adding shop to Firestore: $e');
+      debugPrint('Error adding shop to Firestore: $e');
     }
   }
 

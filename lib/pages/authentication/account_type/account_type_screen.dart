@@ -4,13 +4,11 @@ import 'package:pcplus/component/register_component.dart';
 import 'package:pcplus/config/asset_helper.dart';
 import 'package:pcplus/pages/authentication/account_type/account_type_contract.dart';
 import 'package:pcplus/pages/authentication/account_type/account_type_presenter.dart';
-import 'package:pcplus/pages/widgets/profile/button_profile.dart';
 import 'package:pcplus/pages/widgets/util_widgets.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 
 import '../../../models/users/user_model.dart';
-import '../shop_information/shop_information_screen.dart';
 import '../user_information/user_information.dart';
 
 class AccountTypeScreen extends StatefulWidget {

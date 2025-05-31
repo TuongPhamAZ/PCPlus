@@ -1,6 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 import 'package:pcplus/models/shops/shop_repo.dart';
 import 'package:pcplus/models/users/user_model.dart';
 import 'package:pcplus/pages/authentication/shop_information/shop_information_contract.dart';
@@ -99,7 +100,7 @@ class ShopInformationPresenter {
       _view.onPopContext();
       _view.onConfirmSucceeded();
     } catch (e) {
-      print(e);
+      debugPrint(e as String?);
       _view.onPopContext();
       _view.onConfirmFailed("Something was wrong. Please try again.");
     }

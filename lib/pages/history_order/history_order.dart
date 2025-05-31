@@ -61,6 +61,7 @@ class _HistoryOrderState extends State<HistoryOrder>
       body: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(
+          // ignore: deprecated_member_use
           color: Colors.grey.withOpacity(0.5),
         ),
         child:

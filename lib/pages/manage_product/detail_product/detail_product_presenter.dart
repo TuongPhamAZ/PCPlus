@@ -7,8 +7,6 @@ import 'package:pcplus/models/ratings/rating_repo.dart';
 import 'package:pcplus/models/users/user_repo.dart';
 import 'package:pcplus/pages/manage_product/detail_product/detail_product_contract.dart';
 import 'package:flutter/foundation.dart';
-
-import '../../../models/interactions/interaction_model.dart';
 import '../../../models/items/item_model.dart';
 import '../../../models/ratings/rating_model.dart';
 import '../../../models/users/user_model.dart';

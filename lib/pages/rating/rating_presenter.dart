@@ -1,6 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/models/await_ratings/await_rating_repo.dart';
-import 'package:pcplus/models/interactions/interaction_model.dart';
 import 'package:pcplus/models/items/item_repo.dart';
 import 'package:pcplus/models/ratings/rating_model.dart';
 import 'package:pcplus/models/ratings/rating_repo.dart';
@@ -53,7 +53,7 @@ class RatingPresenter {
       itemModel.rating = (sumRating + rating) / itemModel.ratingCount!;
       await _itemRepo.updateItem(itemModel);
     } else {
-      print("Problem with Rating! Can't update Item rating");
+      debugPrint("Problem with Rating! Can't update Item rating");
     }
 
     _view.onPopContext();

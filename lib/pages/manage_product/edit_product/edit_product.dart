@@ -86,7 +86,7 @@ class _EditProductState extends State<EditProduct>
     implements EditProductContract {
   final _formKey = GlobalKey<FormState>();
   EditProductPresenter? _presenter;
-  List<ImageData> _images = [];
+  final List<ImageData> _images = [];
   final List<ColorInfo> _colors = [];
   final ImagePicker _picker = ImagePicker();
   String? _selectedProductType;
@@ -221,13 +221,13 @@ class _EditProductState extends State<EditProduct>
       body: !isDataReady
           ? const Center(child: CircularProgressIndicator())
           : Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
+                key: _formKey,
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       _buildProductNameField(),
                       const SizedBox(height: 16),
                       _buildProductTypeDropdown(),
@@ -245,7 +245,7 @@ class _EditProductState extends State<EditProduct>
                       _buildColorSection(),
                       const SizedBox(height: 32),
                       _buildUpdateButton(),
-                const Gap(10),
+                      const Gap(10),
                       _buildCancelButton(),
                       const Gap(16),
                     ],
@@ -260,27 +260,27 @@ class _EditProductState extends State<EditProduct>
     return CustomTextField(
       labelText: "Tên sản phẩm",
       controller: _nameController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Vui lòng nhập tên sản phẩm';
-                    }
-                    return null;
-                  },
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Vui lòng nhập tên sản phẩm';
+        }
+        return null;
+      },
     );
   }
 
   Widget _buildProductTypeDropdown() {
     return DropdownButtonFormField<String>(
-                  decoration: InputDecoration(
+      decoration: InputDecoration(
         labelText: "Loại sản phẩm",
-                    labelStyle: TextDecor.robo16,
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
+        labelStyle: TextDecor.robo16,
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
       value: _selectedProductType,
       items: ItemType.collections.map((String type) {
         return DropdownMenuItem<String>(
@@ -306,17 +306,17 @@ class _EditProductState extends State<EditProduct>
     return CustomTextField(
       labelText: "Mô tả",
       controller: _descriptionController,
-                  maxLines: 3,
-                  minLines: 1,
+      maxLines: 3,
+      minLines: 1,
     );
   }
 
   Widget _buildDetailField() {
     return CustomTextField(
       labelText: "Giới thiệu chi tiết",
-                  controller: _detailController,
-                  maxLines: 200,
-                  minLines: 1,
+      controller: _detailController,
+      maxLines: 200,
+      minLines: 1,
     );
   }
 
@@ -326,14 +326,14 @@ class _EditProductState extends State<EditProduct>
         CustomTextField(
           labelText: "Giá gốc",
           controller: _priceOriginalController,
-                  keyboardType: TextInputType.number,
-                ),
+          keyboardType: TextInputType.number,
+        ),
         const SizedBox(height: 16),
         CustomTextField(
           labelText: "Giá bán",
           controller: _priceSaleController,
-                  keyboardType: TextInputType.number,
-                ),
+          keyboardType: TextInputType.number,
+        ),
       ],
     );
   }
@@ -350,22 +350,22 @@ class _EditProductState extends State<EditProduct>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-                Text(
-                  "Ảnh minh hoạ:",
+        Text(
+          "Ảnh minh hoạ:",
           style: TextDecor.robo16.copyWith(fontWeight: FontWeight.bold),
-                ),
+        ),
         const SizedBox(height: 12),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-            childAspectRatio: 1, // Tỷ lệ 1:1 để tạo hình vuông
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: 1,
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
-                  ),
-                  itemCount: _images.length,
-                  itemBuilder: (context, index) {
+          ),
+          itemCount: _images.length,
+          itemBuilder: (context, index) {
             return Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
@@ -378,31 +378,31 @@ class _EditProductState extends State<EditProduct>
                 ],
               ),
               child: Stack(
-                      children: [
-                        ClipRRect(
+                children: [
+                  ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: _images[index].isNew == false
                         ? Image.network(_images[index].path,
-                                width: double.infinity,
-                                height: double.infinity,
+                            width: double.infinity,
+                            height: double.infinity,
                             fit: BoxFit.cover)
                         : Image.file(
                             _images[index].file!,
-                                width: double.infinity,
-                                height: double.infinity,
-                                fit: BoxFit.cover,
-                              ),
-                        ),
-                        Positioned(
-                          top: 8,
-                          right: 8,
-                          child: GestureDetector(
-                            onTap: () => _removeImage(index),
-                            child: Container(
+                            width: double.infinity,
+                            height: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                  ),
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: GestureDetector(
+                      onTap: () => _removeImage(index),
+                      child: Container(
                         padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                shape: BoxShape.circle,
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.2),
@@ -412,22 +412,22 @@ class _EditProductState extends State<EditProduct>
                           ],
                         ),
                         child: const Icon(
-                                Icons.close,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                            ),
-                          ),
+                          Icons.close,
+                          color: Colors.white,
+                          size: 20,
                         ),
-                      ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 16),
+            );
+          },
+        ),
+        const SizedBox(height: 16),
         Center(
           child: OutlinedButton.icon(
-                  onPressed: _pickImage,
+            onPressed: _pickImage,
             icon: const Icon(Icons.add_photo_alternate, size: 24),
             label: Text("Tải ảnh lên", style: TextDecor.robo16),
             style: OutlinedButton.styleFrom(
@@ -643,19 +643,19 @@ class _EditProductState extends State<EditProduct>
 
   Widget _buildUpdateButton() {
     return ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState?.validate() ?? false) {
-                      // Xử lý logic sửa sản phẩm tại đây
-                      _presenter?.handleEditProduct(
-                          name: _nameController.text.trim(),
-                          description: _descriptionController.text.trim(),
-                          detail: _detailController.text.trim(),
-                          price: int.parse(_priceOriginalController.text.trim()),
-                          salePrice: int.parse(_priceSaleController.text.trim()),
-                          amount: int.parse(_amountController.text.trim()),
-                          images: _images,
-                          colors: _colors,
-                      );
+      onPressed: () {
+        if (_formKey.currentState?.validate() ?? false) {
+          // Xử lý logic sửa sản phẩm tại đây
+          _presenter?.handleEditProduct(
+            name: _nameController.text.trim(),
+            description: _descriptionController.text.trim(),
+            detail: _detailController.text.trim(),
+            price: int.parse(_priceOriginalController.text.trim()),
+            salePrice: int.parse(_priceSaleController.text.trim()),
+            amount: int.parse(_amountController.text.trim()),
+            images: _images,
+            colors: _colors,
+          );
         }
       },
       style: ElevatedButton.styleFrom(
@@ -666,18 +666,18 @@ class _EditProductState extends State<EditProduct>
         ),
         elevation: 2,
       ),
-                  child: Text(
-                    "CẬP NHẬT",
-                    style: TextDecor.robo18Semi,
-                  ),
+      child: Text(
+        "CẬP NHẬT",
+        style: TextDecor.robo18Semi,
+      ),
     );
   }
 
   Widget _buildCancelButton() {
     return ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
+      onPressed: () {
+        Navigator.pop(context);
+      },
       style: ElevatedButton.styleFrom(
         minimumSize: const Size(double.infinity, 56),
         backgroundColor: Colors.orangeAccent,
@@ -686,9 +686,9 @@ class _EditProductState extends State<EditProduct>
         ),
         elevation: 2,
       ),
-                  child: Text(
-                    "HUỶ",
-                    style: TextDecor.robo18Semi,
+      child: Text(
+        "HUỶ",
+        style: TextDecor.robo18Semi,
       ),
     );
   }

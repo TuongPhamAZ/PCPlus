@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:pcplus/component/register_component.dart';
 import 'package:pcplus/config/asset_helper.dart';
 import 'package:pcplus/const/shop_location.dart';

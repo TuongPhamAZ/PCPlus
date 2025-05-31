@@ -8,7 +8,7 @@ class VoucherModel {
   int? condition;
   DateTime? endDate;
   int? discount;
-  List<String>? userPicked;
+  int? quantity;
 
   static String collectionName = 'Vouchers';
 
@@ -19,7 +19,7 @@ class VoucherModel {
     required this.condition,
     required this.endDate,
     required this.discount,
-    required this.userPicked,
+    required this.quantity,
   });
 
   Map<String, dynamic> toJson() => {
@@ -29,16 +29,13 @@ class VoucherModel {
     'condition': condition,
     'endDate': endDate,
     'discount': discount,
-    'userPicked': (userPicked ?? []).toList(),
+    'quantity': quantity,
   };
 
   static VoucherModel? fromJson(String id, Map<String, dynamic>? json) {
     if (json == null) {
       return null;
     }
-
-    final dataUsers = json['userPicked'] as List?;
-    final listUsers = List.castFrom<Object?, Map<String, Object?>>(dataUsers!);
 
     return VoucherModel(
         voucherID: id,
@@ -47,7 +44,7 @@ class VoucherModel {
         condition: json['condition'] as int,
         endDate: (json['endDate'] as Timestamp).toDate(),
         discount: json['discount'] as int,
-        userPicked: listUsers.map((raw) => raw as String).toList(),
+        quantity: json['quantity'] as int,
     );
   }
 }

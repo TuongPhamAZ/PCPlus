@@ -6,8 +6,6 @@ import 'package:pcplus/pages/user/change_password/change_password_contract.dart'
 import 'package:pcplus/pages/user/change_password/change_password_presenter.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
-
-import '../../../component/item_argument.dart';
 import '../../../component/user_argument.dart';
 import '../../../models/users/user_model.dart';
 import '../../widgets/button/accept_button.dart';

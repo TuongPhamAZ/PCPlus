@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:pcplus/models/ratings/rating_model.dart';
 import 'package:pcplus/services/utility.dart';
 import 'package:async/async.dart';
@@ -15,10 +16,10 @@ class RatingRepository {
             .collection(RatingModel.collectionName)
             .doc();
       await docRef.set(model.toJson()).whenComplete(()
-      => print('Rating added to Firestore with ID: ${docRef.id}'));
+      => debugPrint('Rating added to Firestore with ID: ${docRef.id}'));
       model.itemID = docRef.id;
     } catch (e) {
-      print('Error adding Rating to Firestore: $e');
+      debugPrint('Error adding Rating to Firestore: $e');
     }
   }
 
@@ -93,7 +94,7 @@ class RatingRepository {
       String ratingText = Utility.formatRatingValue(rating);
       return double.parse(ratingText);
     } catch (e) {
-      print(e);
+      debugPrint(e as String?);
       return 0;
     }
   }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:gap/gap.dart';
-import 'package:pcplus/component/item_argument.dart';
 import 'package:pcplus/pages/user/edit_profile/edit_profile_screen_contract.dart';
 import 'package:pcplus/pages/user/edit_profile/edit_profile_screen_presenter.dart';
 import 'package:pcplus/themes/palette/palette.dart';

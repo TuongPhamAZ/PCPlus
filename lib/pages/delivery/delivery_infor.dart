@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pcplus/models/users/ship_infor_model.dart';
 import 'package:pcplus/themes/text_decor.dart';
-import 'package:pcplus/models/orders/order_address_model.dart';
 
 class DeliveryInfor extends StatefulWidget {
   final ShipInformationModel currentAddress;

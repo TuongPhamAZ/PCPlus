@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:pcplus/models/sales_items/sale_item_model.dart';
 
 class SaleItemRepository {
@@ -8,9 +9,9 @@ class SaleItemRepository {
     try {
       DocumentReference docRef = _storage.collection(SaleItemModel.collectionName).doc(model.key);
       await docRef.set(model.toJson()).whenComplete(()
-      => print('SaleItem added to Firestore with ID: ${docRef.id}'));
+      => debugPrint('SaleItem added to Firestore with ID: ${docRef.id}'));
     } catch (e) {
-      print('Error adding SaleItem to Firestore: $e');
+      debugPrint('Error adding SaleItem to Firestore: $e');
     }
   }
 

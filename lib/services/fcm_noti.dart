@@ -30,14 +30,14 @@ class FCMNotificationService {
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    final DarwinInitializationSettings initializationSettingsIOS =
+    const DarwinInitializationSettings initializationSettingsIOS =
         DarwinInitializationSettings(
       requestSoundPermission: true,
       requestBadgePermission: true,
       requestAlertPermission: true,
     );
 
-    final InitializationSettings initializationSettings =
+    const InitializationSettings initializationSettings =
         InitializationSettings(
       android: initializationSettingsAndroid,
       iOS: initializationSettingsIOS,
@@ -85,6 +85,7 @@ class FCMNotificationService {
   // Xử lý khi nhận được thông báo khi app đang chạy
   Future<void> _handleForegroundMessage(RemoteMessage message) async {
     RemoteNotification? notification = message.notification;
+    // ignore: unused_local_variable
     AndroidNotification? android = message.notification?.android;
 
     if (notification != null) {

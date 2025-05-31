@@ -1,3 +1,5 @@
+// ignore_for_file: unused_element, constant_identifier_names
+
 import 'package:pcplus/models/items/item_with_seller.dart';
 import 'package:pcplus/pages/home/user_home/home_contract.dart';
 import 'package:pcplus/controller/api_controller.dart';

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:pcplus/models/notification/notification_repo.dart';
 import 'package:pcplus/models/users/user_repo.dart';
 
@@ -127,7 +128,7 @@ class NotificationService {
         },
       );
     } catch (e) {
-      print("Error at FCM Notification: ${e.toString()}");
+      debugPrint("Error at FCM Notification: ${e.toString()}");
     }
   }
 

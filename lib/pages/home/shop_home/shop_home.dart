@@ -1,19 +1,27 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:pcplus/commands/shop_home_command.dart';
 import 'package:pcplus/component/item_argument.dart';
 import 'package:pcplus/component/shop_argument.dart';
+import 'package:pcplus/component/voucher_argument.dart';
 import 'package:pcplus/config/asset_helper.dart';
-import 'package:pcplus/const/navigator_arguments.dart';
 import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/factories/widget_factories/shop_item_factory.dart';
 import 'package:pcplus/models/items/item_with_seller.dart';
+import 'package:pcplus/models/vouchers/voucher_model.dart';
 import 'package:pcplus/pages/home/shop_home/shop_home_contract.dart';
 import 'package:pcplus/pages/home/shop_home/shop_home_presenter.dart';
+import 'package:pcplus/pages/voucher/widget/voucher_item.dart';
+import 'package:pcplus/pages/voucher/editvoucher/edit_voucher.dart';
+import 'package:pcplus/pages/voucher/voucherDetail/voucher_detail.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 import 'package:pcplus/pages/manage_product/add_product/add_product.dart';
 import 'package:pcplus/pages/manage_product/detail_product/detail_product.dart';
+import 'package:pcplus/pages/voucher/addvoucher/add_voucher.dart';
+import 'package:pcplus/pages/voucher/listvoucher/list_voucher.dart';
 import '../../../models/shops/shop_model.dart';
 import '../../manage_product/edit_product/edit_product.dart';
 import '../../widgets/bottom/shop_bottom_bar.dart';
@@ -34,18 +42,63 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
   ShopModel? shop;
 
   bool init = true;
-  bool isShop = true;
+  bool isShop = false;
   bool isLoading = true;
   String avatarUrl = "";
   String shopName = "";
   String shopPhone = "";
   String location = "";
 
+  // Mock voucher data
+  List<VoucherModel> _mockVouchers = [];
+
   @override
   void initState() {
     isShop = SessionController.getInstance().isShop();
     _presenter = ShopHomePresenter(this);
+    _initMockVouchers();
     super.initState();
+  }
+
+  void _initMockVouchers() {
+    _mockVouchers = [
+      VoucherModel(
+        voucherID: "1",
+        name: "Giảm 50k",
+        description: "Voucher giảm 50,000đ cho đơn hàng từ 200,000đ",
+        condition: 200000,
+        endDate: DateTime.now().add(const Duration(days: 30)),
+        discount: 50000,
+        quantity: 100,
+      ),
+      VoucherModel(
+        voucherID: "2",
+        name: "Giảm 20%",
+        description: "Voucher giảm 20% tối đa 100,000đ",
+        condition: 500000,
+        endDate: DateTime.now().add(const Duration(days: 15)),
+        discount: 100000,
+        quantity: 50,
+      ),
+      VoucherModel(
+        voucherID: "3",
+        name: "Freeship",
+        description: "Miễn phí vận chuyển cho đơn từ 100,000đ",
+        condition: 100000,
+        endDate: DateTime.now().add(const Duration(days: 7)),
+        discount: 30000,
+        quantity: 0, // Out of stock
+      ),
+      VoucherModel(
+        voucherID: "4",
+        name: "Black Friday",
+        description: "Giảm 300,000đ cho đơn hàng trên 1 triệu",
+        condition: 1000000,
+        endDate: DateTime.now().subtract(const Duration(days: 1)), // Expired
+        discount: 300000,
+        quantity: 25,
+      ),
+    ];
   }
 
   @override
@@ -108,17 +161,15 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
                     width: 100,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      image:
-                        avatarUrl.isEmpty ?
-                          const DecorationImage(
-                            image: AssetImage(AssetHelper.shopAvt),
-                            fit: BoxFit.cover,
-                          )
-                        :
-                          DecorationImage(
-                            image: NetworkImage(avatarUrl),
-                            fit: BoxFit.cover,
-                          ),
+                      image: avatarUrl.isEmpty
+                          ? const DecorationImage(
+                              image: AssetImage(AssetHelper.shopAvt),
+                              fit: BoxFit.cover,
+                            )
+                          : DecorationImage(
+                              image: NetworkImage(avatarUrl),
+                              fit: BoxFit.cover,
+                            ),
                     ),
                   ),
                   const Gap(10),
@@ -169,6 +220,87 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
                 ],
               ),
               const Gap(20),
+
+              // Voucher section
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Mã giảm giá', style: TextDecor.robo18Bold),
+                  GestureDetector(
+                    onTap: _navigateToVoucherList,
+                    child: Row(
+                      children: [
+                        Text(
+                          'Xem tất cả (${_mockVouchers.length})',
+                          style: TextDecor.robo14.copyWith(
+                            color: Palette.primaryColor,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const Gap(4),
+                        const Icon(
+                          Icons.arrow_forward_ios,
+                          size: 14,
+                          color: Palette.primaryColor,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const Gap(12),
+              SizedBox(
+                height: 140,
+                child: _mockVouchers.isEmpty
+                    ? Center(
+                        child: Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.local_offer_outlined,
+                                size: 48,
+                                color: Colors.grey.shade400,
+                              ),
+                              const Gap(8),
+                              Text(
+                                'Chưa có voucher nào',
+                                style: TextDecor.robo14.copyWith(
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        itemCount: _mockVouchers.length,
+                        itemBuilder: (context, index) {
+                          final voucher = _mockVouchers[index];
+                          return VoucherItem(
+                            voucher: voucher,
+                            isShop: isShop,
+                            onTap: () =>
+                                _navigateToVoucherDetail(voucher.voucherID!),
+                            onEdit: () =>
+                                _navigateToEditVoucher(voucher.voucherID!),
+                            onDelete: () => _showDeleteVoucherDialog(
+                              voucher.voucherID!,
+                              voucher.name!,
+                            ),
+                          );
+                        },
+                      ),
+              ),
+              const Gap(24),
+
               Text('Danh mục sản phẩm', style: TextDecor.robo18Bold),
               const Gap(10),
               SizedBox(
@@ -177,7 +309,8 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
                 child: StreamBuilder<List<ItemWithSeller>>(
                     stream: _presenter!.userItemsStream,
                     builder: (context, snapshot) {
-                      Widget? result = UtilWidgets.createSnapshotResultWidget(context, snapshot);
+                      Widget? result = UtilWidgets.createSnapshotResultWidget(
+                          context, snapshot);
                       if (result != null) {
                         return result;
                       }
@@ -196,18 +329,19 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
                         itemBuilder: (context, index) {
                           return ShopItemFactory.create(
                               data: itemsWithSeller[index],
-                              editCommand:
-                              ShopHomeItemEditCommand(presenter: _presenter!, item: itemsWithSeller[index]),
-                              deleteCommand:
-                              ShopHomeItemDeleteCommand(presenter: _presenter!, item: itemsWithSeller[index]),
-                              pressedCommand:
-                              ShopHomeItemPressedCommand(presenter: _presenter!, item: itemsWithSeller[index]),
-                              isShop: isShop
-                          );
+                              editCommand: ShopHomeItemEditCommand(
+                                  presenter: _presenter!,
+                                  item: itemsWithSeller[index]),
+                              deleteCommand: ShopHomeItemDeleteCommand(
+                                  presenter: _presenter!,
+                                  item: itemsWithSeller[index]),
+                              pressedCommand: ShopHomeItemPressedCommand(
+                                  presenter: _presenter!,
+                                  item: itemsWithSeller[index]),
+                              isShop: isShop);
                         },
                       );
-                    }
-                ),
+                    }),
               ),
             ],
           ),
@@ -215,9 +349,7 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
       ),
       floatingActionButton: isShop
           ? FloatingActionButton(
-              onPressed: () {
-                Navigator.of(context).pushNamed(AddProduct.routeName);
-              },
+              onPressed: _showAddOptionsDialog,
               child: const Icon(
                 Icons.add,
                 size: 36,
@@ -278,13 +410,272 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
   @override
   void onItemPressed(ItemWithSeller item) {
     Navigator.of(context).pushNamed(
-        DetailProduct.routeName,
-        arguments: ItemArgument(data: item),
+      DetailProduct.routeName,
+      arguments: ItemArgument(data: item),
     );
   }
 
   @override
   void onBack() {
     Navigator.of(context).pushNamed(HomeScreen.routeName);
+  }
+
+  void _showAddOptionsDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              color: Colors.white,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Thêm mới',
+                  style: TextDecor.robo18Bold.copyWith(
+                    color: Palette.primaryColor,
+                    fontSize: 20,
+                  ),
+                ),
+                const Gap(24),
+
+                // Nút Thêm sản phẩm mới
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pushNamed(AddProduct.routeName);
+                    },
+                    icon: const Icon(
+                      Icons.shopping_bag,
+                      size: 24,
+                      color: Colors.white,
+                    ),
+                    label: Text(
+                      'Thêm sản phẩm mới',
+                      style: TextDecor.robo16Medi.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Palette.primaryColor,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+                const Gap(12),
+
+                // Nút Thêm voucher mới
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pushNamed(AddVoucher.routeName);
+                    },
+                    icon: const Icon(
+                      Icons.local_offer,
+                      size: 24,
+                      color: Palette.primaryColor,
+                    ),
+                    label: Text(
+                      'Thêm voucher mới',
+                      style: TextDecor.robo16Medi.copyWith(
+                        color: Palette.primaryColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      side: const BorderSide(
+                          color: Palette.primaryColor, width: 2),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+                const Gap(20),
+
+                // Nút Cancel
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text(
+                    'Hủy',
+                    style: TextDecor.robo16.copyWith(
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // Navigation functions
+  void _navigateToEditVoucher(String voucherId) {
+    // Tìm voucher object từ ID
+    VoucherModel? voucher = _mockVouchers.firstWhere(
+      (v) => v.voucherID == voucherId,
+      orElse: () => VoucherModel(
+        voucherID: voucherId,
+        name: "Unknown Voucher",
+        description: "Voucher không xác định",
+        condition: 0,
+        endDate: DateTime.now().add(const Duration(days: 30)),
+        discount: 0,
+        quantity: 0,
+      ),
+    );
+
+    Navigator.of(context).pushNamed(
+      EditVoucher.routeName,
+      arguments: VoucherArgument(data: voucher),
+    );
+  }
+
+  void _navigateToVoucherDetail(String voucherId) {
+    // Tìm voucher object từ ID
+    VoucherModel? voucher = _mockVouchers.firstWhere(
+      (v) => v.voucherID == voucherId,
+      orElse: () => VoucherModel(
+        voucherID: voucherId,
+        name: "Unknown Voucher",
+        description: "Voucher không xác định",
+        condition: 0,
+        endDate: DateTime.now().add(const Duration(days: 30)),
+        discount: 0,
+        quantity: 0,
+      ),
+    );
+
+    Navigator.of(context).pushNamed(
+      VoucherDetail.routeName,
+      arguments: VoucherArgument(data: voucher),
+    );
+  }
+
+  void _navigateToVoucherList() {
+    Navigator.of(context).pushNamed(ListVoucher.routeName);
+  }
+
+  void _showDeleteVoucherDialog(String voucherId, String voucherName) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              color: Colors.white,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.warning,
+                    color: Colors.red,
+                    size: 32,
+                  ),
+                ),
+                const Gap(16),
+                Text(
+                  'Xác nhận xóa voucher',
+                  style: TextDecor.robo18Bold.copyWith(
+                    color: Colors.black87,
+                  ),
+                ),
+                const Gap(12),
+                Text(
+                  'Bạn có chắc chắn muốn xóa voucher "$voucherName"?\nHành động này không thể hoàn tác.',
+                  style: TextDecor.robo14.copyWith(
+                    color: Colors.grey[600],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const Gap(24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            side: BorderSide(color: Colors.grey.shade300),
+                          ),
+                        ),
+                        child: Text(
+                          'Hủy',
+                          style: TextDecor.robo14.copyWith(
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const Gap(12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          // TODO: Delete voucher logic
+                          UtilWidgets.createSnackBar(
+                              context, "Đã xóa voucher: $voucherName");
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          'Xóa',
+                          style: TextDecor.robo14.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 }

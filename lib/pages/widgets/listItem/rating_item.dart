@@ -154,7 +154,7 @@ class _RatingItemState extends State<RatingItem> {
                     color: Colors.amber,
                   ),
                   onRatingUpdate: (rating) {
-                    print(rating);
+                    debugPrint(rating.toString());
                     _rating = rating;
                   },
                 ),

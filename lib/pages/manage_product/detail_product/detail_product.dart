@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field, unused_element, use_build_context_synchronously, deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
@@ -5,9 +7,7 @@ import 'package:gap/gap.dart';
 import 'package:pcplus/component/item_argument.dart';
 import 'package:pcplus/component/shop_argument.dart';
 import 'package:pcplus/config/asset_helper.dart';
-import 'package:pcplus/const/navigator_arguments.dart';
 import 'package:pcplus/controller/session_controller.dart';
-import 'package:pcplus/models/items/item_with_seller.dart';
 import 'package:pcplus/pages/manage_product/detail_product/detail_product_contract.dart';
 import 'package:pcplus/pages/manage_product/detail_product/detail_product_presenter.dart';
 import 'package:pcplus/services/utility.dart';

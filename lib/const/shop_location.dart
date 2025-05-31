@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 const List<String> LOCATIONS = [
   "An Giang",
   "Bà Rịa - Vũng Tàu",

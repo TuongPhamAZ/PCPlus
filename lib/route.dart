@@ -17,7 +17,6 @@ import 'package:pcplus/pages/home/user_home/home.dart';
 import 'package:pcplus/pages/authentication/login/login.dart';
 import 'package:pcplus/pages/no_network/no_network.dart';
 import 'package:pcplus/pages/notification/notification.dart';
-import 'package:pcplus/models/orders/order_address_model.dart';
 import 'package:pcplus/pages/rating/rating.dart';
 import 'package:pcplus/pages/manage_product/detail_product/detail_product.dart';
 import 'package:pcplus/pages/user/profile/profile.dart';
@@ -26,6 +25,10 @@ import 'package:pcplus/pages/search/search_screen.dart';
 import 'package:pcplus/pages/home/shop_home/shop_home.dart';
 import 'package:pcplus/pages/splash/splash.dart';
 import 'package:pcplus/pages/statistic/statistic.dart';
+import 'package:pcplus/pages/voucher/addvoucher/add_voucher.dart';
+import 'package:pcplus/pages/voucher/editvoucher/edit_voucher.dart';
+import 'package:pcplus/pages/voucher/listvoucher/list_voucher.dart';
+import 'package:pcplus/pages/voucher/voucherDetail/voucher_detail.dart';
 import 'package:pcplus/sample/comment.dart';
 import 'package:pcplus/sample/voice_search.dart';
 
@@ -50,14 +53,21 @@ final Map<String, WidgetBuilder> routes = {
   DetailProduct.routeName: (context) => const DetailProduct(),
   BillProduct.routeName: (context) => const BillProduct(),
   DeliveryChoice.routeName: (context) => const DeliveryChoice(),
-  DeliveryInfor.routeName: (context) => DeliveryInfor(currentAddress: ShipInformationModel.emptyAddress),
+  DeliveryInfor.routeName: (context) =>
+      DeliveryInfor(currentAddress: ShipInformationModel.emptyAddress),
   SearchScreen.routeName: (context) => const SearchScreen(),
-  HistoryOrder.routeName: (context) => const HistoryOrder(orderType: '',),
+  HistoryOrder.routeName: (context) => const HistoryOrder(
+        orderType: '',
+      ),
   RatingScreen.routeName: (context) => const RatingScreen(),
   ShopHome.routeName: (context) => const ShopHome(),
   Statistic.routeName: (context) => const Statistic(),
   AddProduct.routeName: (context) => const AddProduct(),
   EditProduct.routeName: (context) => const EditProduct(),
+  AddVoucher.routeName: (context) => const AddVoucher(),
+  EditVoucher.routeName: (context) => const EditVoucher(),
+  ListVoucher.routeName: (context) => const ListVoucher(),
+  VoucherDetail.routeName: (context) => const VoucherDetail(),
   SampleComment.routeName: (context) => const SampleComment(),
   VoiceSearchSample.routeName: (context) => const VoiceSearchSample(),
 };
