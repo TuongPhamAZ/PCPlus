@@ -4,6 +4,7 @@ import 'package:pcplus/pages/user/profile/profile_screen_contract.dart';
 import 'package:pcplus/models/orders/order_repo.dart';
 import 'package:pcplus/services/authentication_service.dart';
 import 'package:pcplus/services/pref_service.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import '../../../models/orders/order_model.dart';
 import '../../../models/users/user_model.dart';
@@ -44,20 +45,35 @@ class ProfileScreenPresenter {
     for (OrderModel order in orders) {
       switch (order.status!) {
         case OrderStatus.PENDING_CONFIRMATION:
-          awaitConfirm ++;
+          awaitConfirm++;
           break;
         case OrderStatus.AWAIT_PICKUP:
-          awaitPickup ++;
+          awaitPickup++;
           break;
         case OrderStatus.AWAIT_DELIVERY:
-          awaitDelivery ++;
+          awaitDelivery++;
           break;
         case OrderStatus.AWAIT_RATING:
-          awaitRating ++;
+          awaitRating++;
           break;
       }
     }
     _view.onUpdateOrdersCount();
+  }
+
+  Future<void> unsubtopic() async {
+    try {
+      if (user?.userID != null) {
+        final String userTopic = '${user!.userID}';
+
+        await FirebaseMessaging.instance.unsubscribeFromTopic(userTopic);
+        _view.onUnsubtopicSucceeded();
+      } else {
+        throw Exception('User ID is null');
+      }
+    } catch (e) {
+      _view.onUnsubtopicFailed(e.toString());
+    }
   }
 
   Future<void> signOut() async {
