@@ -72,6 +72,295 @@ class _ProfileScreenState extends State<ProfileScreen>
     }
   }
 
+  Future<void> showNotificationDialog() async {
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          elevation: 10,
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.blue.shade50,
+                  Colors.white,
+                ],
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.blue.shade100,
+                  ),
+                  child: const Icon(
+                    Icons.notifications_active,
+                    color: Palette.primaryColor,
+                    size: 30,
+                  ),
+                ),
+                const Gap(20),
+                Text(
+                  'Thông báo',
+                  style: TextDecor.profileName.copyWith(
+                    fontSize: 20,
+                    color: Palette.primaryColor,
+                  ),
+                ),
+                const Gap(15),
+                Text(
+                  'Bạn có muốn tiếp tục nhận thông báo từ tài khoản này không?',
+                  textAlign: TextAlign.center,
+                  style: TextDecor.profileIntroText.copyWith(
+                    fontSize: 16,
+                    height: 1.4,
+                  ),
+                ),
+                const Gap(25),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 45,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(25),
+                          border: Border.all(
+                            color: Colors.grey.shade300,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            // Thực hiện unsubtopic trước khi đăng xuất
+                            unsubtopic();
+                            _presenter!.signOut();
+                          },
+                          style: TextButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                          ),
+                          child: Text(
+                            'Không',
+                            style: TextDecor.profileTextButton.copyWith(
+                              color: Colors.grey.shade600,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const Gap(15),
+                    Expanded(
+                      child: Container(
+                        height: 45,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(25),
+                          gradient: const LinearGradient(
+                            colors: [
+                              Palette.primaryColor,
+                              Palette.main1,
+                            ],
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Palette.primaryColor.withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            // Chỉ đăng xuất bình thường
+                            _presenter!.signOut();
+                          },
+                          style: TextButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                          ),
+                          child: Text(
+                            'Có',
+                            style: TextDecor.profileTextButton.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> unsubtopic() async {
+    await _presenter?.unsubtopic();
+  }
+
+  Future<void> showSignOutDialog() async {
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          elevation: 10,
+          child: Container(
+            padding: const EdgeInsets.all(25),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.red.shade50,
+                  Colors.white,
+                ],
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 70,
+                  height: 70,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.red.shade100,
+                  ),
+                  child: const Icon(
+                    FontAwesomeIcons.rightFromBracket,
+                    color: Colors.red,
+                    size: 35,
+                  ),
+                ),
+                const Gap(20),
+                Text(
+                  'Xác nhận đăng xuất',
+                  style: TextDecor.profileName.copyWith(
+                    fontSize: 22,
+                    color: Colors.red.shade700,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Gap(15),
+                Text(
+                  'Bạn có chắc chắn muốn đăng xuất khỏi tài khoản này không?',
+                  textAlign: TextAlign.center,
+                  style: TextDecor.profileIntroText.copyWith(
+                    fontSize: 16,
+                    height: 1.4,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+                const Gap(30),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 50,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(25),
+                          border: Border.all(
+                            color: Colors.grey.shade300,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          style: TextButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                          ),
+                          child: Text(
+                            'Hủy',
+                            style: TextDecor.profileTextButton.copyWith(
+                              color: Colors.grey.shade600,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const Gap(15),
+                    Expanded(
+                      child: Container(
+                        height: 50,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(25),
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.red.shade400,
+                              Colors.red.shade600,
+                            ],
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.red.withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            // Hiển thị dialog thông báo
+                            showNotificationDialog();
+                          },
+                          style: TextButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                          ),
+                          child: Text(
+                            'Xác nhận',
+                            style: TextDecor.profileTextButton.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     _presenter = ProfileScreenPresenter(this);
@@ -549,39 +838,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                           const Gap(20),
                           GestureDetector(
                             onTap: () async {
-                              showDialog(
-                                context: context,
-                                builder: (dialogContext) {
-                                  return AlertDialog(
-                                    title: const Text('Confirm'),
-                                    content: const Text(
-                                        'Are you sure you want to sign out?'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(dialogContext).pop();
-                                        },
-                                        child: Text(
-                                          'Cancel',
-                                          style: TextDecor.profileIntroText,
-                                        ),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          _presenter!.signOut();
-                                        },
-                                        child: Text(
-                                          'Confirm',
-                                          style: TextDecor.profileIntroText
-                                              .copyWith(
-                                            color: Palette.main1,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
+                              showSignOutDialog();
                             },
                             child: Row(
                               children: [
@@ -630,8 +887,8 @@ class _ProfileScreenState extends State<ProfileScreen>
   @override
   void onSignOut() {
     Navigator.of(context).pushNamedAndRemoveUntil(
-        LoginScreen.routeName,
-        (Route<dynamic> route) => false,
+      LoginScreen.routeName,
+      (Route<dynamic> route) => false,
     );
   }
 
@@ -647,7 +904,6 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   @override
   void onUpdateOrdersCount() {
-    // TODO: implement onUpdateOrdersCount
     if (!mounted) return;
 
     setState(() {
@@ -656,5 +912,20 @@ class _ProfileScreenState extends State<ProfileScreen>
       awaitPickUp = _presenter!.awaitPickup;
       awaitRating = _presenter!.awaitRating;
     });
+  }
+
+  @override
+  void onUnsubtopicSucceeded() {}
+
+  @override
+  void onUnsubtopicFailed(String error) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Lỗi khi hủy đăng ký thông báo: $error'),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 1),
+      ),
+    );
   }
 }

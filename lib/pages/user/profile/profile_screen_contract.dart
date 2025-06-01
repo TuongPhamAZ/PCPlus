@@ -4,4 +4,6 @@ abstract class ProfileScreenContract {
   void onWaitingProgressBar();
   void onPopContext();
   void onUpdateOrdersCount();
+  void onUnsubtopicSucceeded();
+  void onUnsubtopicFailed(String error);
 }

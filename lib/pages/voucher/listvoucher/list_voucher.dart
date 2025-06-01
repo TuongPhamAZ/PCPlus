@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:pcplus/component/voucher_argument.dart';
-import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/models/vouchers/voucher_model.dart';
 import 'package:pcplus/pages/voucher/widget/voucher_item.dart';
 import 'package:pcplus/pages/voucher/editvoucher/edit_voucher.dart';
@@ -533,7 +532,7 @@ class _ListVoucherState extends State<ListVoucher> {
           ),
           title: Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.warning,
                 color: Colors.red,
                 size: 24,
