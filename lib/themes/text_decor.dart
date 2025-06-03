@@ -77,7 +77,7 @@ class TextDecor {
     shadows: [
       Shadow(
         color: Colors.black.withOpacity(0.25),
-        offset: const Offset(2, 4),
+        offset: const Offset(0, 2),
         blurRadius: 4,
       ),
     ],
