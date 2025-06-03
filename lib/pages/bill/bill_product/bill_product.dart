@@ -212,12 +212,16 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
 
                   final itemsWithSeller = snapshot.data ?? [];
 
-                  _presenter!.onPaymentItems = itemsWithSeller;
+                  _presenter!.onPaymentItems = itemsWithSeller.where((test) => test.inCart.isSelected == true).toList();
                   Map<String, BillShopModel> billShops = _presenter!.billShops!;
                   billShops.clear();
 
                   // Bỏ item vô BillShopModel
                   for (ItemInCartWithSeller data in itemsWithSeller) {
+                    if (data.inCart.isSelected == false) {
+                      continue;
+                    }
+
                     String shopId = data.seller.shopID!;
                     BillShopModel? billShop;
 
@@ -266,7 +270,7 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
                     });
                   }
 
-                  if (itemsWithSeller.isEmpty) {
+                  if (_presenter!.onPaymentItems!.isEmpty) {
                     return const Center(child: Text('Nothing here'));
                   }
 
@@ -518,13 +522,14 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
-          return Center(
-            child: Container(
+          return AlertDialog(
+            alignment: Alignment.center,
+            content: Container(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-              ),
+              // decoration: BoxDecoration(
+              //   color: Colors.white,
+              //   borderRadius: BorderRadius.circular(10),
+              // ),
               child: const Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -560,6 +565,7 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
           actions: [
             TextButton(
               onPressed: () {
+                Navigator.of(context).pop();
                 Navigator.of(context).pop();
               },
               child: const Text("OK"),

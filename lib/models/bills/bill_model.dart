@@ -39,7 +39,7 @@ class BillModel {
       'userID': userID,
       'shops': (shops ?? []).map((shop) => shop.toJson()).toList(),
       'orderDate': orderDate,
-      'shipInformation': shipInformation,
+      'shipInformation': shipInformation?.toJson(),
       'paymentType': paymentType,
       'totalPrice': totalPrice,
     };

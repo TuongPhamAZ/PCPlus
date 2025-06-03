@@ -44,7 +44,7 @@ class BillOfShopModel {
     'items': (items ?? []).map((item) => item.toJson()).toList(),
     'orderDate': orderDate,
     'status': status,
-    'shipInformation': shipInformation,
+    'shipInformation': shipInformation?.toJson(),
     'paymentType': paymentType,
     'voucher': voucher,
     'totalPrice': totalPrice,

@@ -44,7 +44,7 @@ class BillShopItemModel {
     'detail': detail,
     'price': price,
     'image': image,
-    'color': color,
+    'color': color!.toJson(),
     'amount': amount,
     'totalCost': totalCost,
   };
