@@ -34,7 +34,7 @@ class BillShopModel {
       totalPrice = totalPrice! + item.amount! * item.price!;
     }
 
-    totalPrice = (totalPrice! * (100 - voucher!.discount!) / 100).round();
+    totalPrice = (totalPrice! * (100 - (voucher != null ? voucher!.discount! : 0)) / 100).round();
 
     return {
       'shopID': shopID,

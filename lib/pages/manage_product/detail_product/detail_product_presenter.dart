@@ -185,7 +185,7 @@ class DetailProductPresenter {
       InCartItemModel model = InCartItemModel(
         itemID: itemWithSeller!.item.itemID!,
         color: itemWithSeller!.item.colors!.first,
-        amount: 1,
+        amount: amount,
         isSelected: false,
       );
 

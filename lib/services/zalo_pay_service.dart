@@ -41,7 +41,7 @@ class ZaloPayService {
         "embed_data": embedData,
         "item": items,
         "description":
-        "ZaloPay Flutter Demo - Thanh toán cho đơn hàng #$appTransId",
+        "PC Plus - Thanh toán cho đơn hàng #$appTransId",
       };
 
       // Create MAC for authentication
@@ -94,6 +94,8 @@ class ZaloPayService {
   }
 
   Future<ZaloStatus?> handleZaloPayOrder(ZaloPayCreateOrderResponse orderResult, int amount) async {
+    ZaloStatus? status;
+
     await FlutterZaloPaySdk.payOrder(zpToken: orderResult.zptranstoken).then((event) {
           String title = "";
           String message = "";
@@ -123,14 +125,14 @@ class ZaloPayService {
               break;
           }
 
-          return ZaloStatus(
+          status = ZaloStatus(
               title: title,
               message: message,
               isSuccess: isSuccess
           );
     });
     
-    return null;
+    return status;
   }
 }
 

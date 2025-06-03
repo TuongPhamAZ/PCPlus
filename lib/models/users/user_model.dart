@@ -45,7 +45,7 @@ class UserModel {
         'gender': gender,
         'userType': userType,
         'avatarUrl': avatarUrl,
-        'shipInformation': shipInformationModel,
+        'shipInformation': shipInformationModel?.toJson(),
         'money': money,
         'activeFcm': activeFcm,
         // 'shopInfo': jsonEncode(shopInfo)
