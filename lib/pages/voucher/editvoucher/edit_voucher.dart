@@ -36,7 +36,7 @@ class _EditVoucherState extends State<EditVoucher>
   final TextEditingController _endDateController = TextEditingController();
 
   DateTime? _selectedEndDate;
-  String? _voucherId;
+  VoucherModel? _voucher;
 
   @override
   void initState() {
@@ -47,12 +47,12 @@ class _EditVoucherState extends State<EditVoucher>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_voucherId == null) {
+    if (_voucher == null) {
       final args =
           ModalRoute.of(context)?.settings.arguments as VoucherArgument?;
       if (args != null) {
         VoucherModel voucher = args.data;
-        _voucherId = voucher.voucherID;
+        _voucher = voucher;
 
         // Load data trực tiếp vào form
         _nameController.text = voucher.name ?? '';
@@ -521,6 +521,7 @@ class _EditVoucherState extends State<EditVoucher>
               onPressed: () {
                 if (_formKey.currentState?.validate() ?? false) {
                   _presenter?.handleEditVoucher(
+                    voucher: _voucher!,
                     name: _nameController.text.trim(),
                     description: _descriptionController.text.trim(),
                     condition: _parseFormattedNumber(_conditionController.text),

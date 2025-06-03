@@ -23,7 +23,6 @@ class VoucherModel {
   });
 
   Map<String, dynamic> toJson() => {
-    'voucherID': voucherID,
     'name': name,
     'description': description,
     'condition': condition,

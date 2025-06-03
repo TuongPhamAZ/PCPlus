@@ -25,11 +25,11 @@ class VoucherRepository {
     }
   }
 
-  Future<void> deleteVoucherById(String shopId, String ratingId) async
+  Future<void> deleteVoucherById(String shopId, String voucherId) async
   => _storage.collection(ShopModel.collectionName)
           .doc(shopId)
           .collection(VoucherModel.collectionName)
-          .doc(ratingId)
+          .doc(voucherId)
           .delete();
 
   Future<bool> updateVoucher(String shopID, VoucherModel model) async {
@@ -61,26 +61,16 @@ class VoucherRepository {
     }
   }
 
-  Stream<List<VoucherModel>> getShopVouchersStream(String shopID) async* {
-    final itemSnapshot = await FirebaseFirestore.instance
+  Stream<List<VoucherModel>> getShopVouchersStream(String shopID) {
+    return _storage
         .collection(ShopModel.collectionName)
-        .get();
-
-    // Tạo list stream từ mỗi subcollection 'vouchers'
-    List<Stream<List<VoucherModel>>> streams = itemSnapshot.docs.map((itemDoc) {
-      return FirebaseFirestore.instance
-          .collection(ShopModel.collectionName)
-          .doc(itemDoc.id)
-          .collection(VoucherModel.collectionName)
-          .snapshots()
-          .map((snapshot) => snapshot.docs
+        .doc(shopID)
+        .collection(VoucherModel.collectionName)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs
           .map((doc) => VoucherModel.fromJson(doc.id, doc.data())!)
-          .toList());
-    }).toList();
-
-    // Gộp tất cả stream lại thành một stream duy nhất
-    yield* StreamGroup.merge<List<VoucherModel>>(streams).map((list) {
-      return list.expand((x) => x as Iterable<VoucherModel>).toList();
+          .toList();
     });
   }
 

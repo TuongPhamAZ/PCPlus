@@ -109,6 +109,9 @@ class _HistoryOrderState extends State<HistoryOrder>
 
                   for (BillModel bill in orders) {
                     for (BillShopModel billShop in bill.shops!) {
+                      if (billShop.status != widget.orderType) {
+                        continue;
+                      }
                       billsAndShopsMap[billShop] = bill;
                     }
                   }

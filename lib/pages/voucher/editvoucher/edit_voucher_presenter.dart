@@ -1,4 +1,8 @@
+import 'package:pcplus/controller/session_controller.dart';
+import 'package:pcplus/models/vouchers/voucher_repo.dart';
 import 'package:pcplus/pages/voucher/editvoucher/edit_voucher_contract.dart';
+
+import '../../../models/vouchers/voucher_model.dart';
 
 class EditVoucherPresenter {
   EditVoucherContract contract;
@@ -6,7 +10,10 @@ class EditVoucherPresenter {
 
   EditVoucherPresenter(this.contract);
 
+  final VoucherRepository _voucherRepo = VoucherRepository();
+
   Future<void> handleEditVoucher({
+    required VoucherModel voucher,
     required String name,
     required String description,
     required int condition,
@@ -55,7 +62,13 @@ class EditVoucherPresenter {
       }
 
       // Mock update - replace with actual API call
-      await Future.delayed(const Duration(seconds: 1));
+      voucher.name = name;
+      voucher.description = description;
+      voucher.endDate = endDate;
+      voucher.discount = discount;
+      voucher.condition = condition;
+      voucher.quantity = quantity;
+      await _voucherRepo.updateVoucher(SessionController.getInstance().userID!, voucher);
 
       contract.onPopContext();
       contract.onEditSucceeded();

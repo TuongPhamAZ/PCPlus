@@ -12,7 +12,7 @@ class StatisticPresenter {
   Stream<List<BillOfShopModel>>? billsStream;
 
   Future<void> getData() async {
-    billsStream = _billOfShopRepo.getAllBillsOfShopFromShopStream(SessionController().userID!);
+    billsStream = _billOfShopRepo.getAllBillsOfShopFromShopStream(SessionController.getInstance().userID!);
   }
 
   void onChangeItemType(String itemType) {
