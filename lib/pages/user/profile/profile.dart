@@ -404,7 +404,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 decoration: const BoxDecoration(
                   image: DecorationImage(
                     image: AssetImage(AssetHelper.profileBg),
-                    fit: BoxFit.fill,
+                    fit: BoxFit.cover,
                   ),
                 ),
                 child: Column(

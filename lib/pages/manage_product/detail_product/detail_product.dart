@@ -37,7 +37,8 @@ class _DetailProductState extends State<DetailProduct>
     implements DetailProductContract {
   DetailProductPresenter? _presenter;
 
-  List<String> images = [];
+  List<String> images = []; // Danh sách ảnh nhỏ bên trái (chỉ reviewImages)
+  List<String> currentDisplayImages = []; // Danh sách ảnh hiển thị ở PageView
   bool isShop = true;
 
   bool isLoading = true;
@@ -193,6 +194,12 @@ class _DetailProductState extends State<DetailProduct>
                                 itemBuilder: (context, index) {
                                   return GestureDetector(
                                     onTap: () {
+                                      // Khi bấm vào ảnh nhỏ, hiển thị lại reviewImages và jump đến ảnh đó
+                                      setState(() {
+                                        currentDisplayImages = List.from(
+                                            _presenter!.itemWithSeller!.item
+                                                .reviewImages!);
+                                      });
                                       _pageController.jumpToPage(index);
                                     },
                                     child: Container(
@@ -228,7 +235,8 @@ class _DetailProductState extends State<DetailProduct>
                         child: PageView.builder(
                           controller: _pageController,
                           onPageChanged: _onPageChanged,
-                          itemCount: images.length,
+                          itemCount: currentDisplayImages
+                              .length, // Sử dụng currentDisplayImages
                           itemBuilder: (context, index) {
                             return InkWell(
                               onTap: () {
@@ -244,7 +252,8 @@ class _DetailProductState extends State<DetailProduct>
                                         },
                                         child: InteractiveViewer(
                                           child: Image.network(
-                                            images[index],
+                                            currentDisplayImages[
+                                                index], // Sử dụng currentDisplayImages
                                             fit: BoxFit.contain,
                                           ),
                                         ),
@@ -261,7 +270,8 @@ class _DetailProductState extends State<DetailProduct>
                                     bottomLeft: Radius.circular(20),
                                   ),
                                   image: DecorationImage(
-                                    image: NetworkImage(images[index]),
+                                    image: NetworkImage(currentDisplayImages[
+                                        index]), // Sử dụng currentDisplayImages
                                     fit: BoxFit.cover,
                                   ),
                                 ),
@@ -416,118 +426,241 @@ class _DetailProductState extends State<DetailProduct>
                         // Chỉ hiển thị section shop khi KHÔNG phải là shop (isShop = false)
                         if (!isShop)
                           Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 10),
+                            padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              border: Border.all(color: Palette.borderBackBtn),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  height: 110,
-                                  width: 110,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(80),
-                                    image: shopAvatar.isEmpty
-                                        ? const DecorationImage(
-                                            image:
-                                                AssetImage(AssetHelper.shopAvt),
-                                            fit: BoxFit.cover,
-                                          )
-                                        : DecorationImage(
-                                            image: NetworkImage(shopAvatar),
-                                            fit: BoxFit.cover,
-                                          ),
-                                  ),
+                              color: Colors.white,
+                              border: Border.all(
+                                  color:
+                                      Palette.borderBackBtn.withOpacity(0.3)),
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
                                 ),
-                                const Gap(16),
-                                SizedBox(
-                                  height: 110,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      SizedBox(
-                                        width: size.width - 180,
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child: Text(
-                                                shopName,
-                                                style: TextDecor.robo18Semi,
-                                                overflow: TextOverflow.ellipsis,
-                                                maxLines: 1,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 8),
-                                            InkWell(
-                                              onTap: () {
-                                                //Go to Shop view
-                                                _presenter?.handleViewShop();
-                                              },
-                                              child: Container(
-                                                height: 24,
-                                                width: 85,
-                                                alignment: Alignment.center,
-                                                decoration: BoxDecoration(
-                                                  border: Border.all(
-                                                    color: Colors.red,
-                                                  ),
-                                                  borderRadius:
-                                                      BorderRadius.circular(5),
-                                                ),
-                                                child: Text(
-                                                  'View Shop',
-                                                  style:
-                                                      TextDecor.robo14.copyWith(
-                                                    color: Colors.red,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
+                              ],
+                            ),
+                            child: Column(
+                              children: [
+                                // Header với avatar và tên shop
+                                Row(
+                                  children: [
+                                    Container(
+                                      height: 70,
+                                      width: 70,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(35),
+                                        border: Border.all(
+                                          color: Palette.primaryColor
+                                              .withOpacity(0.2),
+                                          width: 2,
                                         ),
+                                        image: shopAvatar.isEmpty
+                                            ? const DecorationImage(
+                                                image: AssetImage(
+                                                    AssetHelper.shopAvt),
+                                                fit: BoxFit.cover,
+                                              )
+                                            : DecorationImage(
+                                                image: NetworkImage(shopAvatar),
+                                                fit: BoxFit.cover,
+                                              ),
                                       ),
-                                      Text(
-                                        shopPhone,
-                                        style: TextDecor.robo16,
-                                      ),
-                                      Row(
+                                    ),
+                                    const Gap(16),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          const Icon(
-                                            Icons.location_on,
-                                            color: Colors.black,
-                                            size: 20,
-                                          ),
                                           Text(
-                                            location,
-                                            style: TextDecor.robo16,
+                                            shopName,
+                                            style: TextDecor.robo18Bold,
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                          ),
+                                          const Gap(4),
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                Icons.store,
+                                                color: Palette.primaryColor,
+                                                size: 16,
+                                              ),
+                                              const Gap(6),
+                                              Text(
+                                                "$productsCount sản phẩm",
+                                                style:
+                                                    TextDecor.robo14.copyWith(
+                                                  color: Colors.grey[600],
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
+                                    ),
+                                  ],
+                                ),
+                                const Gap(16),
+
+                                // Thông tin chi tiết
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Palette.backgroundColor
+                                        .withOpacity(0.3),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      // Số điện thoại
                                       Row(
                                         children: [
-                                          Text(
-                                            "$productsCount",
-                                            style: TextDecor.robo16.copyWith(
-                                              color: Colors.red,
+                                          Container(
+                                            padding: const EdgeInsets.all(8),
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  Colors.blue.withOpacity(0.1),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            child: Icon(
+                                              Icons.phone,
+                                              color: Colors.blue,
+                                              size: 18,
                                             ),
                                           ),
-                                          const Gap(5),
-                                          Text(
-                                            'Products',
-                                            style: TextDecor.robo16,
+                                          const Gap(12),
+                                          Expanded(
+                                            child: Text(
+                                              shopPhone,
+                                              style: TextDecor.robo16,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const Gap(12),
+
+                                      // Địa chỉ
+                                      Row(
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.all(8),
+                                            decoration: BoxDecoration(
+                                              color: Colors.orange
+                                                  .withOpacity(0.1),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            child: Icon(
+                                              Icons.location_on,
+                                              color: Colors.orange,
+                                              size: 18,
+                                            ),
+                                          ),
+                                          const Gap(12),
+                                          Expanded(
+                                            child: Text(
+                                              location,
+                                              style: TextDecor.robo16,
+                                            ),
                                           ),
                                         ],
                                       ),
                                     ],
                                   ),
+                                ),
+                                const Gap(16),
+
+                                // Nút hành động
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: InkWell(
+                                        onTap: () {
+                                          // TODO: Xử lý logic nhắn tin
+                                          print("Nhắn tin với shop: $shopName");
+                                        },
+                                        child: Container(
+                                          height: 45,
+                                          decoration: BoxDecoration(
+                                            color: Colors.green,
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.green
+                                                    .withOpacity(0.3),
+                                                blurRadius: 4,
+                                                offset: const Offset(0, 2),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Icon(
+                                                Icons.chat_bubble_outline,
+                                                color: Colors.white,
+                                                size: 20,
+                                              ),
+                                              const Gap(8),
+                                              Text(
+                                                'Nhắn tin',
+                                                style: TextDecor.robo16Semi
+                                                    .copyWith(
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const Gap(12),
+                                    Expanded(
+                                      child: InkWell(
+                                        onTap: () {
+                                          //Go to Shop view
+                                          _presenter?.handleViewShop();
+                                        },
+                                        child: Container(
+                                          height: 45,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            border: Border.all(
+                                              color: Palette.primaryColor,
+                                              width: 1.5,
+                                            ),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Icon(
+                                                Icons.store_outlined,
+                                                color: Palette.primaryColor,
+                                                size: 20,
+                                              ),
+                                              const Gap(8),
+                                              Text(
+                                                'Xem shop',
+                                                style: TextDecor.robo16Semi
+                                                    .copyWith(
+                                                  color: Palette.primaryColor,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
@@ -540,74 +673,72 @@ class _DetailProductState extends State<DetailProduct>
                             color: Colors.grey,
                           ),
                         ),
-                        const Gap(8),
-                        Text("Product's Reviews", style: TextDecor.robo18Semi),
-                        Row(
-                          children: [
-                            RatingBar.builder(
-                              initialRating: rating,
-                              minRating: 1,
-                              direction: Axis.horizontal,
-                              allowHalfRating: true,
-                              itemCount: 5,
-                              itemSize: 18,
-                              unratedColor: const Color(0xffDADADA),
-                              itemBuilder: (context, _) => const Icon(
-                                Icons.star,
-                                color: Colors.amber,
-                                size: 20,
+                        // Chỉ hiển thị phần Product's Reviews khi có review
+                        if (reviews.isNotEmpty) ...[
+                          const Gap(8),
+                          Text("Product's Reviews",
+                              style: TextDecor.robo18Semi),
+                          Row(
+                            children: [
+                              RatingBar.builder(
+                                initialRating: rating,
+                                minRating: 1,
+                                direction: Axis.horizontal,
+                                allowHalfRating: true,
+                                itemCount: 5,
+                                itemSize: 18,
+                                unratedColor: const Color(0xffDADADA),
+                                itemBuilder: (context, _) => const Icon(
+                                  Icons.star,
+                                  color: Colors.amber,
+                                  size: 20,
+                                ),
+                                onRatingUpdate: (value) {},
+                                ignoreGestures: true,
                               ),
-                              onRatingUpdate: (value) {},
-                              ignoreGestures: true,
-                            ),
-                            const Gap(6),
-                            Text(
-                              '$rating/5',
-                              style: TextDecor.robo16.copyWith(
-                                color: Colors.red,
+                              const Gap(6),
+                              Text(
+                                '$rating/5',
+                                style: TextDecor.robo16.copyWith(
+                                  color: Colors.red,
+                                ),
                               ),
-                            ),
-                            const Gap(3),
-                            Text(
-                              '(${reviews.length} Reviews)',
-                              style: TextDecor.robo16.copyWith(
-                                color: Colors.black.withOpacity(0.7),
+                              const Gap(3),
+                              Text(
+                                '(${reviews.length} Reviews)',
+                                style: TextDecor.robo16.copyWith(
+                                  color: Colors.black.withOpacity(0.7),
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        const Gap(12),
-                        reviews.isEmpty
-                            ? UtilWidgets.getCenterTextWithContainer(
-                                width: size.width,
-                                height: 30,
-                                text: "No review",
-                                color: Palette.primaryColor,
-                                fontSize: 16)
-                            : ListView.builder(
-                                shrinkWrap: true,
-                                padding: const EdgeInsets.all(0),
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: reviews.length,
-                                itemBuilder: (context, index) {
-                                  final review = reviews[index];
-                                  final rating = review.rating!;
-                                  final user = review.user!;
+                            ],
+                          ),
+                          const Gap(12),
+                          ListView.builder(
+                            shrinkWrap: true,
+                            padding: const EdgeInsets.all(0),
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: reviews.length,
+                            itemBuilder: (context, index) {
+                              final review = reviews[index];
+                              final rating = review.rating!;
+                              final user = review.user!;
 
-                                  return ReviewItem(
-                                    name: user.name!,
-                                    date: rating.date!,
-                                    comment: rating.comment ?? '',
-                                    rating: rating.rating,
-                                    avatarUrl: user.avatarUrl,
-                                    response: rating.response,
-                                    isShop: isShop,
-                                    onResponseSubmit: (responseText) {
-                                      _presenter!.onSendResponse(rating, responseText);
-                                    },
-                                  );
+                              return ReviewItem(
+                                name: user.name!,
+                                date: rating.date!,
+                                comment: rating.comment ?? '',
+                                rating: rating.rating,
+                                avatarUrl: user.avatarUrl,
+                                response: rating.response,
+                                isShop: isShop,
+                                onResponseSubmit: (responseText) {
+                                  _presenter!
+                                      .onSendResponse(rating, responseText);
                                 },
-                              ),
+                              );
+                            },
+                          ),
+                        ],
                         const Gap(30),
                       ],
                     ),
@@ -642,7 +773,8 @@ class _DetailProductState extends State<DetailProduct>
                         buttonColor: Colors.blueGrey,
                         onAction: () {
                           Navigator.pop(context);
-                          _presenter?.handleAddToCart(amount: soluong, colorIndex: selectedColorIndex);
+                          _presenter?.handleAddToCart(
+                              amount: soluong, colorIndex: selectedColorIndex);
                         },
                       );
                     },
@@ -801,25 +933,13 @@ class _DetailProductState extends State<DetailProduct>
       shopAvatar = _presenter!.itemWithSeller!.seller.image ?? "";
       productsCount = _presenter!.shopProductsCount;
       reviews = _presenter!.ratingsData;
-      images = _presenter!.itemWithSeller!.item.reviewImages!;
+      images = _presenter!
+          .itemWithSeller!.item.reviewImages!; // Chỉ reviewImages cho list nhỏ
+      currentDisplayImages = List.from(
+          _presenter!.itemWithSeller!.item.reviewImages!); // Copy cho PageView
 
       isLoading = false;
     });
-  }
-
-  // Helper method để lấy hình ảnh của màu được chọn
-  String _getSelectedColorImage() {
-    if (_presenter?.itemWithSeller?.item.colors != null &&
-        _presenter!.itemWithSeller!.item.colors!.isNotEmpty &&
-        selectedColorIndex < _presenter!.itemWithSeller!.item.colors!.length) {
-      final selectedColor =
-          _presenter!.itemWithSeller!.item.colors![selectedColorIndex];
-      if (selectedColor.image != null && selectedColor.image!.isNotEmpty) {
-        return selectedColor.image!;
-      }
-    }
-    // Fallback về hình ảnh đầu tiên nếu không có hình ảnh màu
-    return images.isNotEmpty ? images.first : '';
   }
 
   // Method để cập nhật hình ảnh khi chọn màu
@@ -832,37 +952,21 @@ class _DetailProductState extends State<DetailProduct>
 
       // Nếu màu có hình ảnh riêng
       if (selectedColor.image != null && selectedColor.image!.isNotEmpty) {
-        // Tạo danh sách images mới bao gồm ảnh màu + reviewImages
-        List<String> combinedImages = [];
-
-        // Thêm ảnh của màu được chọn vào đầu
-        combinedImages.add(selectedColor.image!);
-
-        // Thêm các reviewImages (loại bỏ duplicate nếu có)
-        for (String reviewImage
-            in _presenter!.itemWithSeller!.item.reviewImages!) {
-          if (!combinedImages.contains(reviewImage)) {
-            combinedImages.add(reviewImage);
-          }
-        }
-
-        // Cập nhật danh sách images và jump đến ảnh màu (index 0)
+        // Chỉ cập nhật currentDisplayImages để hiển thị ảnh màu ở PageView
         setState(() {
-          images = combinedImages;
+          currentDisplayImages = [selectedColor.image!];
         });
         _pageController.jumpToPage(0);
         return;
       }
-
-      // Nếu màu không có hình ảnh riêng, về lại reviewImages gốc
-      setState(() {
-        images = _presenter!.itemWithSeller!.item.reviewImages!;
-      });
-
-      // Map theo index màu nếu có đủ ảnh, ngược lại về ảnh đầu
-      int targetIndex = colorIndex < images.length ? colorIndex : 0;
-      _pageController.jumpToPage(targetIndex);
     }
+
+    // Nếu màu không có hình ảnh riêng, hiển thị lại reviewImages gốc
+    setState(() {
+      currentDisplayImages =
+          List.from(_presenter!.itemWithSeller!.item.reviewImages!);
+    });
+    _pageController.jumpToPage(0);
   }
 
   // Method để hiển thị ProductActionDialog
@@ -881,7 +985,7 @@ class _DetailProductState extends State<DetailProduct>
           title: title,
           buttonText: buttonText,
           buttonColor: buttonColor,
-          productImages: images, // Truyền toàn bộ danh sách hình ảnh
+          productImages: currentDisplayImages, // Sử dụng currentDisplayImages
           price: salePrice,
           stock: stock,
           initialQuantity: soluong,
