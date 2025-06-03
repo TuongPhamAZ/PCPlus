@@ -1,10 +1,14 @@
+import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/models/vouchers/voucher_model.dart';
+import 'package:pcplus/models/vouchers/voucher_repo.dart';
 import 'package:pcplus/pages/voucher/addvoucher/add_voucher_contract.dart';
 
 class AddVoucherPresenter {
   AddVoucherContract contract;
 
   AddVoucherPresenter(this.contract);
+
+  final VoucherRepository _voucherRepo = VoucherRepository();
 
   Future<void> handleAddVoucher({
     required String name,
@@ -60,7 +64,7 @@ class AddVoucherPresenter {
       );
 
       // TODO: Implement save voucher to database
-      // await VoucherRepository.addVoucher(voucher);
+      await _voucherRepo.addVoucherToFirestore(SessionController.getInstance().userID!, voucher);
 
       contract.onPopContext();
       contract.onAddSucceeded();

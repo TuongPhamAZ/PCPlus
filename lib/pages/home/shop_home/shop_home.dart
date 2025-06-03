@@ -16,6 +16,7 @@ import 'package:pcplus/pages/home/shop_home/shop_home_presenter.dart';
 import 'package:pcplus/pages/voucher/widget/voucher_item.dart';
 import 'package:pcplus/pages/voucher/editvoucher/edit_voucher.dart';
 import 'package:pcplus/pages/voucher/voucherDetail/voucher_detail.dart';
+import 'package:pcplus/services/utility.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 import 'package:pcplus/pages/manage_product/add_product/add_product.dart';
@@ -51,6 +52,8 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
 
   // Mock voucher data
   List<VoucherModel> _mockVouchers = [];
+
+  final ValueNotifier<int> _voucherCount = ValueNotifier<int>(0);
 
   @override
   void initState() {
@@ -230,12 +233,16 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
                     onTap: _navigateToVoucherList,
                     child: Row(
                       children: [
-                        Text(
-                          'Xem tất cả (${_mockVouchers.length})',
-                          style: TextDecor.robo14.copyWith(
-                            color: Palette.primaryColor,
-                            fontWeight: FontWeight.w500,
-                          ),
+                        ValueListenableBuilder<int>(
+                          valueListenable: _voucherCount,
+                          builder: (context, value, _) =>
+                              Text(
+                                'Xem tất cả ($value)',
+                                style: TextDecor.robo14.copyWith(
+                                  color: Palette.primaryColor,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
                         ),
                         const Gap(4),
                         const Icon(
@@ -251,53 +258,74 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
               const Gap(12),
               SizedBox(
                 height: 140,
-                child: _mockVouchers.isEmpty
-                    ? Center(
-                        child: Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.local_offer_outlined,
-                                size: 48,
-                                color: Colors.grey.shade400,
-                              ),
-                              const Gap(8),
-                              Text(
-                                'Chưa có voucher nào',
-                                style: TextDecor.robo14.copyWith(
-                                  color: Colors.grey.shade600,
+                child: StreamBuilder<List<VoucherModel>>(
+                    stream: _presenter!.voucherStream,
+                    builder: (context, snapshot) {
+                      Widget? result = UtilWidgets.createSnapshotResultWidget(
+                          context, snapshot);
+                      if (result != null) {
+                        return result;
+                      }
+
+                      var vouchers = snapshot.data ?? [];
+
+                      if (SessionController.getInstance().isSeller == false) {
+                        // lọc các voucher không khả dụng cho người dùng
+                        vouchers = vouchers.where(
+                                (v) => v.quantity! > 0 && v.endDate!.isAfter(DateTime.now())).toList();
+                      }
+
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        _voucherCount.value = vouchers.length;
+                      });
+
+                      if (vouchers.isEmpty) {
+                        return Center(
+                          child: Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.local_offer_outlined,
+                                  size: 48,
+                                  color: Colors.grey.shade400,
                                 ),
-                              ),
-                            ],
+                                const Gap(8),
+                                Text(
+                                  'Chưa có voucher nào',
+                                  style: TextDecor.robo14.copyWith(
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      )
-                    : ListView.builder(
+                        );
+                      }
+
+                      return ListView.builder(
                         scrollDirection: Axis.horizontal,
                         padding: const EdgeInsets.symmetric(horizontal: 4),
-                        itemCount: _mockVouchers.length,
+                        itemCount: vouchers.length,
                         itemBuilder: (context, index) {
-                          final voucher = _mockVouchers[index];
+                          final voucher = vouchers[index];
                           return VoucherItem(
                             voucher: voucher,
                             isShop: isShop,
                             onTap: () =>
-                                _navigateToVoucherDetail(voucher.voucherID!),
+                                _presenter?.handleViewVoucher(voucher),
                             onEdit: () =>
-                                _navigateToEditVoucher(voucher.voucherID!),
-                            onDelete: () => _showDeleteVoucherDialog(
-                              voucher.voucherID!,
-                              voucher.name!,
-                            ),
+                                _presenter?.handleEditVoucher(voucher),
+                            onDelete: () => _showDeleteVoucherDialog(voucher),
                           );
                         },
-                      ),
+                      );
+                    }),
               ),
               const Gap(24),
 
@@ -531,20 +559,21 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
   }
 
   // Navigation functions
-  void _navigateToEditVoucher(String voucherId) {
+  @override
+  void onVoucherEdit(VoucherModel voucher) {
     // Tìm voucher object từ ID
-    VoucherModel? voucher = _mockVouchers.firstWhere(
-      (v) => v.voucherID == voucherId,
-      orElse: () => VoucherModel(
-        voucherID: voucherId,
-        name: "Unknown Voucher",
-        description: "Voucher không xác định",
-        condition: 0,
-        endDate: DateTime.now().add(const Duration(days: 30)),
-        discount: 0,
-        quantity: 0,
-      ),
-    );
+    // VoucherModel? voucher = _mockVouchers.firstWhere(
+    //   (v) => v.voucherID == voucherId,
+    //   orElse: () => VoucherModel(
+    //     voucherID: voucherId,
+    //     name: "Unknown Voucher",
+    //     description: "Voucher không xác định",
+    //     condition: 0,
+    //     endDate: DateTime.now().add(const Duration(days: 30)),
+    //     discount: 0,
+    //     quantity: 0,
+    //   ),
+    // );
 
     Navigator.of(context).pushNamed(
       EditVoucher.routeName,
@@ -552,20 +581,21 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
     );
   }
 
-  void _navigateToVoucherDetail(String voucherId) {
+  @override
+  void onVoucherPressed(VoucherModel voucher) {
     // Tìm voucher object từ ID
-    VoucherModel? voucher = _mockVouchers.firstWhere(
-      (v) => v.voucherID == voucherId,
-      orElse: () => VoucherModel(
-        voucherID: voucherId,
-        name: "Unknown Voucher",
-        description: "Voucher không xác định",
-        condition: 0,
-        endDate: DateTime.now().add(const Duration(days: 30)),
-        discount: 0,
-        quantity: 0,
-      ),
-    );
+    // VoucherModel? voucher = _mockVouchers.firstWhere(
+    //   (v) => v.voucherID == voucherId,
+    //   orElse: () => VoucherModel(
+    //     voucherID: voucherId,
+    //     name: "Unknown Voucher",
+    //     description: "Voucher không xác định",
+    //     condition: 0,
+    //     endDate: DateTime.now().add(const Duration(days: 30)),
+    //     discount: 0,
+    //     quantity: 0,
+    //   ),
+    // );
 
     Navigator.of(context).pushNamed(
       VoucherDetail.routeName,
@@ -574,10 +604,13 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
   }
 
   void _navigateToVoucherList() {
-    Navigator.of(context).pushNamed(ListVoucher.routeName);
+    Navigator.of(context).pushNamed(
+      ListVoucher.routeName,
+      arguments: ShopArgument(shop: shop!)
+    );
   }
 
-  void _showDeleteVoucherDialog(String voucherId, String voucherName) {
+  void _showDeleteVoucherDialog(VoucherModel voucher) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -615,7 +648,7 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
                 ),
                 const Gap(12),
                 Text(
-                  'Bạn có chắc chắn muốn xóa voucher "$voucherName"?\nHành động này không thể hoàn tác.',
+                  'Bạn có chắc chắn muốn xóa voucher "${voucher.name}"?\nHành động này không thể hoàn tác.',
                   style: TextDecor.robo14.copyWith(
                     color: Colors.grey[600],
                   ),
@@ -650,8 +683,7 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
                         onPressed: () {
                           Navigator.of(context).pop();
                           // TODO: Delete voucher logic
-                          UtilWidgets.createSnackBar(
-                              context, "Đã xóa voucher: $voucherName");
+                          _presenter?.handleDeleteVoucher(voucher);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,
@@ -677,5 +709,11 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
         );
       },
     );
+  }
+
+  @override
+  void onVoucherDelete(VoucherModel voucher) {
+    UtilWidgets.createSnackBar(
+        context, "Đã xóa voucher: ${voucher.name}");
   }
 }

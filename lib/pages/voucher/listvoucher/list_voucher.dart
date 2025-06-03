@@ -1,7 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:pcplus/component/voucher_argument.dart';
 import 'package:pcplus/models/vouchers/voucher_model.dart';
+import 'package:pcplus/pages/voucher/listvoucher/list_voucher_contract.dart';
+import 'package:pcplus/pages/voucher/listvoucher/list_voucher_presenter.dart';
 import 'package:pcplus/pages/voucher/widget/voucher_item.dart';
 import 'package:pcplus/pages/voucher/editvoucher/edit_voucher.dart';
 import 'package:pcplus/pages/voucher/voucherDetail/voucher_detail.dart';
@@ -9,6 +12,9 @@ import 'package:pcplus/pages/voucher/addvoucher/add_voucher.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 import 'package:pcplus/pages/widgets/util_widgets.dart';
+
+import '../../../component/shop_argument.dart';
+import '../../../controller/session_controller.dart';
 
 class ListVoucher extends StatefulWidget {
   const ListVoucher({super.key});
@@ -18,7 +24,8 @@ class ListVoucher extends StatefulWidget {
   State<ListVoucher> createState() => _ListVoucherState();
 }
 
-class _ListVoucherState extends State<ListVoucher> {
+class _ListVoucherState extends State<ListVoucher> implements ListVoucherContract {
+  ListVoucherPresenter? _presenter;
   bool isShop = false;
   String selectedFilter = 'all';
   List<VoucherModel> _mockVouchers = [];
@@ -27,9 +34,23 @@ class _ListVoucherState extends State<ListVoucher> {
   @override
   void initState() {
     // isShop = SessionController.getInstance().isShop();
-    _initMockVouchers();
-    _applyFilter();
+    _presenter = ListVoucherPresenter(this);
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    isShop = SessionController.getInstance().isShop();
+    final args = ModalRoute.of(context)!.settings.arguments as ShopArgument;
+    _presenter!.shopModel = args.shop;
+
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    await _presenter?.getData();
   }
 
   void _initMockVouchers() {
@@ -176,9 +197,54 @@ class _ListVoucherState extends State<ListVoucher> {
 
           // Voucher list
           Expanded(
-            child: _filteredVouchers.isEmpty
-                ? _buildEmptyState()
-                : _buildVoucherList(),
+            child: StreamBuilder<List<VoucherModel>>(
+                stream: _presenter!.voucherStream,
+                builder: (context, snapshot) {
+                  Widget? result = UtilWidgets.createSnapshotResultWidget(
+                      context, snapshot);
+                  if (result != null) {
+                    return result;
+                  }
+
+                  var vouchers = snapshot.data ?? [];
+
+                  if (vouchers.isEmpty) {
+                    return _buildEmptyState();
+                  }
+
+                  // Gán mock chỉ khi data thay đổi
+                  if (!listEquals(_mockVouchers, vouchers)) {
+                    _mockVouchers = vouchers;
+
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      _applyFilter();
+                    });
+                  }
+
+                  return Container(
+                    margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                    child: ListView.builder(
+                      itemCount: _filteredVouchers.length,
+                      itemBuilder: (context, index) {
+                        final voucher = _filteredVouchers[index];
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 16),
+                          child: VoucherItem(
+                            voucher: voucher,
+                            isShop: isShop,
+                            onTap: () => _presenter!.handleViewVoucher(voucher),
+                            onEdit: isShop
+                                ? () => _presenter!.handleEditVoucher(voucher)
+                                : null,
+                            onDelete: isShop
+                                ? () => _showDeleteVoucherDialog(voucher)
+                                : null,
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                }),
           ),
         ],
       ),
@@ -382,15 +448,12 @@ class _ListVoucherState extends State<ListVoucher> {
             child: VoucherItem(
               voucher: voucher,
               isShop: isShop,
-              onTap: () => _navigateToVoucherDetail(voucher.voucherID!),
+              onTap: () => _presenter!.handleViewVoucher(voucher),
               onEdit: isShop
-                  ? () => _navigateToEditVoucher(voucher.voucherID!)
+                  ? () => _presenter!.handleEditVoucher(voucher)
                   : null,
               onDelete: isShop
-                  ? () => _showDeleteVoucherDialog(
-                        voucher.voucherID!,
-                        voucher.name!,
-                      )
+                  ? () => _showDeleteVoucherDialog(voucher)
                   : null,
             ),
           );
@@ -481,48 +544,7 @@ class _ListVoucherState extends State<ListVoucher> {
     );
   }
 
-  // Navigation functions
-  void _navigateToVoucherDetail(String voucherId) {
-    VoucherModel? voucher = _mockVouchers.firstWhere(
-      (v) => v.voucherID == voucherId,
-      orElse: () => VoucherModel(
-        voucherID: voucherId,
-        name: "Unknown Voucher",
-        description: "Voucher không xác định",
-        condition: 0,
-        endDate: DateTime.now().add(const Duration(days: 30)),
-        discount: 0,
-        quantity: 0,
-      ),
-    );
-
-    Navigator.of(context).pushNamed(
-      VoucherDetail.routeName,
-      arguments: VoucherArgument(data: voucher),
-    );
-  }
-
-  void _navigateToEditVoucher(String voucherId) {
-    VoucherModel? voucher = _mockVouchers.firstWhere(
-      (v) => v.voucherID == voucherId,
-      orElse: () => VoucherModel(
-        voucherID: voucherId,
-        name: "Unknown Voucher",
-        description: "Voucher không xác định",
-        condition: 0,
-        endDate: DateTime.now().add(const Duration(days: 30)),
-        discount: 0,
-        quantity: 0,
-      ),
-    );
-
-    Navigator.of(context).pushNamed(
-      EditVoucher.routeName,
-      arguments: VoucherArgument(data: voucher),
-    );
-  }
-
-  void _showDeleteVoucherDialog(String voucherId, String voucherName) {
+  void _showDeleteVoucherDialog(VoucherModel voucher) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -545,7 +567,7 @@ class _ListVoucherState extends State<ListVoucher> {
             ],
           ),
           content: Text(
-            'Bạn có chắc chắn muốn xóa voucher "$voucherName"?\nHành động này không thể hoàn tác.',
+            'Bạn có chắc chắn muốn xóa voucher "${voucher.name}"?\nHành động này không thể hoàn tác.',
             style: TextDecor.robo14,
           ),
           actions: [
@@ -564,14 +586,8 @@ class _ListVoucherState extends State<ListVoucher> {
               onPressed: () {
                 Navigator.pop(context);
                 // Remove voucher from list
-                setState(() {
-                  _mockVouchers.removeWhere((v) => v.voucherID == voucherId);
-                });
-                _applyFilter();
-                UtilWidgets.createSnackBar(
-                  context,
-                  'Đã xóa voucher: $voucherName',
-                );
+                _presenter!.handleDeleteVoucher(voucher);
+
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
@@ -586,6 +602,41 @@ class _ListVoucherState extends State<ListVoucher> {
           ],
         );
       },
+    );
+  }
+
+  @override
+  void onPopContext() {
+    Navigator.of(context, rootNavigator: true).pop();
+  }
+
+  @override
+  void onWaitingProgressBar() {
+    UtilWidgets.createLoadingWidget(context);
+  }
+
+  @override
+  void onVoucherDelete(VoucherModel voucher) {
+    UtilWidgets.createSnackBar(
+      context,
+      'Đã xóa voucher: ${voucher.name}',
+    );
+  }
+
+  // Navigation functions
+  @override
+  void onVoucherEdit(VoucherModel voucher) {
+    Navigator.of(context).pushNamed(
+      EditVoucher.routeName,
+      arguments: VoucherArgument(data: voucher),
+    );
+  }
+
+  @override
+  void onVoucherPressed(VoucherModel voucher) {
+    Navigator.of(context).pushNamed(
+      VoucherDetail.routeName,
+      arguments: VoucherArgument(data: voucher),
     );
   }
 }
