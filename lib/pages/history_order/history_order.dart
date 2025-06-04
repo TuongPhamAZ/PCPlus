@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pcplus/const/order_status.dart';
 import 'package:pcplus/themes/text_decor.dart';
 
 import '../../models/bills/bill_model.dart';
@@ -74,10 +75,15 @@ class _HistoryOrderState extends State<HistoryOrder>
                     return result;
                   }
 
-                  final orders = snapshot.data ?? [];
+                  var orders = snapshot.data ?? [];
+
+                  // Filter order
+                  if (widget.orderType.isNotEmpty) {
+                    orders = orders.where((v) => v.status == _presenter!.orderType).toList();
+                  }
 
                   if (orders.isEmpty) {
-                    return const Center(child: Text('No data'));
+                    return const Center(child: Text(''));
                   }
 
                   return ListView.builder(
@@ -102,14 +108,14 @@ class _HistoryOrderState extends State<HistoryOrder>
                   final orders = snapshot.data ?? [];
 
                   if (orders.isEmpty) {
-                    return const Center(child: Text('No data'));
+                    return const Center(child: Text(''));
                   }
 
                   Map<BillShopModel, BillModel> billsAndShopsMap = {};
 
                   for (BillModel bill in orders) {
                     for (BillShopModel billShop in bill.shops!) {
-                      if (billShop.status != widget.orderType) {
+                      if (widget.orderType.isNotEmpty && billShop.status != widget.orderType) {
                         continue;
                       }
                       billsAndShopsMap[billShop] = bill;

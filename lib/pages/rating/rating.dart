@@ -72,7 +72,7 @@ class _RatingScreenState extends State<RatingScreen> implements RatingScreenCont
                   final awaitRatings = snapshot.data ?? [];
 
                   if (awaitRatings.isEmpty) {
-                    return const Center(child: Text('No data'));
+                    return const Center(child: Text(''));
                   }
 
                   List<AwaitRatingModel> items = [];
