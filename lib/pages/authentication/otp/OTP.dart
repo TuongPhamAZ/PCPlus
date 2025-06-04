@@ -43,7 +43,6 @@ class _OTPScreenState extends State<OTPScreen> implements OtpViewContract {
   @override
   void initState() {
     _otpPresenter = OtpPresenter(this);
-    _otpPresenter!.initSendPinCode();
     super.initState();
   }
 
@@ -54,7 +53,7 @@ class _OTPScreenState extends State<OTPScreen> implements OtpViewContract {
     final args = ModalRoute.of(context)!.settings.arguments as RegisterArgument;
 
     _otpPresenter?.email = args.email;
-    
+    _otpPresenter!.initSendPinCode();
   }
 
   @override
