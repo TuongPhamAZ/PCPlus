@@ -340,6 +340,7 @@ class _SearchScreenState extends State<SearchScreen> implements SearchScreenCont
   Future<void> _startListening() async {
     bool isAvailable = await SpeechToTextGoogleDialog.getInstance().showGoogleDialog(
       onTextReceived: (text) {
+        _searchController.text = text.trim();
         _presenter?.handleSearch(text);
       },
       locale: 'vi-VN',
