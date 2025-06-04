@@ -59,7 +59,10 @@ class HistoryOrderPresenter {
   }
 
   Widget? createHistoryOrderItemForUser(BillModel order, String shopID) {
-    switch (orderType) {
+
+    String type = orderType.isNotEmpty ? orderType : order.getBillShopModel(shopID)!.status!;
+
+    switch (type) {
       case OrderStatus.PENDING_CONFIRMATION:
         return OrderItemFactory.createNormalOrderWidget(this, order, shopID);
       case OrderStatus.AWAIT_PICKUP:
@@ -76,21 +79,23 @@ class HistoryOrderPresenter {
   }
 
   Widget? createHistoryOrderItemForShop(BillOfShopModel order) {
-    String shopID = shop!.shopID!;
+    String shopName = shop!.name!;
 
-    switch (orderType) {
+    String type = orderType.isNotEmpty ? orderType : order.status!;
+
+    switch (type) {
       case OrderStatus.PENDING_CONFIRMATION:
-        return OrderItemForShopFactory.createNeedConfirmOrderWidget(this, order, shopID);
+        return OrderItemForShopFactory.createNeedConfirmOrderWidget(this, order, shopName);
       case OrderStatus.AWAIT_PICKUP:
-        return OrderItemForShopFactory.createSentOrderWidget(this, order, shopID);
+        return OrderItemForShopFactory.createSentOrderWidget(this, order, shopName);
       case OrderStatus.AWAIT_DELIVERY:
-        return OrderItemForShopFactory.createNormalOrderWidget(this, order, shopID);
+        return OrderItemForShopFactory.createNormalOrderWidget(this, order, shopName);
       case OrderStatus.AWAIT_RATING:
-        return OrderItemForShopFactory.createNormalOrderWidget(this, order, shopID);
+        return OrderItemForShopFactory.createNormalOrderWidget(this, order, shopName);
       case OrderStatus.COMPLETED:
-        return OrderItemForShopFactory.createNormalOrderWidget(this, order, shopID);
+        return OrderItemForShopFactory.createNormalOrderWidget(this, order, shopName);
       default:
-        return OrderItemForShopFactory.createNormalOrderWidget(this, order, shopID);
+        return OrderItemForShopFactory.createNormalOrderWidget(this, order, shopName);
     }
   }
 
@@ -191,7 +196,7 @@ class HistoryOrderPresenter {
   Future<void> handleConfirmOrderForShop(BillOfShopModel model) async {
     _view.onWaitingProgressBar();
 
-    BillModel? billModel = await _billRepo.getBill(model.userID!, shop!.shopID!);
+    BillModel? billModel = await _billRepo.getBill(model.userID!, model.billID!);
     if (billModel == null) {
       _view.onPopContext();
       _view.onError("Đã có lỗi xảy ra. Hãy thử lại sau.");
@@ -215,7 +220,7 @@ class HistoryOrderPresenter {
   Future<void> handleSentOrderForShop(BillOfShopModel model) async {
     _view.onWaitingProgressBar();
 
-    BillModel? billModel = await _billRepo.getBill(model.userID!, shop!.shopID!);
+    BillModel? billModel = await _billRepo.getBill(model.userID!, model.billID!);
     if (billModel == null) {
       _view.onPopContext();
       _view.onError("Đã có lỗi xảy ra. Hãy thử lại sau.");
@@ -233,6 +238,6 @@ class HistoryOrderPresenter {
       billOfShops.remove(model);
     }
     _view.onPopContext();
-    _view.onLoadDataSucceeded();
+    // _view.onLoadDataSucceeded();
   }
 }
