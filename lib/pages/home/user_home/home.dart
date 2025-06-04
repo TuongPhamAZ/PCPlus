@@ -268,10 +268,10 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
   }
 
   @override
-  void onSearch() {
+  void onSearch(String text) {
     Navigator.of(context).pushNamed(
         SearchScreen.routeName,
-        arguments: SearchArgument(query: _searchController.text.trim()),
+        arguments: SearchArgument(query: text.trim()),
     );
   }
 
