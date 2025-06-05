@@ -16,13 +16,13 @@ import 'package:pcplus/pages/home/shop_home/shop_home_presenter.dart';
 import 'package:pcplus/pages/voucher/widget/voucher_item.dart';
 import 'package:pcplus/pages/voucher/editvoucher/edit_voucher.dart';
 import 'package:pcplus/pages/voucher/voucherDetail/voucher_detail.dart';
-import 'package:pcplus/services/utility.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 import 'package:pcplus/pages/manage_product/add_product/add_product.dart';
 import 'package:pcplus/pages/manage_product/detail_product/detail_product.dart';
 import 'package:pcplus/pages/voucher/addvoucher/add_voucher.dart';
 import 'package:pcplus/pages/voucher/listvoucher/list_voucher.dart';
+import 'package:pcplus/pages/conversations/conversations.dart';
 import '../../../models/shops/shop_model.dart';
 import '../../manage_product/edit_product/edit_product.dart';
 import '../../widgets/bottom/shop_bottom_bar.dart';
@@ -49,6 +49,10 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
   String shopName = "";
   String shopPhone = "";
   String location = "";
+
+  // Balance related variables
+  double balance = 15750000; // Mock balance
+  bool isBalanceVisible = false; // State to show/hide balance
 
   // Mock voucher data
   List<VoucherModel> _mockVouchers = [];
@@ -176,49 +180,112 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
                     ),
                   ),
                   const Gap(10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Text(
-                        shopName,
-                        style: TextDecor.robo24Bold.copyWith(
-                          color: Palette.primaryColor,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Text(
+                          shopName,
+                          style: TextDecor.robo24Bold.copyWith(
+                            color: Palette.primaryColor,
+                          ),
                         ),
-                      ),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.phone,
-                            color: Colors.black,
-                            size: 24,
-                          ),
-                          const Gap(10),
-                          Text(
-                            shopPhone,
-                            style: TextDecor.robo18.copyWith(
+                        const Gap(4),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.phone,
                               color: Colors.black,
+                              size: 20,
+                            ),
+                            const Gap(8),
+                            Text(
+                              shopPhone,
+                              style: TextDecor.robo16.copyWith(
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Gap(4),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.location_on,
+                              color: Colors.black,
+                              size: 20,
+                            ),
+                            const Gap(8),
+                            Flexible(
+                              child: Text(
+                                location,
+                                style: TextDecor.robo16.copyWith(
+                                  color: Colors.black,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                        // Hiển thị số dư khi là shop
+                        if (isShop) ...[
+                          const Gap(8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Palette.primaryColor.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: Palette.primaryColor.withOpacity(0.3),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.account_balance_wallet,
+                                  color: Palette.primaryColor,
+                                  size: 18,
+                                ),
+                                const Gap(8),
+                                Text(
+                                  'Số dư: ',
+                                  style: TextDecor.robo14.copyWith(
+                                    color: Palette.primaryColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Text(
+                                  isBalanceVisible
+                                      ? '${balance.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}đ'
+                                      : '••••••••',
+                                  style: TextDecor.robo14.copyWith(
+                                    color: Palette.primaryColor,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const Gap(8),
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      isBalanceVisible = !isBalanceVisible;
+                                    });
+                                  },
+                                  child: Icon(
+                                    isBalanceVisible
+                                        ? Icons.visibility_off
+                                        : Icons.visibility,
+                                    color: Palette.primaryColor,
+                                    size: 18,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
-                      ),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.location_on,
-                            color: Colors.black,
-                            size: 28,
-                          ),
-                          const Gap(5),
-                          Text(
-                            location,
-                            style: TextDecor.robo18.copyWith(
-                              color: Colors.black,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -235,14 +302,13 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
                       children: [
                         ValueListenableBuilder<int>(
                           valueListenable: _voucherCount,
-                          builder: (context, value, _) =>
-                              Text(
-                                'Xem tất cả ($value)',
-                                style: TextDecor.robo14.copyWith(
-                                  color: Palette.primaryColor,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
+                          builder: (context, value, _) => Text(
+                            'Xem tất cả ($value)',
+                            style: TextDecor.robo14.copyWith(
+                              color: Palette.primaryColor,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ),
                         const Gap(4),
                         const Icon(
@@ -271,8 +337,11 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
 
                       if (SessionController.getInstance().isSeller == false) {
                         // lọc các voucher không khả dụng cho người dùng
-                        vouchers = vouchers.where(
-                                (v) => v.quantity! > 0 && v.endDate!.isAfter(DateTime.now())).toList();
+                        vouchers = vouchers
+                            .where((v) =>
+                                v.quantity! > 0 &&
+                                v.endDate!.isAfter(DateTime.now()))
+                            .toList();
                       }
 
                       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -317,8 +386,7 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
                           return VoucherItem(
                             voucher: voucher,
                             isShop: isShop,
-                            onTap: () =>
-                                _presenter?.handleViewVoucher(voucher),
+                            onTap: () => _presenter?.handleViewVoucher(voucher),
                             onEdit: () =>
                                 _presenter?.handleEditVoucher(voucher),
                             onDelete: () => _showDeleteVoucherDialog(voucher),
@@ -376,12 +444,36 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
         ),
       ),
       floatingActionButton: isShop
-          ? FloatingActionButton(
-              onPressed: _showAddOptionsDialog,
-              child: const Icon(
-                Icons.add,
-                size: 36,
-              ),
+          ? Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                // Chat floating button
+                FloatingActionButton(
+                  heroTag:
+                      "chat_fab", // Unique tag to avoid hero animation conflicts
+                  onPressed: () {
+                    Navigator.pushNamed(context, ConversationsScreen.routeName);
+                  },
+                  backgroundColor: Colors.green,
+                  child: const Icon(
+                    Icons.chat,
+                    color: Colors.white,
+                  ),
+                ),
+                const Gap(16),
+                // Add floating button
+                FloatingActionButton(
+                  heroTag:
+                      "add_fab", // Unique tag to avoid hero animation conflicts
+                  onPressed: _showAddOptionsDialog,
+                  backgroundColor: Palette.primaryColor,
+                  child: const Icon(
+                    Icons.add,
+                    size: 36,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
             )
           : null,
       bottomNavigationBar: isShop ? const ShopBottomBar(currentIndex: 0) : null,
@@ -604,10 +696,8 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
   }
 
   void _navigateToVoucherList() {
-    Navigator.of(context).pushNamed(
-      ListVoucher.routeName,
-      arguments: ShopArgument(shop: shop!)
-    );
+    Navigator.of(context)
+        .pushNamed(ListVoucher.routeName, arguments: ShopArgument(shop: shop!));
   }
 
   void _showDeleteVoucherDialog(VoucherModel voucher) {
@@ -713,7 +803,6 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
 
   @override
   void onVoucherDelete(VoucherModel voucher) {
-    UtilWidgets.createSnackBar(
-        context, "Đã xóa voucher: ${voucher.name}");
+    UtilWidgets.createSnackBar(context, "Đã xóa voucher: ${voucher.name}");
   }
 }

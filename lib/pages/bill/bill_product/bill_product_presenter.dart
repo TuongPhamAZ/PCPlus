@@ -37,6 +37,7 @@ class BillProductPresenter {
 
   ShipInformationModel? address;
   String? userId;
+  String paymentMethod = 'Cash on delivery'; // Thêm payment method
 
   Stream<List<ItemInCartWithSeller>>? inCartItemsStream;
   List<ItemInCartWithSeller>? onPaymentItems;
@@ -89,13 +90,24 @@ class BillProductPresenter {
     await _userRepo.updateUser(user);
   }
 
+  // Thêm method xử lý thay đổi payment method
+  void handlePaymentMethodChanged(String newPaymentMethod) {
+    paymentMethod = newPaymentMethod;
+    _view.onPaymentMethodChanged();
+  }
+
   Future<void> handleOrder(ShipInformationModel address) async {
     if (address.isValid() == false) {
       _view.onBuyFailed("Vui lòng chọn địa chỉ giao hàng");
       return;
     }
 
-    _view.onWaitingForPayment();
+    // Kiểm tra payment method và hiển thị dialog tương ứng
+    if (paymentMethod == 'Pay with ZaloPay') {
+      _view.onShowPaymentWaitingDialog();
+    } else {
+      _view.onWaitingForPayment();
+    }
 
     bool canBuy = validateOnPaymentItem();
 
@@ -127,19 +139,31 @@ class BillProductPresenter {
 
     DateTime orderDate = DateTime.now();
 
+    String paymentTypeString = paymentMethod == 'Pay with ZaloPay'
+        ? PaymentType.byMomo
+        : PaymentType.byCashOnDelivery;
+
     BillModel newBill = BillModel(
       billID: billID,
       userID: userId,
       shops: billShops!.values.toList(),
       orderDate: orderDate,
       shipInformation: user.shipInformationModel,
-      paymentType: PaymentType.byCashOnDelivery,
+      paymentType: paymentTypeString,
       totalPrice: 0,
     );
 
     // Tính tiền
     newBill.toJson();
-    await _handleZaloPayRequest(newBill.totalPrice!, newBill);
+
+    if (paymentMethod == 'Pay with ZaloPay') {
+      await _handleZaloPayRequest(newBill.totalPrice!, newBill);
+    } else {
+      // Cash on delivery - xử lý trực tiếp
+      await _processDataAfterPayment(newBill);
+      _view.onPopContext();
+      _view.onBuy();
+    }
   }
 
   Future<void> _processDataAfterPayment(BillModel newBill) async {
@@ -158,9 +182,10 @@ class BillProductPresenter {
 
     for (BillShopModel shop in newBill.shops!) {
       BillOfShopModel? billOfShopModel =
-      newBill.toBillOfShopModel(shop.shopID!);
+          newBill.toBillOfShopModel(shop.shopID!);
       if (billOfShopModel == null) {
-        debugPrint("Line 159 (bill_product_presenter): billOfShopModel == null!");
+        debugPrint(
+            "Line 159 (bill_product_presenter): billOfShopModel == null!");
         return;
       }
       // Tạo Bill trong shop
@@ -243,34 +268,40 @@ class BillProductPresenter {
     _view.onBack();
   }
 
+  // Thêm method để xử lý đổi phương thức thanh toán từ dialog
+  void handleChangePaymentMethodFromDialog() {
+    _view.onPopContext(); // Đóng dialog
+  }
+
   // TODO: ZALOPAY HANDLER
 
   Future<void> _handleZaloPayRequest(int amount, BillModel newBill) async {
     try {
-      _view.onWaitingForPayment();
-
       // Tạo order
       ZaloResult zaloResult = ZaloResult();
-      var orderResult = await _zaloPayService.createZaloPayOrder(amount, zaloResult);
+      var orderResult =
+          await _zaloPayService.createZaloPayOrder(amount, zaloResult);
 
-      if (orderResult != null &&
-          orderResult.zptranstoken.isNotEmpty) {
+      if (orderResult != null && orderResult.zptranstoken.isNotEmpty) {
         // Thực hiện payment
-        ZaloStatus? zaloStatus = await _zaloPayService.handleZaloPayOrder(orderResult, amount);
+        ZaloStatus? zaloStatus =
+            await _zaloPayService.handleZaloPayOrder(orderResult, amount);
 
         if (zaloStatus != null) {
           await _processDataAfterPayment(newBill);
           _view.onPopContext();
           await Future.delayed(const Duration(milliseconds: 100));
-          _view.onShowResultDialog(zaloStatus.title, zaloStatus.message, zaloStatus.isSuccess);
+          _view.onShowResultDialog(
+              zaloStatus.title, zaloStatus.message, zaloStatus.isSuccess);
         } else {
           _view.onPopContext();
-          _view.onShowResultDialog("Lỗi", "Không thể tạo đơn hàng. Vui lòng thử lại", false);
+          _view.onShowResultDialog(
+              "Lỗi", "Không thể tạo đơn hàng. Vui lòng thử lại", false);
         }
-
       } else {
         _view.onPopContext();
-        _view.onShowResultDialog("Lỗi", "Không thể tạo đơn hàng. Vui lòng thử lại", false);
+        _view.onShowResultDialog(
+            "Lỗi", "Không thể tạo đơn hàng. Vui lòng thử lại", false);
       }
     } catch (e) {
       _view.onPopContext();

@@ -19,6 +19,7 @@ import 'package:pcplus/pages/widgets/listItem/review_item.dart';
 import 'package:pcplus/pages/widgets/price_display_widget.dart';
 import 'package:pcplus/pages/widgets/color_selection_widget.dart';
 import 'package:pcplus/pages/manage_product/edit_product/edit_product.dart';
+import 'package:pcplus/pages/chat_detail/chat_detail.dart';
 
 import '../../../models/shops/shop_model.dart';
 import '../../../objects/review_data.dart';
@@ -483,7 +484,7 @@ class _DetailProductState extends State<DetailProduct>
                                           const Gap(4),
                                           Row(
                                             children: [
-                                              Icon(
+                                              const Icon(
                                                 Icons.store,
                                                 color: Palette.primaryColor,
                                                 size: 16,
@@ -526,7 +527,7 @@ class _DetailProductState extends State<DetailProduct>
                                               borderRadius:
                                                   BorderRadius.circular(8),
                                             ),
-                                            child: Icon(
+                                            child: const Icon(
                                               Icons.phone,
                                               color: Colors.blue,
                                               size: 18,
@@ -554,7 +555,7 @@ class _DetailProductState extends State<DetailProduct>
                                               borderRadius:
                                                   BorderRadius.circular(8),
                                             ),
-                                            child: Icon(
+                                            child: const Icon(
                                               Icons.location_on,
                                               color: Colors.orange,
                                               size: 18,
@@ -580,8 +581,8 @@ class _DetailProductState extends State<DetailProduct>
                                     Expanded(
                                       child: InkWell(
                                         onTap: () {
-                                          // TODO: Xử lý logic nhắn tin
-                                          print("Nhắn tin với shop: $shopName");
+                                          // Gọi presenter để xử lý logic nhắn tin
+                                          _presenter?.handleChatWithShop();
                                         },
                                         child: Container(
                                           height: 45,
@@ -602,7 +603,7 @@ class _DetailProductState extends State<DetailProduct>
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
                                             children: [
-                                              Icon(
+                                              const Icon(
                                                 Icons.chat_bubble_outline,
                                                 color: Colors.white,
                                                 size: 20,
@@ -642,7 +643,7 @@ class _DetailProductState extends State<DetailProduct>
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
                                             children: [
-                                              Icon(
+                                              const Icon(
                                                 Icons.store_outlined,
                                                 color: Palette.primaryColor,
                                                 size: 20,
@@ -1015,5 +1016,16 @@ class _DetailProductState extends State<DetailProduct>
       'Phản hồi đã được gửi thành công!',
       backgroundColor: Colors.green,
     );
+  }
+
+  @override
+  void onChatWithShop() {
+    if (_presenter?.currentConversation != null) {
+      Navigator.pushNamed(
+        context,
+        ChatDetailScreen.routeName,
+        arguments: _presenter!.currentConversation,
+      );
+    }
   }
 }

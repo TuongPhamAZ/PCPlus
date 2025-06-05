@@ -8,6 +8,7 @@ import 'package:pcplus/factories/widget_factories/new_item_factory.dart';
 import 'package:pcplus/factories/widget_factories/suggest_item_factory.dart';
 import 'package:pcplus/models/items/item_with_seller.dart';
 import 'package:pcplus/pages/home/user_home/home_contract.dart';
+import 'package:pcplus/pages/conversations/conversations.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 import 'package:pcplus/pages/manage_product/detail_product/detail_product.dart';
@@ -56,185 +57,221 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-      body: isLoading ? UtilWidgets.getLoadingWidget() : SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 45),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                height: 42,
-                width: double.infinity,
-                child: TextField(
-                  onTapOutside: (event) {
-                    FocusScope.of(context).unfocus();
-                  },
-                  onChanged: (value) {},
-                  onSubmitted: (value) {
-                    _presenter!.handleSearch(_searchController.text.trim());
-                  },
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(color: Palette.primaryColor, width: 1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(
-                          color: Palette.primaryColor, width: 1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    contentPadding: const EdgeInsets.only(top: 4),
-                    prefixIcon: InkWell(
-                      customBorder: const CircleBorder(),
-                      onTap: () {
-                        _presenter!.handleSearch(_searchController.text.trim());
-                      },
-                      child: const Icon(
-                        FontAwesomeIcons.magnifyingGlass,
-                        size: 16,
-                        //color: Palette.greenText,
-                      ),
-                    ),
-                    suffixIcon: InkWell(
-                      customBorder: const CircleBorder(),
-                      onTap: () {
-                        _startListening();
-                      },
-                      child: const Icon(
-                        FontAwesomeIcons.microphone,
-                        size: 16,
-                        //color: Palette.greenText,
-                      ),
-                    ),
-                    hintText: 'Search',
-                    hintStyle: const TextStyle(
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                height: 200,
-                padding: const EdgeInsets.only(top: 12),
-                child: Stack(
-                  alignment: Alignment.bottomRight,
+      body: isLoading
+          ? UtilWidgets.getLoadingWidget()
+          : SingleChildScrollView(
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 45),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      height: 145,
+                    SizedBox(
+                      height: 42,
                       width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Palette.primaryColor,
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Music and No more",
-                            style: TextDecor.robo24Medi,
+                      child: TextField(
+                        onTapOutside: (event) {
+                          FocusScope.of(context).unfocus();
+                        },
+                        onChanged: (value) {},
+                        onSubmitted: (value) {
+                          _presenter!
+                              .handleSearch(_searchController.text.trim());
+                        },
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                                color: Palette.primaryColor, width: 1),
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                          const Gap(5),
-                          Text(
-                            "10% off for One of the best\nheadphones in the world",
-                            style: TextDecor.robo12,
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                                color: Palette.primaryColor, width: 1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          contentPadding: const EdgeInsets.only(top: 4),
+                          prefixIcon: InkWell(
+                            customBorder: const CircleBorder(),
+                            onTap: () {
+                              _presenter!
+                                  .handleSearch(_searchController.text.trim());
+                            },
+                            child: const Icon(
+                              FontAwesomeIcons.magnifyingGlass,
+                              size: 16,
+                              //color: Palette.greenText,
+                            ),
+                          ),
+                          suffixIcon: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Microphone icon
+                              InkWell(
+                                customBorder: const CircleBorder(),
+                                onTap: () {
+                                  _startListening();
+                                },
+                                child: const Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Icon(
+                                    FontAwesomeIcons.microphone,
+                                    size: 16,
+                                  ),
+                                ),
+                              ),
+                              // Camera icon
+                              InkWell(
+                                customBorder: const CircleBorder(),
+                                onTap: () {
+                                  _startImageSearch();
+                                },
+                                child: const Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Icon(
+                                    FontAwesomeIcons.camera,
+                                    size: 16,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          hintText: 'Search',
+                          hintStyle: const TextStyle(
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      height: 200,
+                      padding: const EdgeInsets.only(top: 12),
+                      child: Stack(
+                        alignment: Alignment.bottomRight,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            height: 145,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: Palette.primaryColor,
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Music and No more",
+                                  style: TextDecor.robo24Medi,
+                                ),
+                                const Gap(5),
+                                Text(
+                                  "10% off for One of the best\nheadphones in the world",
+                                  style: TextDecor.robo12,
+                                ),
+                              ],
+                            ),
+                          ),
+                          Image.asset(
+                            AssetHelper.sampleImage,
                           ),
                         ],
                       ),
                     ),
-                    Image.asset(
-                      AssetHelper.sampleImage,
+                    const Gap(30),
+                    Text('New Products', style: TextDecor.robo18Bold),
+                    const Gap(10),
+                    SizedBox(
+                      height: 285,
+                      width: size.width,
+                      child: StreamBuilder<List<ItemWithSeller>>(
+                          stream: _presenter!.newestItemStream,
+                          builder: (context, snapshot) {
+                            Widget? result =
+                                UtilWidgets.createSnapshotResultWidget(
+                                    context, snapshot);
+                            if (result != null) {
+                              return result;
+                            }
+
+                            final itemsWithSeller = snapshot.data ?? [];
+
+                            if (itemsWithSeller.isEmpty) {
+                              return const Center(child: Text('No data'));
+                            }
+
+                            return ListView.builder(
+                              shrinkWrap: true,
+                              padding: EdgeInsets.zero,
+                              scrollDirection: Axis.horizontal,
+                              itemCount: itemsWithSeller.length,
+                              itemBuilder: (context, index) {
+                                return NewItemFactory.create(
+                                    itemWithSeller: itemsWithSeller[index],
+                                    command: HomeItemPressedCommand(
+                                        presenter: _presenter!,
+                                        item: itemsWithSeller[index]));
+                              },
+                            );
+                          }),
                     ),
+                    const Gap(30),
+                    Text('Suggestions for you', style: TextDecor.robo18Bold),
+                    const Gap(10),
+                    StreamBuilder<List<ItemWithSeller>>(
+                        stream: _presenter!.recommendedItemStream,
+                        builder: (context, snapshot) {
+                          Widget? result =
+                              UtilWidgets.createSnapshotResultWidget(
+                                  context, snapshot);
+                          if (result != null) {
+                            return result;
+                          }
+
+                          final itemsWithSeller = snapshot.data ?? [];
+
+                          if (itemsWithSeller.isEmpty) {
+                            return const Center(child: Text('No data'));
+                          }
+
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            padding: EdgeInsets.zero,
+                            physics: const NeverScrollableScrollPhysics(),
+                            scrollDirection: Axis.vertical,
+                            itemCount: itemsWithSeller.length,
+                            itemBuilder: (context, index) {
+                              return SuggestItemFactory.create(
+                                  itemWithSeller: itemsWithSeller[index],
+                                  command: HomeItemPressedCommand(
+                                      presenter: _presenter!,
+                                      item: itemsWithSeller[index]));
+                            },
+                          );
+                        }),
                   ],
                 ),
               ),
-              const Gap(30),
-              Text('New Products', style: TextDecor.robo18Bold),
-              const Gap(10),
-              SizedBox(
-                height: 285,
-                width: size.width,
-                child: StreamBuilder<List<ItemWithSeller>>(
-                    stream: _presenter!.newestItemStream,
-                    builder: (context, snapshot) {
-                      Widget? result = UtilWidgets.createSnapshotResultWidget(context, snapshot);
-                      if (result != null) {
-                        return result;
-                      }
-
-                      final itemsWithSeller = snapshot.data ?? [];
-
-                      if (itemsWithSeller.isEmpty) {
-                        return const Center(child: Text('No data'));
-                      }
-
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        padding: EdgeInsets.zero,
-                        scrollDirection: Axis.horizontal,
-                        itemCount: itemsWithSeller.length,
-                        itemBuilder: (context, index) {
-                          return NewItemFactory.create(
-                              itemWithSeller: itemsWithSeller[index],
-                              command: HomeItemPressedCommand(
-                                  presenter: _presenter!,
-                                  item: itemsWithSeller[index]
-                              )
-                          );
-                        },
-                      );
-                    }
-                  ),
-              ),
-              const Gap(30),
-              Text('Suggestions for you', style: TextDecor.robo18Bold),
-              const Gap(10),
-              StreamBuilder<List<ItemWithSeller>>(
-                  stream: _presenter!.recommendedItemStream,
-                  builder: (context, snapshot) {
-                    Widget? result = UtilWidgets.createSnapshotResultWidget(context, snapshot);
-                    if (result != null) {
-                      return result;
-                    }
-
-                    final itemsWithSeller = snapshot.data ?? [];
-
-                    if (itemsWithSeller.isEmpty) {
-                      return const Center(child: Text('No data'));
-                    }
-
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      padding: EdgeInsets.zero,
-                      physics: const NeverScrollableScrollPhysics(),
-                      scrollDirection: Axis.vertical,
-                      itemCount: itemsWithSeller.length,
-                      itemBuilder: (context, index) {
-                        return SuggestItemFactory.create(
-                            itemWithSeller: itemsWithSeller[index],
-                            command: HomeItemPressedCommand(
-                                presenter: _presenter!,
-                                item: itemsWithSeller[index]
-                            )
-                        );
-                      },
-                    );
-                  }
-              ),
-            ],
-          ),
+            ),
+      bottomNavigationBar: const BottomBarCustom(currentIndex: 0),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushNamed(context, ConversationsScreen.routeName);
+        },
+        backgroundColor: Palette.primaryColor,
+        child: const Icon(
+          Icons.chat,
+          color: Colors.white,
         ),
       ),
-      bottomNavigationBar: const BottomBarCustom(currentIndex: 0),
     );
   }
 
   // ===========================================================================
 
   Future<void> _startListening() async {
-    bool isAvailable = await SpeechToTextGoogleDialog.getInstance().showGoogleDialog(
+    bool isAvailable =
+        await SpeechToTextGoogleDialog.getInstance().showGoogleDialog(
       onTextReceived: (text) {
         _presenter?.handleSearch(text);
       },
@@ -246,8 +283,19 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
     }
 
     if (!isAvailable) {
-      UtilWidgets.createSnackBar(context, 'Không thể mở Google Speech Dialog', backgroundColor: Colors.red);
+      UtilWidgets.createSnackBar(context, 'Không thể mở Google Speech Dialog',
+          backgroundColor: Colors.red);
     }
+  }
+
+  // Placeholder method for image search functionality
+  Future<void> _startImageSearch() async {
+    // TODO: Implement image search functionality
+    UtilWidgets.createSnackBar(
+      context,
+      'Tính năng tìm kiếm bằng hình ảnh đang được phát triển',
+      backgroundColor: Colors.orange,
+    );
   }
 
   // ===========================================================================
@@ -262,16 +310,16 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
   @override
   void onItemPressed(ItemWithSeller itemData) {
     Navigator.of(context).pushNamed(
-        DetailProduct.routeName,
-        arguments: ItemArgument(data: itemData),
+      DetailProduct.routeName,
+      arguments: ItemArgument(data: itemData),
     );
   }
 
   @override
   void onSearch(String text) {
     Navigator.of(context).pushNamed(
-        SearchScreen.routeName,
-        arguments: SearchArgument(query: text.trim()),
+      SearchScreen.routeName,
+      arguments: SearchArgument(query: text.trim()),
     );
   }
 

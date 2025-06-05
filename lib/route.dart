@@ -7,6 +7,8 @@ import 'package:pcplus/pages/history_order/history_order.dart';
 import 'package:pcplus/pages/manage_product/add_product/add_product.dart';
 import 'package:pcplus/pages/bill/bill_product/bill_product.dart';
 import 'package:pcplus/pages/bill/delivery_choice/delivery_choice.dart';
+import 'package:pcplus/pages/bill/payment_choice/payment_choice.dart';
+import 'package:pcplus/pages/bill/list_voucher/list_voucher_choice.dart';
 import 'package:pcplus/pages/cart/cart_shopping.dart';
 import 'package:pcplus/pages/user/change_password/change_password.dart';
 import 'package:pcplus/pages/delivery/delivery_infor.dart';
@@ -29,10 +31,13 @@ import 'package:pcplus/pages/voucher/addvoucher/add_voucher.dart';
 import 'package:pcplus/pages/voucher/editvoucher/edit_voucher.dart';
 import 'package:pcplus/pages/voucher/listvoucher/list_voucher.dart';
 import 'package:pcplus/pages/voucher/voucherDetail/voucher_detail.dart';
+import 'package:pcplus/pages/conversations/conversations.dart';
+import 'package:pcplus/pages/chat_detail/chat_detail.dart';
 import 'package:pcplus/sample/comment.dart';
 import 'package:pcplus/sample/voice_search.dart';
 
 import 'models/users/ship_infor_model.dart';
+import 'models/chat/message_model.dart';
 
 final Map<String, WidgetBuilder> routes = {
   SplashScreen.routeName: (context) => const SplashScreen(),
@@ -53,6 +58,11 @@ final Map<String, WidgetBuilder> routes = {
   DetailProduct.routeName: (context) => const DetailProduct(),
   BillProduct.routeName: (context) => const BillProduct(),
   DeliveryChoice.routeName: (context) => const DeliveryChoice(),
+  PaymentChoice.routeName: (context) => const PaymentChoice(),
+  ListVoucherChoice.routeName: (context) => const ListVoucherChoice(
+        shopId: '',
+        orderAmount: 0,
+      ),
   DeliveryInfor.routeName: (context) =>
       DeliveryInfor(currentAddress: ShipInformationModel.emptyAddress),
   SearchScreen.routeName: (context) => const SearchScreen(),
@@ -68,6 +78,12 @@ final Map<String, WidgetBuilder> routes = {
   EditVoucher.routeName: (context) => const EditVoucher(),
   ListVoucher.routeName: (context) => const ListVoucher(),
   VoucherDetail.routeName: (context) => const VoucherDetail(),
+  ConversationsScreen.routeName: (context) => const ConversationsScreen(),
+  ChatDetailScreen.routeName: (context) {
+    final conversation =
+        ModalRoute.of(context)!.settings.arguments as ConversationModel;
+    return ChatDetailScreen(conversation: conversation);
+  },
   SampleComment.routeName: (context) => const SampleComment(),
   VoiceSearchSample.routeName: (context) => const VoiceSearchSample(),
 };

@@ -11,4 +11,5 @@ abstract class DetailProductContract {
   void onError(String message);
   void onResponseRatingFailed(String message);
   void onResponseRatingSuccess();
+  void onChatWithShop();
 }

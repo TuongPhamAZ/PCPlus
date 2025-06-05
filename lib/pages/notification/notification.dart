@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:pcplus/commands/notification/notification_pressed_command.dart';
 import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/pages/notification/notification_screen_contract.dart';
@@ -19,7 +20,8 @@ class NotificationScreen extends StatefulWidget {
   State<NotificationScreen> createState() => _NotificationScreenState();
 }
 
-class _NotificationScreenState extends State<NotificationScreen> implements NotificationScreenContract {
+class _NotificationScreenState extends State<NotificationScreen>
+    implements NotificationScreenContract {
   NotificationScreenPresenter? _presenter;
 
   bool isShop = false;
@@ -59,11 +61,11 @@ class _NotificationScreenState extends State<NotificationScreen> implements Noti
           // ignore: deprecated_member_use
           color: Colors.grey.withOpacity(0.0),
         ),
-        child:
-        StreamBuilder<List<NotificationModel>>(
+        child: StreamBuilder<List<NotificationModel>>(
             stream: _presenter!.notificationStream,
             builder: (context, snapshot) {
-              Widget? result = UtilWidgets.createSnapshotResultWidget(context, snapshot);
+              Widget? result =
+                  UtilWidgets.createSnapshotResultWidget(context, snapshot);
               if (result != null) {
                 return result;
               }
@@ -71,7 +73,45 @@ class _NotificationScreenState extends State<NotificationScreen> implements Noti
               final notifications = snapshot.data ?? [];
 
               if (notifications.isEmpty) {
-                return const Center(child: Text('No data'));
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.notifications_off_outlined,
+                            size: 64,
+                            color: Colors.grey.shade400,
+                          ),
+                        ),
+                        const Gap(24),
+                        Text(
+                          'Chưa có thông báo nào',
+                          style: TextDecor.robo18Semi.copyWith(
+                            color: Colors.grey.shade700,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const Gap(12),
+                        Text(
+                          'Bạn sẽ nhận được thông báo về đơn hàng, khuyến mãi và tin tức mới nhất tại đây',
+                          style: TextDecor.robo14.copyWith(
+                            color: Colors.grey.shade500,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const Gap(32),
+                      ],
+                    ),
+                  ),
+                );
               }
 
               return ListView.builder(
@@ -91,10 +131,11 @@ class _NotificationScreenState extends State<NotificationScreen> implements Noti
                   );
                 },
               );
-            }
-        ),
+            }),
       ),
-      bottomNavigationBar: isShop ? const ShopBottomBar(currentIndex: 2) : const BottomBarCustom(currentIndex: 2),
+      bottomNavigationBar: isShop
+          ? const ShopBottomBar(currentIndex: 2)
+          : const BottomBarCustom(currentIndex: 2),
     );
   }
 

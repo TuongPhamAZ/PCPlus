@@ -5,6 +5,7 @@ import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:gap/gap.dart';
 import 'package:pcplus/models/bills/bill_shop_item_model.dart';
 import 'package:pcplus/pages/bill/bill_product/bill_product_contract.dart';
+import 'package:pcplus/pages/bill/payment_choice/payment_choice.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 import 'package:pcplus/pages/delivery/delivery_infor.dart';
@@ -26,7 +27,8 @@ class BillProduct extends StatefulWidget {
   State<BillProduct> createState() => _BillProductState();
 }
 
-class _BillProductState extends State<BillProduct> implements BillProductContract {
+class _BillProductState extends State<BillProduct>
+    implements BillProductContract {
   BillProductPresenter? _presenter;
   // final CartSingleton _cartSingleton = CartSingleton.getInstance();
 
@@ -34,6 +36,7 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
 
   int productCount = 2;
   bool isFirst = true;
+  String paymentMethod = 'Cash on delivery';
   ShipInformationModel address = ShipInformationModel(
     receiverName: "",
     phone: "",
@@ -205,14 +208,17 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
             StreamBuilder<List<ItemInCartWithSeller>>(
                 stream: _presenter!.inCartItemsStream,
                 builder: (context, snapshot) {
-                  Widget? result = UtilWidgets.createSnapshotResultWidget(context, snapshot);
+                  Widget? result =
+                      UtilWidgets.createSnapshotResultWidget(context, snapshot);
                   if (result != null) {
                     return result;
                   }
 
                   final itemsWithSeller = snapshot.data ?? [];
 
-                  _presenter!.onPaymentItems = itemsWithSeller.where((test) => test.inCart.isSelected == true).toList();
+                  _presenter!.onPaymentItems = itemsWithSeller
+                      .where((test) => test.inCart.isSelected == true)
+                      .toList();
                   Map<String, BillShopModel> billShops = _presenter!.billShops!;
                   billShops.clear();
 
@@ -227,8 +233,7 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
 
                     if (billShops.containsKey(shopId)) {
                       billShop = billShops[shopId];
-                    }
-                    else {
+                    } else {
                       billShop = BillShopModel(
                         shopID: shopId,
                         shopName: data.seller.name,
@@ -256,13 +261,11 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
                     );
 
                     billShop?.buyItems!.add(newItem);
-
                   }
 
                   String remoteProductCost = _presenter!.getProductCost();
 
-                  if (_productCost != remoteProductCost
-                  ) {
+                  if (_productCost != remoteProductCost) {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       setState(() {
                         _productCost = remoteProductCost;
@@ -291,16 +294,12 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
                         },
                         onChangeDeliveryMethod: (method, price) {
                           _presenter?.handleChangeDelivery(
-                              data: data,
-                              deliveryMethod: method,
-                              cost: price
-                          );
+                              data: data, deliveryMethod: method, cost: price);
                         },
                       );
                     },
                   );
-                }
-            ),
+                }),
             const Gap(10),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
@@ -309,16 +308,60 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
                 children: [
                   Text('Payment Method', style: TextDecor.robo18Semi),
                   const Gap(5),
-                  Row(
-                    children: [
-                      const Icon(
-                        FontAwesomeIcons.moneyBill,
-                        color: Colors.red,
-                        size: 30,
+                  InkWell(
+                    onTap: () async {
+                      final selectedPaymentMethod =
+                          await Navigator.push<String>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PaymentChoice(
+                            initialMethod: paymentMethod,
+                          ),
+                        ),
+                      );
+                      if (selectedPaymentMethod != null) {
+                        setState(() {
+                          paymentMethod = selectedPaymentMethod;
+                        });
+                        _presenter
+                            ?.handlePaymentMethodChanged(selectedPaymentMethod);
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey.shade300),
                       ),
-                      const Gap(8),
-                      Text('Cash on delivery', style: TextDecor.robo16),
-                    ],
+                      child: Row(
+                        children: [
+                          Icon(
+                            paymentMethod == 'Cash on delivery'
+                                ? Icons.money
+                                : Icons.payment,
+                            color: paymentMethod == 'Cash on delivery'
+                                ? Colors.green.shade700
+                                : Colors.blue.shade700,
+                            size: 24,
+                          ),
+                          const Gap(12),
+                          Expanded(
+                            child: Text(
+                              paymentMethod == 'Cash on delivery'
+                                  ? 'Thanh toán khi nhận hàng'
+                                  : 'Thanh toán với ZaloPay',
+                              style: TextDecor.robo16,
+                            ),
+                          ),
+                          const Icon(
+                            Icons.arrow_forward_ios,
+                            color: Colors.grey,
+                            size: 16,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                   const Gap(12),
                   Text('Payment Detail', style: TextDecor.robo18Semi),
@@ -340,11 +383,13 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                Text(_productCost ?? "0", style: TextDecor.robo16),
+                                Text(_productCost ?? "0",
+                                    style: TextDecor.robo16),
                                 const Gap(5),
                                 ValueListenableBuilder<String>(
                                   valueListenable: shippingCost,
-                                  builder: (context, value, _) => Text(value, style: TextDecor.robo18Semi),
+                                  builder: (context, value, _) =>
+                                      Text(value, style: TextDecor.robo18Semi),
                                 ),
                               ],
                             ),
@@ -361,7 +406,8 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
                             Expanded(child: Container()),
                             ValueListenableBuilder<String>(
                               valueListenable: totalCost,
-                              builder: (context, value, _) => Text(value, style: TextDecor.robo18Semi),
+                              builder: (context, value, _) =>
+                                  Text(value, style: TextDecor.robo18Semi),
                             ),
                           ],
                         ),
@@ -397,13 +443,12 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
             const Gap(5),
             ValueListenableBuilder<String>(
               valueListenable: totalCost,
-              builder: (context, value, _) =>
-                Text(
-                  value,
-                  style: TextDecor.robo18Semi.copyWith(
-                    color: Colors.red,
-                  ),
+              builder: (context, value, _) => Text(
+                value,
+                style: TextDecor.robo18Semi.copyWith(
+                  color: Colors.red,
                 ),
+              ),
             ),
             const Gap(10),
             InkWell(
@@ -441,7 +486,7 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
       builder: (context) {
         Future.delayed(const Duration(seconds: 1), () {
           Navigator.of(context).pop();
-          Navigator.of(context).pushNamed(HomeScreen.routeName);// Đóng dialog
+          Navigator.of(context).pushNamed(HomeScreen.routeName); // Đóng dialog
         });
         return AlertDialog(
           alignment: Alignment.center,
@@ -574,5 +619,63 @@ class _BillProductState extends State<BillProduct> implements BillProductContrac
         );
       },
     );
+  }
+
+  @override
+  void onPaymentMethodChanged() {
+    if (!mounted) return;
+    setState(() {
+      // UI sẽ được update khi payment method thay đổi
+    });
+  }
+
+  @override
+  void onShowPaymentWaitingDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              const Icon(
+                Icons.payment,
+                color: Colors.blue,
+                size: 28,
+              ),
+              const SizedBox(width: 8),
+              const Text("Thanh toán ZaloPay"),
+            ],
+          ),
+          content: const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text("Đang chờ thanh toán qua ZaloPay..."),
+              SizedBox(height: 8),
+              Text(
+                "Vui lòng hoàn tất thanh toán trong ứng dụng ZaloPay",
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                _presenter?.handleChangePaymentMethodFromDialog();
+              },
+              child: const Text("Đổi phương thức thanh toán"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  void onShowChangePaymentMethodButton() {
+    // Hiển thị nút đổi phương thức thanh toán (được gọi từ presenter nếu cần)
   }
 }

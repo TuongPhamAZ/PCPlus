@@ -5,6 +5,8 @@ import 'package:pcplus/services/utility.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 import 'package:pcplus/pages/bill/delivery_choice/delivery_choice.dart';
+import 'package:pcplus/pages/bill/list_voucher/list_voucher_choice.dart';
+import 'package:pcplus/models/vouchers/voucher_model.dart';
 
 import '../../../models/bills/bill_shop_item_model.dart';
 
@@ -13,6 +15,7 @@ class PaymentProductItem extends StatefulWidget {
   final List<BillShopItemModel> items;
   final Function(String)? onChangeNote;
   final Function(String, int)? onChangeDeliveryMethod;
+  final Function(VoucherModel?)? onVoucherChanged;
 
   const PaymentProductItem({
     super.key,
@@ -20,6 +23,7 @@ class PaymentProductItem extends StatefulWidget {
     required this.items,
     this.onChangeNote,
     this.onChangeDeliveryMethod,
+    this.onVoucherChanged,
   });
 
   @override
@@ -29,6 +33,7 @@ class PaymentProductItem extends StatefulWidget {
 class _PaymentProductItemState extends State<PaymentProductItem> {
   String method = 'Nhanh';
   int deliveryCost = 0;
+  VoucherModel? selectedVoucher;
 
   int _getTotalCost() {
     int sum = 0;
@@ -89,57 +94,57 @@ class _PaymentProductItemState extends State<PaymentProductItem> {
                 .asMap()
                 .entries
                 .map((entry) => Row(
-                                  children: [
-                                    Container(
-                                      height: 100,
-                                      width: 85,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(5),
-                                        image: DecorationImage(
-                                          image: NetworkImage(entry.value.color!.image!),
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
+                      children: [
+                        Container(
+                          height: 100,
+                          width: 85,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                            image: DecorationImage(
+                              image: NetworkImage(entry.value.color!.image!),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        const Gap(10),
+                        SizedBox(
+                          width: 263,
+                          height: 100,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                entry.value.name!,
+                                style: TextDecor.robo18,
+                                maxLines: 2,
+                              ),
+                              Text(
+                                'Loại: ${entry.value.color!.name}',
+                                style: TextDecor.robo15.copyWith(
+                                  color: Colors.black.withValues(alpha: 0.6),
+                                ),
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    Utility.formatCurrency(entry.value.price),
+                                    style: TextDecor.robo16Medi.copyWith(
+                                      color: Colors.red,
                                     ),
-                                    const Gap(10),
-                                    SizedBox(
-                                      width: 263,
-                                      height: 100,
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            entry.value.name!,
-                                            style: TextDecor.robo18,
-                                            maxLines: 2,
-                                          ),
-                                          Text(
-                                            'Loại: ${entry.value.color!.name}',
-                                            style: TextDecor.robo15.copyWith(
-                                              color: Colors.black.withValues(alpha: 0.6),
-                                            ),
-                                          ),
-                                          Row(
-                                            children: [
-                                              Text(
-                                                Utility.formatCurrency(entry.value.price),
-                                                style: TextDecor.robo16Medi.copyWith(
-                                                  color: Colors.red,
-                                                ),
-                                              ),
-                                              Expanded(child: Container()),
-                                              Text('x${entry.value.amount}', style: TextDecor.robo16Medi),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                )
-                ).toList(),
+                                  ),
+                                  Expanded(child: Container()),
+                                  Text('x${entry.value.amount}',
+                                      style: TextDecor.robo16Medi),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ))
+                .toList(),
           ),
-
           const Divider(
             color: Palette.borderBackBtn,
             thickness: 1,
@@ -175,6 +180,73 @@ class _PaymentProductItemState extends State<PaymentProductItem> {
                 ),
               ),
             ),
+          ),
+          const Gap(10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Shop voucher', style: TextDecor.robo16Medi),
+              InkWell(
+                onTap: () async {
+                  final selectedVoucherResult =
+                      await Navigator.push<VoucherModel?>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ListVoucherChoice(
+                        shopId: 'shop_id',
+                        orderAmount: _getTotalCost(),
+                        currentSelectedVoucher: selectedVoucher,
+                      ),
+                    ),
+                  );
+
+                  setState(() {
+                    selectedVoucher = selectedVoucherResult;
+                  });
+
+                  if (widget.onVoucherChanged != null) {
+                    widget.onVoucherChanged!(selectedVoucher);
+                  }
+                },
+                child: Row(
+                  children: [
+                    if (selectedVoucher == null)
+                      Text(
+                        'None',
+                        style: TextDecor.robo15.copyWith(
+                          color: Colors.black.withValues(alpha: 0.5),
+                        ),
+                      )
+                    else
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            '1 voucher applied',
+                            style: TextDecor.robo14.copyWith(
+                              color: Colors.green.shade700,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          Text(
+                            '-${Utility.formatCurrency(selectedVoucher!.discount!)}',
+                            style: TextDecor.robo15Medi.copyWith(
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    const Gap(5),
+                    const Icon(
+                      FontAwesomeIcons.angleRight,
+                      color: Colors.grey,
+                      size: 17,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
           const Gap(3),
           const Divider(
@@ -364,7 +436,9 @@ class _PaymentProductItemState extends State<PaymentProductItem> {
               Text('Total cost: ', style: TextDecor.robo16Medi),
               Expanded(child: Container()),
               Text(
-                Utility.formatCurrency(_getTotalCost() + deliveryCost),
+                Utility.formatCurrency(_getTotalCost() +
+                    deliveryCost -
+                    (selectedVoucher?.discount ?? 0)),
                 style: TextDecor.robo16Medi.copyWith(
                   color: Colors.red,
                 ),
