@@ -100,7 +100,7 @@ class CartShoppingScreenPresenter {
     int total = 0;
     for (ItemInCartWithSeller item in inCartItems!) {
       if (item.inCart.isSelected!) {
-        total += item.item.price! * item.inCart.amount!;
+        total += item.item.discountPrice! * item.inCart.amount!;
       }
     }
     return Utility.formatCurrency(total);
