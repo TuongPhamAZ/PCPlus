@@ -149,7 +149,7 @@ class _CartShoppingScreenState extends State<CartShoppingScreen> implements Cart
                             imageUrl: itemData.item.image!,
                             onChanged: (value) => _toggleItemChecked(itemData.inCart, value),
                             isCheck: itemData.inCart.isSelected!,
-                            price: itemData.item.price!,
+                            price: itemData.item.discountPrice!,
                             stock: itemData.item.stock!,
                             onDelete: () => _deleteItem(itemData.inCart),
                             onPressed: () => _presenter?.handleItemPressed(
