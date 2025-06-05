@@ -184,12 +184,17 @@ class DetailProductPresenter {
     if (temp == null) {
       InCartItemModel model = InCartItemModel(
         itemID: itemWithSeller!.item.itemID!,
-        color: itemWithSeller!.item.colors!.first,
+        color: itemWithSeller!.item.colors![colorIndex],
         amount: amount,
         isSelected: false,
       );
 
       await _inCartItemRepo.addItemToUserCart(userId, model);
+    } else {
+      temp.color = itemWithSeller!.item.colors![colorIndex];
+      temp.amount = amount;
+
+      await _inCartItemRepo.updateItemInCart(userId, temp);
     }
 
     _view.onPopContext();
