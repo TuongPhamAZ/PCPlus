@@ -9,4 +9,7 @@ abstract class BillProductContract {
 
   void onShowResultDialog(String title, String message, bool isSuccess);
   void onLoadDataSucceeded();
+  void onPaymentMethodChanged();
+  void onShowPaymentWaitingDialog();
+  void onShowChangePaymentMethodButton();
 }

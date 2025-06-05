@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pcplus/const/order_status.dart';
 import 'package:pcplus/themes/text_decor.dart';
 
 import '../../models/bills/bill_model.dart';
@@ -60,85 +59,89 @@ class _HistoryOrderState extends State<HistoryOrder>
         ),
       ),
       body: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        decoration: BoxDecoration(
-          // ignore: deprecated_member_use
-          color: Colors.grey.withOpacity(0.5),
-        ),
-        child:
-          (_presenter!.isShop) ?
-              StreamBuilder<List<BillOfShopModel>>(
-                stream: _presenter!.billsOfShopStream,
-                builder: (context, snapshot) {
-                  Widget? result = UtilWidgets.createSnapshotResultWidget(context, snapshot);
-                  if (result != null) {
-                    return result;
-                  }
-
-                  var orders = snapshot.data ?? [];
-
-                  // Filter order
-                  if (widget.orderType.isNotEmpty) {
-                    orders = orders.where((v) => v.status == _presenter!.orderType).toList();
-                  }
-
-                  if (orders.isEmpty) {
-                    return const Center(child: Text(''));
-                  }
-
-                  return ListView.builder(
-                    itemCount: orders.length,
-                    shrinkWrap: true,
-                    // physics: const Scroas(),
-                    itemBuilder: (context, index) {
-                      return _presenter!.createHistoryOrderItemForShop(orders[index]);
-                    },
-                  );
-                },
-              )
-          :
-              StreamBuilder<List<BillModel>>(
-                stream: _presenter!.billStream,
-                builder: (context, snapshot) {
-                  Widget? result = UtilWidgets.createSnapshotResultWidget(context, snapshot);
-                  if (result != null) {
-                    return result;
-                  }
-
-                  final orders = snapshot.data ?? [];
-
-                  if (orders.isEmpty) {
-                    return const Center(child: Text(''));
-                  }
-
-                  Map<BillShopModel, BillModel> billsAndShopsMap = {};
-
-                  for (BillModel bill in orders) {
-                    for (BillShopModel billShop in bill.shops!) {
-                      if (widget.orderType.isNotEmpty && billShop.status != widget.orderType) {
-                        continue;
-                      }
-                      billsAndShopsMap[billShop] = bill;
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          decoration: BoxDecoration(
+            // ignore: deprecated_member_use
+            color: Colors.grey.withOpacity(0.5),
+          ),
+          child: (_presenter!.isShop)
+              ? StreamBuilder<List<BillOfShopModel>>(
+                  stream: _presenter!.billsOfShopStream,
+                  builder: (context, snapshot) {
+                    Widget? result = UtilWidgets.createSnapshotResultWidget(
+                        context, snapshot);
+                    if (result != null) {
+                      return result;
                     }
-                  }
 
-                  return ListView.builder(
-                    itemCount: billsAndShopsMap.keys.length,
-                    shrinkWrap: true,
-                    // physics: const Scroas(),
-                    itemBuilder: (context, index) {
-                      BillShopModel billShopModel = billsAndShopsMap.keys.elementAt(index);
-                      BillModel? billModel = billsAndShopsMap[billShopModel];
+                    var orders = snapshot.data ?? [];
 
-                      return _presenter!.createHistoryOrderItemForUser(
-                        billModel!,
-                        billShopModel.shopID!,
-                      );
-                    },
-                  );
-                },
-              )
-        ),
+                    // Filter order
+                    if (widget.orderType.isNotEmpty) {
+                      orders = orders
+                          .where((v) => v.status == _presenter!.orderType)
+                          .toList();
+                    }
+
+                    if (orders.isEmpty) {
+                      return const Center(child: Text(''));
+                    }
+
+                    return ListView.builder(
+                      itemCount: orders.length,
+                      shrinkWrap: true,
+                      // physics: const Scroas(),
+                      itemBuilder: (context, index) {
+                        return _presenter!
+                            .createHistoryOrderItemForShop(orders[index]);
+                      },
+                    );
+                  },
+                )
+              : StreamBuilder<List<BillModel>>(
+                  stream: _presenter!.billStream,
+                  builder: (context, snapshot) {
+                    Widget? result = UtilWidgets.createSnapshotResultWidget(
+                        context, snapshot);
+                    if (result != null) {
+                      return result;
+                    }
+
+                    final orders = snapshot.data ?? [];
+
+                    if (orders.isEmpty) {
+                      return const Center(child: Text(''));
+                    }
+
+                    Map<BillShopModel, BillModel> billsAndShopsMap = {};
+
+                    for (BillModel bill in orders) {
+                      for (BillShopModel billShop in bill.shops!) {
+                        if (widget.orderType.isNotEmpty &&
+                            billShop.status != widget.orderType) {
+                          continue;
+                        }
+                        billsAndShopsMap[billShop] = bill;
+                      }
+                    }
+
+                    return ListView.builder(
+                      itemCount: billsAndShopsMap.keys.length,
+                      shrinkWrap: true,
+                      // physics: const Scroas(),
+                      itemBuilder: (context, index) {
+                        BillShopModel billShopModel =
+                            billsAndShopsMap.keys.elementAt(index);
+                        BillModel? billModel = billsAndShopsMap[billShopModel];
+
+                        return _presenter!.createHistoryOrderItemForUser(
+                          billModel!,
+                          billShopModel.shopID!,
+                        );
+                      },
+                    );
+                  },
+                )),
     );
   }
 

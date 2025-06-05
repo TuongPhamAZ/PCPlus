@@ -11,6 +11,8 @@ import '../../../models/items/item_model.dart';
 import '../../../models/ratings/rating_model.dart';
 import '../../../models/users/user_model.dart';
 import '../../../objects/review_data.dart';
+import 'package:pcplus/models/chat/message_model.dart';
+import 'package:pcplus/models/shops/shop_repo.dart';
 
 class DetailProductPresenter {
   final DetailProductContract _view;
@@ -20,12 +22,14 @@ class DetailProductPresenter {
   final ItemRepository _itemRepo = ItemRepository();
   final UserRepository _userRepo = UserRepository();
   final InCartItemRepo _inCartItemRepo = InCartItemRepo();
+  final ShopRepository _shopRepo = ShopRepository();
 
   ItemWithSeller? itemWithSeller;
   List<RatingModel> ratings = [];
 
   List<ReviewData> ratingsData = [];
   int shopProductsCount = 0;
+  ConversationModel? currentConversation;
 
   Future<void> getData() async {
     // Kiểm tra nếu đang chạy trong debug mode và có mock data
@@ -38,7 +42,8 @@ class DetailProductPresenter {
     ratings.clear();
     ratingsData.clear();
 
-    await SessionController.getInstance().onViewProduct(itemWithSeller!.item.itemID!);
+    await SessionController.getInstance()
+        .onViewProduct(itemWithSeller!.item.itemID!);
 
     List<ItemModel> sellerProducts =
         await _itemRepo.getItemsBySeller(itemWithSeller!.seller.shopID!);
@@ -161,7 +166,8 @@ class DetailProductPresenter {
     _view.onViewShop(itemWithSeller!.seller);
   }
 
-  Future<void> handleAddToCart({required int colorIndex, required int amount}) async {
+  Future<void> handleAddToCart(
+      {required int colorIndex, required int amount}) async {
     // Nếu đang trong mock mode, chỉ cần hiển thị progress và callback
     if (kDebugMode && itemWithSeller?.item.itemID == "mock_id_123") {
       _view.onWaitingProgressBar();
@@ -259,5 +265,41 @@ class DetailProductPresenter {
     await _ratingRepo.updateRating(rating);
     _view.onPopContext();
     _view.onResponseRatingSuccess();
+  }
+
+  /// Xử lý logic nhắn tin với shop
+  Future<void> handleChatWithShop() async {
+    if (itemWithSeller == null) {
+      _view.onError("Không thể nhắn tin với shop lúc này");
+      return;
+    }
+
+    // Tạo ConversationModel tạm thời với thông tin shop
+    // Sau này sẽ tích hợp với Firebase để tạo conversation thật
+    final shop = itemWithSeller!.seller;
+
+    // Xử lý avatar giống như trong UI - nếu null thì để empty string
+    final avatarUrl = shop.image ?? "";
+
+    // Debug: In ra thông tin để kiểm tra
+    debugPrint('DetailProduct: shopName = ${shop.name}');
+    debugPrint('DetailProduct: shopImage = ${shop.image}');
+    debugPrint('DetailProduct: avatarUrl = $avatarUrl');
+
+    currentConversation = ConversationModel(
+      id: 'temp_${shop.shopID}',
+      participantId: shop.shopID!,
+      participantName: shop.name!,
+      participantAvatar: avatarUrl.isNotEmpty ? avatarUrl : null,
+      lastMessage: null,
+      lastActivity: DateTime.now(),
+      unreadCount: 0,
+    );
+
+    print(
+        'DetailProduct: currentConversation.participantAvatar = ${currentConversation!.participantAvatar}');
+
+    // Thông báo cho view chuyển đến chat detail
+    _view.onChatWithShop();
   }
 }

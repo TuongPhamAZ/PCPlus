@@ -16,26 +16,27 @@ class CartItem extends StatefulWidget {
   final bool isCheck;
   final int price;
   final int stock;
+  final String? color;
   final void Function(bool?)? onChanged;
   final void Function()? onDelete;
   final void Function(int amount)? onChangeAmount;
   final void Function()? onPressed;
-  const CartItem({
-    super.key,
-    required this.shopName,
-    required this.itemName,
-    required this.description,
-    required this.rating,
-    required this.location,
-    required this.imageUrl,
-    required this.onChanged,
-    required this.onPressed,
-    required this.isCheck,
-    required this.price,
-    required this.stock,
-    required this.onDelete,
-    required this.onChangeAmount
-  });
+  const CartItem(
+      {super.key,
+      required this.shopName,
+      required this.itemName,
+      required this.description,
+      required this.rating,
+      required this.location,
+      required this.imageUrl,
+      required this.onChanged,
+      required this.onPressed,
+      required this.isCheck,
+      required this.price,
+      required this.stock,
+      required this.onDelete,
+      required this.onChangeAmount,
+      this.color});
 
   @override
   State<CartItem> createState() => _CartItemState();
@@ -81,184 +82,311 @@ class _CartItemState extends State<CartItem> {
     return GestureDetector(
       onTap: widget.onPressed,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 10, left: 16, right: 16),
-        padding: const EdgeInsets.only(top: 10, right: 16, bottom: 10),
-        height: 200,
-        width: size.width * 0.425,
+        margin: const EdgeInsets.only(bottom: 12, left: 16, right: 16),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: buyable ? Palette.backgroundColor.withOpacity(0.2) : Palette.greyBackground.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(10),
+          color: buyable
+              ? Palette.containerBackground
+              : Palette.greyBackground.withOpacity(0.3),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: Colors.grey,
+            color: buyable
+                ? Palette.main1.withOpacity(0.3)
+                : Palette.greyBackground,
+            width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.2),
-              spreadRadius: 1,
-              blurRadius: 2,
-              offset: const Offset(4, 3),
+              color: Palette.primaryColor.withOpacity(0.1),
+              spreadRadius: 0,
+              blurRadius: 6,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 40),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.house,
-                    color: Colors.black,
-                    size: 30,
-                  ),
-                  const Gap(5),
-                  Text(
-                    widget.shopName,
-                    style: TextDecor.robo17Medi,
-                  ),
-                  Expanded(child: Container()),
-                  InkWell(
-                    onTap: widget.onDelete,
-                    child: const Icon(
-                      Icons.delete,
-                      color: Colors.red,
-                      size: 24,
-                    ),
-                  ),
-                ],
-              ),
-            ),
             Row(
               children: [
-                Checkbox(
-                  value: widget.isCheck,
-                  onChanged: buyable ? widget.onChanged : (value) {},
-                )
-                ,
-                ClipRRect(
-                  borderRadius: const BorderRadius.all(Radius.circular(10)),
-                  child: Image.network(
-                    widget.imageUrl,
-                    width: 125,
-                    height: 140,
-                    fit: BoxFit.cover,
-                    errorBuilder: (BuildContext context, Object exception,
-                        StackTrace? stackTrace) {
-                      return Container(
-                        height: 105,
-                      );
-                    },
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Palette.main1.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.store_rounded,
+                        color: Palette.primaryColor,
+                        size: 14,
+                      ),
+                      const Gap(4),
+                      Text(
+                        widget.shopName,
+                        style: TextDecor.robo12.copyWith(
+                          color: Palette.primaryColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Spacer(),
+                InkWell(
+                  onTap: widget.onDelete,
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    child: Icon(
+                      Icons.delete_outline_rounded,
+                      color: Palette.billOrange,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const Gap(10),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Transform.scale(
+                  scale: 1.1,
+                  child: Checkbox(
+                    value: widget.isCheck,
+                    onChanged: buyable ? widget.onChanged : (value) {},
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                    activeColor: Palette.primaryColor,
+                  ),
+                ),
+                const Gap(6),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Palette.primaryColor.withOpacity(0.15),
+                        blurRadius: 3,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      widget.imageUrl,
+                      width: 85,
+                      height: 85,
+                      fit: BoxFit.cover,
+                      errorBuilder: (BuildContext context, Object exception,
+                          StackTrace? stackTrace) {
+                        return Container(
+                          width: 85,
+                          height: 85,
+                          decoration: BoxDecoration(
+                            color: Palette.greyBackground.withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            Icons.image_not_supported_rounded,
+                            color: Palette.hintText,
+                            size: 30,
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
                 const Gap(10),
-                SizedBox(
-                  width: size.width * 0.425,
-                  height: 125,
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        "${widget.itemName}${buyable ? "" : " (Sold out)"}",
-                        maxLines: 2,
-                        textAlign: TextAlign.justify,
-                        style: TextDecor.robo16Medi,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              widget.itemName,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextDecor.robo16Medi.copyWith(
+                                color:
+                                    buyable ? Colors.black87 : Palette.hintText,
+                              ),
+                            ),
+                          ),
+                          if (!buyable)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Palette.billOrange.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                'Hết hàng',
+                                style: TextDecor.robo12.copyWith(
+                                  color: Palette.billOrange,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                       Text(
                         widget.description,
-                        textAlign: TextAlign.justify,
                         maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: TextDecor.robo12.copyWith(
-                          color: Colors.grey,
+                          color: Palette.hintText,
+                          height: 1.2,
                         ),
                       ),
+                      if (widget.color != null) ...[
+                        Row(
+                          children: [
+                            Text(
+                              'Màu: ',
+                              style: TextDecor.robo13Medi.copyWith(
+                                color: Palette.main2,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Text(
+                              widget.color!,
+                              style: TextDecor.robo13Medi.copyWith(
+                                color: Palette.primaryColor,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                       Row(
                         children: [
-                          const Icon(Icons.star, size: 18, color: Colors.amber),
+                          const Icon(Icons.star_rounded,
+                              size: 16, color: Palette.star),
+                          const Gap(2),
                           Text(
                             Utility.formatRatingValue(widget.rating),
-                            style: TextDecor.robo14,
+                            style: TextDecor.robo13Medi.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black54,
+                            ),
                           ),
-                          Expanded(child: Container()),
-                          const Icon(Icons.location_on,
-                              size: 18, color: Colors.black),
-                          Text(
-                            widget.location,
-                            style: TextDecor.robo14,
+                          const Gap(8),
+                          const Icon(Icons.location_on_rounded,
+                              size: 16, color: Palette.star),
+                          const Gap(2),
+                          Expanded(
+                            child: Text(
+                              widget.location,
+                              style: TextDecor.robo12.copyWith(
+                                color: Palette.main2,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ],
                       ),
+                      const Gap(8),
                       Row(
                         children: [
-                          const Icon(
-                            FontAwesomeIcons.sackDollar,
-                            size: 14,
-                            color: Colors.red,
-                          ),
-                          Text(
-                            Utility.formatCurrency(widget.price),
-                            style: TextDecor.robo16Medi.copyWith(
-                              color: Colors.red,
-                            ),
-                          ),
-                          Expanded(child: Container()),
-                          GestureDetector(
-                            onTap: _decreaseQuantity,
-                            child: Container(
-                              height: 16,
-                              width: 18,
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  width: 0.5,
-                                  color: Colors.grey,
+                          Expanded(
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  FontAwesomeIcons.sackDollar,
+                                  size: 14,
+                                  color: Palette.billOrange,
                                 ),
-                                borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(3),
-                                  bottomLeft: Radius.circular(3),
+                                const Gap(3),
+                                Flexible(
+                                  child: Text(
+                                    Utility.formatCurrency(widget.price),
+                                    style: TextDecor.robo15Medi.copyWith(
+                                      color: Palette.billOrange,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
-                              ),
-                              child: const Icon(
-                                Icons.remove,
-                                size: 14,
-                                color: Colors.black,
-                              ),
+                              ],
                             ),
                           ),
                           Container(
-                            alignment: Alignment.center,
-                            height: 16,
-                            width: 18,
                             decoration: BoxDecoration(
                               border: Border.all(
-                                width: 0.5,
-                                color: Colors.grey,
-                              ),
+                                  color: Palette.main1.withOpacity(0.4)),
+                              borderRadius: BorderRadius.circular(6),
                             ),
-                            child: Text('$soluong',
-                                textAlign: TextAlign.center,
-                                style: TextDecor.robo11),
-                          ),
-                          GestureDetector(
-                            onTap: _increaseQuantity,
-                            child: Container(
-                              height: 16,
-                              width: 18,
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  width: 0.5,
-                                  color: Colors.grey,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                InkWell(
+                                  onTap: _decreaseQuantity,
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(6),
+                                    bottomLeft: Radius.circular(6),
+                                  ),
+                                  child: Container(
+                                    width: 26,
+                                    height: 26,
+                                    alignment: Alignment.center,
+                                    child: Icon(
+                                      Icons.remove,
+                                      size: 16,
+                                      color: soluong > 1
+                                          ? Palette.primaryColor
+                                          : Palette.hintText,
+                                    ),
+                                  ),
                                 ),
-                                borderRadius: const BorderRadius.only(
-                                  topRight: Radius.circular(3),
-                                  bottomRight: Radius.circular(3),
+                                Container(
+                                  width: 32,
+                                  height: 26,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    border: Border.symmetric(
+                                      vertical: BorderSide(
+                                          color:
+                                              Palette.main1.withOpacity(0.4)),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    '$soluong',
+                                    style: TextDecor.robo13Medi.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              child: const Icon(
-                                Icons.add,
-                                size: 14,
-                                color: Colors.black,
-                              ),
+                                InkWell(
+                                  onTap: _increaseQuantity,
+                                  borderRadius: const BorderRadius.only(
+                                    topRight: Radius.circular(6),
+                                    bottomRight: Radius.circular(6),
+                                  ),
+                                  child: Container(
+                                    width: 26,
+                                    height: 26,
+                                    alignment: Alignment.center,
+                                    child: Icon(
+                                      Icons.add,
+                                      size: 16,
+                                      color: soluong < widget.stock
+                                          ? Palette.primaryColor
+                                          : Palette.hintText,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
