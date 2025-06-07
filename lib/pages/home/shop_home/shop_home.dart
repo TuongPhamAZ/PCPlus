@@ -24,6 +24,7 @@ import 'package:pcplus/pages/voucher/addvoucher/add_voucher.dart';
 import 'package:pcplus/pages/voucher/listvoucher/list_voucher.dart';
 import 'package:pcplus/pages/conversations/conversations.dart';
 import '../../../models/shops/shop_model.dart';
+import '../../../models/users/user_model.dart';
 import '../../manage_product/edit_product/edit_product.dart';
 import '../../widgets/bottom/shop_bottom_bar.dart';
 import '../../widgets/util_widgets.dart';
@@ -51,11 +52,11 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
   String location = "";
 
   // Balance related variables
-  double balance = 15750000; // Mock balance
+  int balance = 0; // Mock balance
   bool isBalanceVisible = false; // State to show/hide balance
 
   // Mock voucher data
-  List<VoucherModel> _mockVouchers = [];
+  // List<VoucherModel> _mockVouchers = [];
 
   final ValueNotifier<int> _voucherCount = ValueNotifier<int>(0);
 
@@ -63,50 +64,51 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
   void initState() {
     isShop = SessionController.getInstance().isShop();
     _presenter = ShopHomePresenter(this);
-    _initMockVouchers();
+    // _initMockVouchers();
     super.initState();
+    SessionController.getInstance().changeUserCallback.add(balanceChangeHandler);
   }
 
-  void _initMockVouchers() {
-    _mockVouchers = [
-      VoucherModel(
-        voucherID: "1",
-        name: "Giảm 50k",
-        description: "Voucher giảm 50,000đ cho đơn hàng từ 200,000đ",
-        condition: 200000,
-        endDate: DateTime.now().add(const Duration(days: 30)),
-        discount: 50000,
-        quantity: 100,
-      ),
-      VoucherModel(
-        voucherID: "2",
-        name: "Giảm 20%",
-        description: "Voucher giảm 20% tối đa 100,000đ",
-        condition: 500000,
-        endDate: DateTime.now().add(const Duration(days: 15)),
-        discount: 100000,
-        quantity: 50,
-      ),
-      VoucherModel(
-        voucherID: "3",
-        name: "Freeship",
-        description: "Miễn phí vận chuyển cho đơn từ 100,000đ",
-        condition: 100000,
-        endDate: DateTime.now().add(const Duration(days: 7)),
-        discount: 30000,
-        quantity: 0, // Out of stock
-      ),
-      VoucherModel(
-        voucherID: "4",
-        name: "Black Friday",
-        description: "Giảm 300,000đ cho đơn hàng trên 1 triệu",
-        condition: 1000000,
-        endDate: DateTime.now().subtract(const Duration(days: 1)), // Expired
-        discount: 300000,
-        quantity: 25,
-      ),
-    ];
-  }
+  // void _initMockVouchers() {
+  //   _mockVouchers = [
+  //     VoucherModel(
+  //       voucherID: "1",
+  //       name: "Giảm 50k",
+  //       description: "Voucher giảm 50,000đ cho đơn hàng từ 200,000đ",
+  //       condition: 200000,
+  //       endDate: DateTime.now().add(const Duration(days: 30)),
+  //       discount: 50000,
+  //       quantity: 100,
+  //     ),
+  //     VoucherModel(
+  //       voucherID: "2",
+  //       name: "Giảm 20%",
+  //       description: "Voucher giảm 20% tối đa 100,000đ",
+  //       condition: 500000,
+  //       endDate: DateTime.now().add(const Duration(days: 15)),
+  //       discount: 100000,
+  //       quantity: 50,
+  //     ),
+  //     VoucherModel(
+  //       voucherID: "3",
+  //       name: "Freeship",
+  //       description: "Miễn phí vận chuyển cho đơn từ 100,000đ",
+  //       condition: 100000,
+  //       endDate: DateTime.now().add(const Duration(days: 7)),
+  //       discount: 30000,
+  //       quantity: 0, // Out of stock
+  //     ),
+  //     VoucherModel(
+  //       voucherID: "4",
+  //       name: "Black Friday",
+  //       description: "Giảm 300,000đ cho đơn hàng trên 1 triệu",
+  //       condition: 1000000,
+  //       endDate: DateTime.now().subtract(const Duration(days: 1)), // Expired
+  //       discount: 300000,
+  //       quantity: 25,
+  //     ),
+  //   ];
+  // }
 
   @override
   void didChangeDependencies() {
@@ -115,6 +117,8 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
     if (SessionController.getInstance().isShop() == false) {
       final args = ModalRoute.of(context)!.settings.arguments as ShopArgument;
       _presenter!.userId = args.shop.shopID;
+    } else {
+      balance = SessionController.getInstance().currentUser!.money!;
     }
 
     loadData();
@@ -127,6 +131,7 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
   @override
   void dispose() {
     super.dispose();
+    SessionController.getInstance().changeUserCallback.remove(balanceChangeHandler);
   }
 
   @override
@@ -243,7 +248,7 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
                             ),
                             child: Row(
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.account_balance_wallet,
                                   color: Palette.primaryColor,
                                   size: 18,
@@ -804,5 +809,15 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
   @override
   void onVoucherDelete(VoucherModel voucher) {
     UtilWidgets.createSnackBar(context, "Đã xóa voucher: ${voucher.name}");
+  }
+
+  // Callback
+  void balanceChangeHandler(UserModel? user) {
+    if (!mounted) return;
+    if (user != null) {
+      setState(() {
+        balance = user.money!;
+      });
+    }
   }
 }
