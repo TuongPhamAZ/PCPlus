@@ -39,6 +39,9 @@ class _PaymentProductItemState extends State<PaymentProductItem> {
     int sum = 0;
     for (BillShopItemModel item in widget.items) {
       sum += item.price! * item.amount!;
+      if (selectedVoucher != null) {
+        sum -= selectedVoucher!.discount!;
+      }
     }
     return sum;
   }

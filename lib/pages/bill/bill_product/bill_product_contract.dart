@@ -6,7 +6,7 @@ abstract class BillProductContract {
   void onBuyFailed(String message);
   void onBack();
   void onChangeDelivery();
-
+  void onChangeVoucher();
   void onShowResultDialog(String title, String message, bool isSuccess);
   void onLoadDataSucceeded();
   void onPaymentMethodChanged();

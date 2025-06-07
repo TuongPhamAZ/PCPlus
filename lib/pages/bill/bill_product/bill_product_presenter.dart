@@ -18,6 +18,7 @@ import 'package:pcplus/services/zalo_pay_service.dart';
 import '../../../models/in_cart_items/item_in_cart_with_seller.dart';
 import '../../../models/system/param_store_repo.dart';
 import '../../../models/users/ship_infor_model.dart';
+import '../../../models/vouchers/voucher_model.dart';
 import '../../../services/notification_service.dart';
 
 class BillProductPresenter {
@@ -75,6 +76,14 @@ class BillProductPresenter {
     data.deliveryMethod = deliveryMethod;
     data.deliveryCost = cost;
     _view.onChangeDelivery();
+  }
+
+  Future<void> handleChangeVoucher({
+    required BillShopModel data,
+    required VoucherModel? voucher
+  }) async {
+    data.voucher = voucher;
+    _view.onChangeVoucher();
   }
 
   Future<void> handleNoteForShop(
@@ -140,7 +149,7 @@ class BillProductPresenter {
     DateTime orderDate = DateTime.now();
 
     String paymentTypeString = paymentMethod == 'Pay with ZaloPay'
-        ? PaymentType.byMomo
+        ? PaymentType.byZaloPay
         : PaymentType.byCashOnDelivery;
 
     BillModel newBill = BillModel(
@@ -258,6 +267,9 @@ class BillProductPresenter {
       total += data.deliveryCost ?? 0;
       for (BillShopItemModel item in data.buyItems ?? []) {
         total += item.amount! * item.price!;
+        if (data.voucher != null) {
+          total -= data.voucher!.discount!;
+        }
       }
     }
 

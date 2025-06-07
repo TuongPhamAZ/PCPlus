@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:pcplus/models/vouchers/voucher_model.dart';
+import 'package:pcplus/pages/bill/list_voucher/list_voucher_choice_contract.dart';
+import 'package:pcplus/pages/bill/list_voucher/list_voucher_choice_presenter.dart';
 import 'package:pcplus/pages/voucher/widget/voucher_item.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 import 'package:pcplus/services/utility.dart';
+
+import '../../widgets/util_widgets.dart';
 
 class ListVoucherChoice extends StatefulWidget {
   final String shopId;
@@ -24,15 +28,29 @@ class ListVoucherChoice extends StatefulWidget {
   State<ListVoucherChoice> createState() => _ListVoucherChoiceState();
 }
 
-class _ListVoucherChoiceState extends State<ListVoucherChoice> {
+class _ListVoucherChoiceState extends State<ListVoucherChoice> implements ListVoucherChoiceContract {
+  ListVoucherChoicePresenter? _presenter;
+  
   VoucherModel? selectedVoucher;
   List<VoucherModel> mockVouchers = [];
 
   @override
   void initState() {
+    _presenter = ListVoucherChoicePresenter(this);
     super.initState();
     selectedVoucher = widget.currentSelectedVoucher;
     _initMockVouchers();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    _presenter!.shopID = widget.shopId;
+    await _presenter?.getData();
   }
 
   void _initMockVouchers() {
@@ -222,105 +240,25 @@ class _ListVoucherChoiceState extends State<ListVoucherChoice> {
           Expanded(
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 16),
-              child: ListView.builder(
-                itemCount: mockVouchers.length,
-                itemBuilder: (context, index) {
-                  final voucher = mockVouchers[index];
-                  final isEligible = _isVoucherEligible(voucher);
-                  final isSelected =
-                      selectedVoucher?.voucherID == voucher.voucherID;
+              child: StreamBuilder<List<VoucherModel>>(
+                  stream: _presenter!.voucherStream,
+                  builder: (context, snapshot) {
+                    Widget? result = UtilWidgets.createSnapshotResultWidget(
+                        context, snapshot);
+                    if (result != null) {
+                      return result;
+                    }
 
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    child: Opacity(
-                      opacity: isEligible ? 1.0 : 0.5,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: isSelected
-                                ? Palette.primaryColor
-                                : (isEligible
-                                    ? Colors.grey.shade300
-                                    : Colors.grey.shade400),
-                            width: isSelected ? 2 : 1,
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Stack(
-                          children: [
-                            VoucherItem(
-                              voucher: voucher,
-                              isShop: false,
-                              onTap: isEligible
-                                  ? () {
-                                      setState(() {
-                                        selectedVoucher =
-                                            isSelected ? null : voucher;
-                                      });
-                                    }
-                                  : null,
-                            ),
-                            // Overlay checkbox
-                            Positioned(
-                              top: 12,
-                              right: 12,
-                              child: Radio<VoucherModel>(
-                                value: voucher,
-                                groupValue: selectedVoucher,
-                                onChanged: isEligible
-                                    ? (value) {
-                                        setState(() {
-                                          selectedVoucher = value;
-                                        });
-                                      }
-                                    : null,
-                                activeColor: Palette.primaryColor,
-                              ),
-                            ),
-                            // Overlay thông báo nếu không đủ điều kiện
-                            if (!isEligible)
-                              Positioned.fill(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.7),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Center(
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 6,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.red.shade100,
-                                        borderRadius: BorderRadius.circular(20),
-                                        border: Border.all(
-                                          color: Colors.red.shade300,
-                                        ),
-                                      ),
-                                      child: Text(
-                                        voucher.quantity! <= 0
-                                            ? 'Hết lượt sử dụng'
-                                            : voucher.endDate!
-                                                    .isBefore(DateTime.now())
-                                                ? 'Đã hết hạn'
-                                                : 'Không đủ điều kiện',
-                                        style: TextDecor.robo12.copyWith(
-                                          color: Colors.red.shade700,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
+                    var vouchers = snapshot.data ?? [];
+
+                    if (vouchers.isEmpty) {
+                      return const Center(child: Text('Không có voucher nào'));
+                    }
+
+                    mockVouchers = vouchers;
+
+                    return _createListVoucher();
+                  }),
             ),
           ),
         ],
@@ -336,7 +274,7 @@ class _ListVoucherChoiceState extends State<ListVoucherChoice> {
         child: SafeArea(
           child: ElevatedButton(
             onPressed: () {
-              Navigator.pop(context, selectedVoucher);
+              _presenter?.handleSelectVoucher(selectedVoucher);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Palette.primaryColor,
@@ -359,5 +297,122 @@ class _ListVoucherChoiceState extends State<ListVoucherChoice> {
         ),
       ),
     );
+  }
+
+  Widget _createListVoucher() {
+    return ListView.builder(
+      itemCount: mockVouchers.length,
+      itemBuilder: (context, index) {
+        final voucher = mockVouchers[index];
+        final isEligible = _isVoucherEligible(voucher);
+        final isSelected =
+            selectedVoucher?.voucherID == voucher.voucherID;
+
+        return Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: Opacity(
+            opacity: isEligible ? 1.0 : 0.5,
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: isSelected
+                      ? Palette.primaryColor
+                      : (isEligible
+                      ? Colors.grey.shade300
+                      : Colors.grey.shade400),
+                  width: isSelected ? 2 : 1,
+                ),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Stack(
+                children: [
+                  VoucherItem(
+                    voucher: voucher,
+                    isShop: false,
+                    onTap: isEligible
+                        ? () {
+                      setState(() {
+                        selectedVoucher =
+                        isSelected ? null : voucher;
+                      });
+                    }
+                        : null,
+                  ),
+                  // Overlay checkbox
+                  Positioned(
+                    top: 12,
+                    right: 12,
+                    child: Radio<VoucherModel>(
+                      value: voucher,
+                      groupValue: selectedVoucher,
+                      onChanged: isEligible
+                          ? (value) {
+                        setState(() {
+                          selectedVoucher = value;
+                        });
+                      }
+                          : null,
+                      activeColor: Palette.primaryColor,
+                    ),
+                  ),
+                  // Overlay thông báo nếu không đủ điều kiện
+                  if (!isEligible)
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.7),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Center(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.red.shade100,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: Colors.red.shade300,
+                              ),
+                            ),
+                            child: Text(
+                              voucher.quantity! <= 0
+                                  ? 'Hết lượt sử dụng'
+                                  : voucher.endDate!
+                                  .isBefore(DateTime.now())
+                                  ? 'Đã hết hạn'
+                                  : 'Không đủ điều kiện',
+                              style: TextDecor.robo12.copyWith(
+                                color: Colors.red.shade700,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  void onPopContext() {
+    // TODO: implement onPopContext
+  }
+
+  @override
+  void onVoucherPressed(VoucherModel? voucher) {
+    Navigator.pop(context, selectedVoucher);
+  }
+
+  @override
+  void onWaitingProgressBar() {
+    // TODO: implement onWaitingProgressBar
   }
 }
