@@ -296,6 +296,9 @@ class _BillProductState extends State<BillProduct>
                           _presenter?.handleChangeDelivery(
                               data: data, deliveryMethod: method, cost: price);
                         },
+                        onVoucherChanged: (voucher) {
+                          _presenter?.handleChangeVoucher(data: data, voucher: voucher);
+                        },
                       );
                     },
                   );
@@ -636,15 +639,15 @@ class _BillProductState extends State<BillProduct>
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Row(
+          title: const Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.payment,
                 color: Colors.blue,
                 size: 28,
               ),
-              const SizedBox(width: 8),
-              const Text("Thanh toán ZaloPay"),
+              SizedBox(width: 8),
+              Text("Thanh toán ZaloPay"),
             ],
           ),
           content: const Column(
@@ -677,5 +680,13 @@ class _BillProductState extends State<BillProduct>
   @override
   void onShowChangePaymentMethodButton() {
     // Hiển thị nút đổi phương thức thanh toán (được gọi từ presenter nếu cần)
+  }
+
+  @override
+  void onChangeVoucher() {
+    if (context.mounted == false) {
+      return;
+    }
+    updateTotalCost(_presenter!.getTotalCost());
   }
 }

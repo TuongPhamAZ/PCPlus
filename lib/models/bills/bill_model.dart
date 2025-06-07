@@ -142,5 +142,5 @@ class BillModel {
 
 class PaymentType {
   static const String byCashOnDelivery = "Cash";
-  static const String byMomo = "Momo";
+  static const String byZaloPay = "ZaloPay";
 }
