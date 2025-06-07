@@ -17,6 +17,7 @@ import '../models/interactions/interaction_repo.dart';
 import '../models/shops/shop_model.dart';
 import '../models/users/user_model.dart';
 import '../pages/authentication/login/login.dart';
+import '../services/delegate.dart';
 
 class SessionController {
   static SessionController? _instance;
@@ -37,6 +38,8 @@ class SessionController {
   Stream<UserModel?>? userStream;
   StreamSubscription<UserModel?>? _userSubscription;
   UserModel? currentUser;
+
+  final Delegate<UserModel?> changeUserCallback = Delegate<UserModel?>();
 
   Future<void> loadUser(UserModel user) async {
     userID = user.userID;
@@ -96,6 +99,7 @@ class SessionController {
           () => {}
       );
     }
+    changeUserCallback.invoke(currentUser);
   }
 
   // INTERACTION

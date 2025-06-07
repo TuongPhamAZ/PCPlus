@@ -60,7 +60,9 @@ class _StatisticState extends State<Statistic> implements StatisticContract {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
+    DateTime dateTimeNow = DateTime.now();
+    _selectedMonth = dateTimeNow.month.toString();
+    _selectedYear = dateTimeNow.year.toString();
     loadData();
   }
 
@@ -295,95 +297,101 @@ class _StatisticState extends State<Statistic> implements StatisticContract {
             ),
             const SizedBox(height: 20),
             // Biểu đồ cột
-            StreamBuilder<List<BillOfShopModel>>(
-                stream: _presenter!.billsStream,
-                builder: (context, snapshot) {
-                  Widget? result = UtilWidgets.createSnapshotResultWidget(context, snapshot);
-                  if (result != null) {
-                    return result;
-                  }
+            Expanded(
 
-                  final billData = snapshot.data ?? [];
+              child: StreamBuilder<List<BillOfShopModel>>(
+                  stream: _presenter!.billsStream,
+                  builder: (context, snapshot) {
+                    Widget? result = UtilWidgets.createSnapshotResultWidget(context, snapshot);
+                    if (result != null) {
+                      return result;
+                    }
 
-                  bills = billData;
-                  saleDataObjects.clear();
+                    final billData = snapshot.data ?? [];
 
-                  if (bills.isEmpty) {
-                    return const Center(child: Text('No data'));
-                  }
+                    bills = billData;
+                    saleDataObjects.clear();
 
-                  for (String year in _years) {
-                    saleDataObjects[year] = YearlySaleDataObject.fromBillsOfShop(year, bills);
-                  }
+                    if (bills.isEmpty) {
+                      return const Center(child: Text('No data'));
+                    }
 
-                  getSalesData();
-                  getItemsName();
+                    for (String year in _years) {
+                      saleDataObjects[year] = YearlySaleDataObject.fromBillsOfShop(year, bills);
+                    }
 
-                  return Column(
-                    children: [
-                      // Thống kê doanh thu
-                      Text(
-                        "Tổng quan:",
-                        style: TextDecor.robo18Bold.copyWith(color: Colors.black)
-                      ),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        children: [
-                          Text("Số đơn hàng: ${_getOrderCount()}"),
-                          Text("Doanh thu: ${_getPayout()}"),
-                          Text("Phí giao dịch (${TaxRate.totalFeePercent}): ${_getTotalFee()}"),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                          "Biểu đồ",
-                          style: TextDecor.robo18Bold.copyWith(color: Colors.black)
-                      ),
-                      const SizedBox(height: 8),
-                      Expanded(
-                        child: BarChart(
-                          BarChartData(
-                            barGroups: chartSalesData
-                                .asMap()
-                                .entries
-                                .map(
-                                  (entry) => BarChartGroupData(
-                                x: entry.key,
-                                barRods: [
-                                  BarChartRodData(  
-                                    toY: entry.value.toDouble(),
-                                    color: Colors.blue,
-                                    width: 20,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                ],
-                              ),
-                            )
-                                .toList(),
-                            borderData: FlBorderData(show: false),
-                            gridData: const FlGridData(show: true),
+                    getSalesData();
+                    getItemsName();
+
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Thống kê doanh thu
+                        Text(
+                            "Tổng quan:",
+                            style: TextDecor.robo18Bold.copyWith(color: Colors.black)
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          direction: Axis.vertical,
+                          spacing: 8,
+                          children: [
+                            Text("Số đơn hàng: ${_getOrderCount()}"),
+                            Text("Doanh thu: ${_getPayout()}"),
+                            Text("Phí giao dịch (${TaxRate.totalFeePercent}): ${_getTotalFee()}"),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                            "Biểu đồ",
+                            style: TextDecor.robo18Bold.copyWith(color: Colors.black)
+                        ),
+                        const SizedBox(height: 8),
+                        Expanded(
+                          child: BarChart(
+                            BarChartData(
+                              barGroups: chartSalesData
+                                  .asMap()
+                                  .entries
+                                  .map(
+                                    (entry) => BarChartGroupData(
+                                  x: entry.key,
+                                  barRods: [
+                                    BarChartRodData(
+                                      toY: entry.value.toDouble(),
+                                      color: Colors.blue,
+                                      width: 20,
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                  ],
+                                ),
+                              )
+                                  .toList(),
+                              borderData: FlBorderData(show: false),
+                              gridData: const FlGridData(show: true),
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      // Chú thích
-                      Wrap(
-                        spacing: 8,
-                        children: chartItemsName
-                            .asMap()
-                            .entries
-                            .map((entry) => Chip(
-                          label: Text(
-                              "${entry.value}: ${chartSalesData[entry.key]} sản phẩm"),
-                          backgroundColor: Colors.blue[100],
-                        ))
-                            .toList(),
-                      ),
-                    ],
-                  );
-                }
-            ),
+                        const SizedBox(height: 16),
+                        // Chú thích
+                        Wrap(
+                          spacing: 8,
+                          children: chartItemsName
+                              .asMap()
+                              .entries
+                              .map((entry) => Chip(
+                            label: Text(
+                                "(${entry.key}) ${entry.value}: ${chartSalesData[entry.key]} sản phẩm"),
+                            backgroundColor: Colors.blue[100],
+                          ))
+                              .toList(),
+                        ),
+                      ],
+                    );
+                  }
+              ),
+            )
           ],
         ),
       ),
