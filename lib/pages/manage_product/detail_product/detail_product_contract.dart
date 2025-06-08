@@ -1,3 +1,5 @@
+import 'package:pcplus/component/conversation_argument.dart';
+
 import '../../../models/shops/shop_model.dart';
 
 abstract class DetailProductContract {
@@ -11,5 +13,5 @@ abstract class DetailProductContract {
   void onError(String message);
   void onResponseRatingFailed(String message);
   void onResponseRatingSuccess();
-  void onChatWithShop();
+  void onChatWithShop(ConversationArgument argument);
 }

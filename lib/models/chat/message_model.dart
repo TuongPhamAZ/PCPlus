@@ -1,12 +1,14 @@
 class MessageModel {
-  final String id;
+  String? id;
   final String from; // userID của người gửi
   final String content; // nội dung tin nhắn
   final DateTime time; // thời gian gửi
-  final MessageState state; // trạng thái tin nhắn
+  MessageState state; // trạng thái tin nhắn
+
+  static String collectionName = 'Messages';
 
   MessageModel({
-    required this.id,
+    this.id,
     required this.from,
     required this.content,
     required this.time,
@@ -48,9 +50,11 @@ class ConversationModel {
   final String participantId; // ID của người còn lại trong cuộc trò chuyện
   final String participantName; // tên của người còn lại
   final String? participantAvatar; // avatar của người còn lại
-  final MessageModel? lastMessage; // tin nhắn cuối cùng
-  final DateTime lastActivity; // thời gian hoạt động cuối
-  final int unreadCount; // số tin nhắn chưa đọc
+  MessageModel? lastMessage; // tin nhắn cuối cùng
+  DateTime lastActivity; // thời gian hoạt động cuối
+  int unreadCount; // số tin nhắn chưa đọc
+
+  static String collectionName = 'Conversations';
 
   ConversationModel({
     required this.id,
@@ -64,7 +68,6 @@ class ConversationModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
       'participantId': participantId,
       'participantName': participantName,
       'participantAvatar': participantAvatar,
@@ -74,9 +77,9 @@ class ConversationModel {
     };
   }
 
-  factory ConversationModel.fromJson(Map<String, dynamic> json) {
+  factory ConversationModel.fromJson(String id, Map<String, dynamic> json) {
     return ConversationModel(
-      id: json['id'],
+      id: id,
       participantId: json['participantId'],
       participantName: json['participantName'],
       participantAvatar: json['participantAvatar'],

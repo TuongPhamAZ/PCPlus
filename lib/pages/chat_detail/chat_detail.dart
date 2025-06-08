@@ -1,28 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/models/chat/message_model.dart';
+import 'package:pcplus/pages/chat_detail/chat_detail_contract.dart';
+import 'package:pcplus/pages/chat_detail/chat_detail_presenter.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 
+import '../widgets/util_widgets.dart';
+
 class ChatDetailScreen extends StatefulWidget {
   final ConversationModel conversation;
+  final ConversationModel? otherConversation;
 
-  const ChatDetailScreen({super.key, required this.conversation});
+  const ChatDetailScreen({super.key, required this.conversation, required this.otherConversation});
   static const String routeName = 'chat_detail_screen';
 
   @override
   State<ChatDetailScreen> createState() => _ChatDetailScreenState();
 }
 
-class _ChatDetailScreenState extends State<ChatDetailScreen> {
+class _ChatDetailScreenState extends State<ChatDetailScreen> implements ChatDetailContract {
+  ChatDetailPresenter? _presenter;
+
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   List<MessageModel> messages = [];
-  final String currentUserId = 'current_user'; // ID của user hiện tại
+  final String currentUserId = SessionController.getInstance().userID!; // ID của user hiện tại
+
+  bool firstEnter = true;
 
   @override
   void initState() {
+    firstEnter = true;
+    _presenter = ChatDetailPresenter(this);
     super.initState();
+
+    _presenter!.conversationModel = widget.conversation;
+    _presenter!.otherConversation = widget.otherConversation;
 
     // Debug: In ra thông tin conversation để kiểm tra
     print(
@@ -30,8 +45,20 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
     print(
         'ChatDetail: participantAvatar = ${widget.conversation.participantAvatar}');
 
-    _loadMockMessages();
+    // _loadMockMessages();
   }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    firstEnter = false;
+    await _presenter?.getData();
+  }
+
 
   void _loadMockMessages() {
     // Mock data cho tin nhắn
@@ -312,33 +339,31 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
       body: Column(
         children: [
           Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              itemCount: messages.length,
-              itemBuilder: (context, index) {
-                final message = messages[index];
-                final isMe = message.from == currentUserId;
-
-                // Kiểm tra xem có cần hiển thị date separator không
-                bool showDateSeparator = false;
-                if (index == 0) {
-                  showDateSeparator = true;
-                } else {
-                  final previousMessage = messages[index - 1];
-                  final currentDate = DateTime(
-                      message.time.year, message.time.month, message.time.day);
-                  final previousDate = DateTime(previousMessage.time.year,
-                      previousMessage.time.month, previousMessage.time.day);
-                  showDateSeparator = !currentDate.isAtSameDay(previousDate);
+            child: StreamBuilder<List<MessageModel>>(
+              stream: _presenter!.messageStream,
+              builder: (context, snapshot) {
+                Widget? result = UtilWidgets.createSnapshotResultWidget(context, snapshot);
+                if (result != null) {
+                  return result;
                 }
 
-                return Column(
-                  children: [
-                    if (showDateSeparator) _buildDateSeparator(message.time),
-                    _buildMessage(message, isMe),
-                  ],
-                );
+                final data = snapshot.data ?? [];
+
+                messages = data;
+
+                if (messages.isEmpty) {
+                  return const Center(child: Text(""));
+                }
+
+                if (firstEnter || messages.last.from == currentUserId) {
+                    onSendMessageSuccess();
+                }
+
+                if (_presenter!.conversationModel!.unreadCount > 0) {
+                  _presenter!.handleReadMessage(messages);
+                }
+
+                return _buildMessageList();
               },
             ),
           ),
@@ -374,13 +399,13 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                         ),
                         maxLines: null,
                         textInputAction: TextInputAction.send,
-                        onSubmitted: (_) => _sendMessage(),
+                        onSubmitted: (_) => _presenter!.sendMessage(_messageController.text),
                       ),
                     ),
                   ),
                   const Gap(8),
                   Container(
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: Palette.primaryColor,
                       shape: BoxShape.circle,
                     ),
@@ -390,7 +415,9 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                         color: Colors.white,
                         size: 20,
                       ),
-                      onPressed: _sendMessage,
+                      onPressed: () => {
+                        _presenter!.sendMessage(_messageController.text)
+                      },
                     ),
                   ),
                 ],
@@ -402,11 +429,77 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
     );
   }
 
+
+  Widget _buildMessageList() {
+    return ListView.builder(
+      controller: _scrollController,
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      itemCount: messages.length,
+      itemBuilder: (context, index) {
+        final message = messages[index];
+        final isMe = message.from == currentUserId;
+
+        // Kiểm tra xem có cần hiển thị date separator không
+        bool showDateSeparator = false;
+        if (index == 0) {
+          showDateSeparator = true;
+        } else {
+          final previousMessage = messages[index - 1];
+          final currentDate = DateTime(
+              message.time.year, message.time.month, message.time.day);
+          final previousDate = DateTime(previousMessage.time.year,
+              previousMessage.time.month, previousMessage.time.day);
+          showDateSeparator = !currentDate.isAtSameDay(previousDate);
+        }
+
+        return Column(
+          children: [
+            if (showDateSeparator) _buildDateSeparator(message.time),
+            _buildMessage(message, isMe),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   void dispose() {
     _messageController.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _scrollDown() {
+    // Cuộn xuống tin nhắn mới nhất
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
+  @override
+  void onSendMessageFailed(String message) {
+    UtilWidgets.createSnackBar(context, message, backgroundColor: Colors.red);
+  }
+
+  @override
+  void onSendMessageSuccess() {
+    _scrollDown();
+  }
+
+  @override
+  void onSendingMessage(MessageModel message) {
+    setState(() {
+      messages.add(message);
+      _messageController.clear();
+    });
+
+    _scrollDown();
   }
 }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pcplus/component/conversation_argument.dart';
 import 'package:pcplus/pages/authentication/account_type/account_type_screen.dart';
 import 'package:pcplus/pages/authentication/otp/OTP.dart';
 import 'package:pcplus/pages/authentication/shop_information/shop_information_screen.dart';
@@ -81,8 +82,11 @@ final Map<String, WidgetBuilder> routes = {
   ConversationsScreen.routeName: (context) => const ConversationsScreen(),
   ChatDetailScreen.routeName: (context) {
     final conversation =
-        ModalRoute.of(context)!.settings.arguments as ConversationModel;
-    return ChatDetailScreen(conversation: conversation);
+        ModalRoute.of(context)!.settings.arguments as ConversationArgument;
+    return ChatDetailScreen(
+        conversation: conversation.ownerConversation,
+        otherConversation: conversation.partnerConversation
+    );
   },
   SampleComment.routeName: (context) => const SampleComment(),
   VoiceSearchSample.routeName: (context) => const VoiceSearchSample(),
