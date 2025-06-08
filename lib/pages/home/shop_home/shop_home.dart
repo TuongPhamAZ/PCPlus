@@ -118,13 +118,20 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
       final args = ModalRoute.of(context)!.settings.arguments as ShopArgument;
       _presenter!.userId = args.shop.shopID;
     } else {
-      balance = SessionController.getInstance().currentUser!.money!;
+      balance = 0;
     }
 
     loadData();
   }
 
   Future<void> loadData() async {
+    if (isShop) {
+      // chờ lấy thông tin user
+      while (SessionController.getInstance().currentUser == null) {
+        await Future.delayed(const Duration(milliseconds: 10));
+      }
+      balance = SessionController.getInstance().currentUser!.money!;
+    }
     await _presenter?.getData();
   }
 

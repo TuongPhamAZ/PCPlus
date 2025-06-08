@@ -1,4 +1,6 @@
+import 'package:pcplus/component/conversation_argument.dart';
 import 'package:pcplus/controller/session_controller.dart';
+import 'package:pcplus/models/chat/conversation_repo.dart';
 import 'package:pcplus/models/in_cart_items/in_cart_item_model.dart';
 import 'package:pcplus/models/in_cart_items/in_cart_item_repo.dart';
 import 'package:pcplus/models/items/item_repo.dart';
@@ -12,7 +14,6 @@ import '../../../models/ratings/rating_model.dart';
 import '../../../models/users/user_model.dart';
 import '../../../objects/review_data.dart';
 import 'package:pcplus/models/chat/message_model.dart';
-import 'package:pcplus/models/shops/shop_repo.dart';
 
 class DetailProductPresenter {
   final DetailProductContract _view;
@@ -22,7 +23,9 @@ class DetailProductPresenter {
   final ItemRepository _itemRepo = ItemRepository();
   final UserRepository _userRepo = UserRepository();
   final InCartItemRepo _inCartItemRepo = InCartItemRepo();
-  final ShopRepository _shopRepo = ShopRepository();
+  // final ShopRepository _shopRepo = ShopRepository();
+  final ConversationRepository _conversationRepo = ConversationRepository();
+  final SessionController _sessionController = SessionController.getInstance();
 
   ItemWithSeller? itemWithSeller;
   List<RatingModel> ratings = [];
@@ -274,32 +277,33 @@ class DetailProductPresenter {
       return;
     }
 
-    // Tạo ConversationModel tạm thời với thông tin shop
-    // Sau này sẽ tích hợp với Firebase để tạo conversation thật
-    final shop = itemWithSeller!.seller;
+    ConversationModel? conversationModel = await _conversationRepo.getConversation(_sessionController.userID!, itemWithSeller!.seller.shopID!);
 
-    // Xử lý avatar giống như trong UI - nếu null thì để empty string
-    final avatarUrl = shop.image ?? "";
 
-    // Debug: In ra thông tin để kiểm tra
-    debugPrint('DetailProduct: shopName = ${shop.name}');
-    debugPrint('DetailProduct: shopImage = ${shop.image}');
-    debugPrint('DetailProduct: avatarUrl = $avatarUrl');
+    ConversationArgument argument;
+    ConversationModel? otherConversation;
 
-    currentConversation = ConversationModel(
-      id: 'temp_${shop.shopID}',
-      participantId: shop.shopID!,
-      participantName: shop.name!,
-      participantAvatar: avatarUrl.isNotEmpty ? avatarUrl : null,
-      lastMessage: null,
-      lastActivity: DateTime.now(),
-      unreadCount: 0,
+    // Chưa có conversation
+    if (conversationModel == null) {
+      conversationModel = ConversationModel(
+        id: itemWithSeller!.seller.shopID!,
+        participantId: itemWithSeller!.seller.shopID!,
+        participantName: itemWithSeller!.seller.name!,
+        lastActivity: DateTime.now(),
+        unreadCount: 0,
+        lastMessage: null,
+        participantAvatar: itemWithSeller!.seller.image!,
+      );
+    } else {
+      otherConversation = await _conversationRepo.getConversation(conversationModel.participantId, _sessionController.userID!);
+    }
+
+    argument = ConversationArgument(
+      ownerConversation: conversationModel,
+      partnerConversation: otherConversation,
     );
 
-    print(
-        'DetailProduct: currentConversation.participantAvatar = ${currentConversation!.participantAvatar}');
-
     // Thông báo cho view chuyển đến chat detail
-    _view.onChatWithShop();
+    _view.onChatWithShop(argument);
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:gap/gap.dart';
+import 'package:pcplus/component/conversation_argument.dart';
 import 'package:pcplus/component/item_argument.dart';
 import 'package:pcplus/component/shop_argument.dart';
 import 'package:pcplus/config/asset_helper.dart';
@@ -1006,7 +1007,7 @@ class _DetailProductState extends State<DetailProduct>
 
   @override
   void onResponseRatingFailed(String message) {
-    // TODO: implement onResponseRatingFailed
+    UtilWidgets.createSnackBar(context, message, backgroundColor: Colors.red);
   }
 
   @override
@@ -1019,13 +1020,11 @@ class _DetailProductState extends State<DetailProduct>
   }
 
   @override
-  void onChatWithShop() {
-    if (_presenter?.currentConversation != null) {
-      Navigator.pushNamed(
-        context,
-        ChatDetailScreen.routeName,
-        arguments: _presenter!.currentConversation,
-      );
-    }
+  void onChatWithShop(ConversationArgument argument) {
+    Navigator.pushNamed(
+      context,
+      ChatDetailScreen.routeName,
+      arguments: argument,
+    );
   }
 }
