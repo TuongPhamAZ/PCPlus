@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fuzzy/fuzzy.dart';
 import 'package:pcplus/models/items/item_model.dart';
 import 'package:async/async.dart';
-
+import 'package:rxdart/rxdart.dart'; // CombineLatestStream
 import '../shops/shop_model.dart';
 import '../shops/shop_repo.dart';
 import 'color_model.dart';
@@ -308,47 +308,56 @@ class ItemRepository {
     });
   }
 
+  final _shopCache = <String, ShopModel?>{};
+
   Stream<List<ItemWithSeller>> getItemsWithSellerStreamByIdList(List<String> ids) {
     if (ids.isEmpty) return Stream.value([]);
 
-    List<Stream<List<ItemModel>>> streams = [];
-
+    // Chia thành các batch tối đa 10 phần tử
+    final batchedIds = <List<String>>[];
     for (int i = 0; i < ids.length; i += 10) {
-      List<String> subList = ids.sublist(i, i + 10 > ids.length ? ids.length : i + 10);
+      batchedIds.add(ids.sublist(i, i + 10 > ids.length ? ids.length : i + 10));
+    }
 
-      Stream<List<ItemModel>> stream = FirebaseFirestore.instance
-          .collection('items')
-          .where(FieldPath.documentId, whereIn: subList)
+    // Tạo từng stream cho mỗi batch
+    final itemStreams = batchedIds.map((batch) {
+      return FirebaseFirestore.instance
+          .collection(ItemModel.collectionName)
+          .where(FieldPath.documentId, whereIn: batch)
           .snapshots()
           .map((snapshot) => snapshot.docs
           .map((doc) => ItemModel.fromJson(doc.id, doc.data()))
           .toList());
+    }).toList();
 
-      streams.add(stream);
-    }
+    // Combine lại, chỉ cập nhật khi có stream con thay đổi
+    return CombineLatestStream.list<List<ItemModel>>(itemStreams).asyncMap((listOfLists) async {
+      final allItems = listOfLists.expand((x) => x).toList();
 
-    return StreamGroup.merge<List<ItemModel>>(streams).asyncMap((listOfLists) async {
-      // Gộp tất cả ItemModel lại
-      final items = listOfLists.expand((x) => x as Iterable<ItemModel>).toList();
+      // Lấy các seller chưa cache
+      final missingSellerIds = allItems
+          .map((item) => item.sellerID)
+          .where((id) => !_shopCache.containsKey(id))
+          .toSet();
 
-      // Lấy danh sách sellerId
-      final sellerIds = items.map((item) => item.sellerID).toSet();
+      if (missingSellerIds.isNotEmpty) {
+        final fetchedSellers = await Future.wait(
+          missingSellerIds.map((id) => ShopRepository().getShopById(id!)),
+        );
 
-      // Lấy thông tin từng seller
-      final sellers = await Future.wait(
-        sellerIds.map((id) => ShopRepository().getShopById(id!)),
-      );
-
-      final sellerMap = {
-        // ignore: unnecessary_null_comparison
-        for (var s in sellers.where((e) => e != null)) s.shopID!: s
-      };
+        for (int i = 0; i < fetchedSellers.length; i++) {
+          final seller = fetchedSellers[i];
+          final sellerId = missingSellerIds.elementAt(i);
+          _shopCache[sellerId!] = seller;
+        }
+      }
 
       // Gắn seller vào từng item
-      return items
+      return allItems
+          .where((item) => _shopCache[item.sellerID] != null)
           .map((item) => ItemWithSeller(
         item: item,
-        seller: sellerMap[item.sellerID]!,
+        seller: _shopCache[item.sellerID]!,
       ))
           .toList();
     });

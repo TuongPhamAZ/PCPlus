@@ -33,8 +33,8 @@ class HomePresenter {
 
   Future<void> getData() async {
     newestItemStream = _itemRepo.getNewestItemsWithSellerStream(MAX_NEWEST_ITEMS);
-    recommendedItemStream = _itemRepo.getNewestItemsWithSellerStream(MAX_NEWEST_ITEMS);
-    // recommendedItemStream = _getRecommendedItemsAsStream();
+    // recommendedItemStream = _itemRepo.getNewestItemsWithSellerStream(MAX_NEWEST_ITEMS);
+    recommendedItemStream = _getRecommendedItemsAsStream();
 
     _view.onLoadDataSucceed();
   }
