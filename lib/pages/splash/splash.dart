@@ -11,6 +11,8 @@ import 'package:pcplus/pages/home/user_home/home.dart';
 import 'package:pcplus/pages/authentication/login/login.dart';
 import 'package:pcplus/pages/home/shop_home/shop_home.dart';
 
+import '../../services/test_tool.dart';
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
   static const String routeName = 'splash';
@@ -52,9 +54,9 @@ class _SplashScreenState extends State<SplashScreen>
 
   Future<void> _getUserData() async {
     // TestTool testTool = TestTool();
-    // await testTool.createSampleItems();
+    // await testTool.createSampleUsers();
+    // await testTool.createRandomInteractions();
     // return;
-    // await testTool.reUpdateItems();
 
     UserModel? loggedUser = await PrefService.loadUserData();
     if (loggedUser == null) {
