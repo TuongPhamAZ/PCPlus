@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 
 class ApiController {
   //static const String baseUrl = "http://10.0.2.2:8000";
-  static const String baseUrl = "https://pc-recommender-api-7a23d.ondigitalocean.app/";
+  static const String baseUrl = "https://pc-recommender-api-7a23d.ondigitalocean.app";
 
   // Constructor
   ApiController();
@@ -59,9 +59,11 @@ class ApiController {
     try {
       Uri uri = Uri.parse("$baseUrl/recommend?uid=$userId&max=$amount");
       // print(uri);
-      final response = await http.post(uri);
+      final response = await http.get(uri);
       // print(response.body);
-      return jsonDecode(response.body);
+      Map<String, dynamic> result = jsonDecode(response.body);
+      List<String> stringList = (result["products"] as List<dynamic>).map((raw) => raw as String).toList();
+      return stringList;
     } catch (e) {
       debugPrint(e.toString());
     }
