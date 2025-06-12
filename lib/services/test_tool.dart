@@ -115,7 +115,7 @@ class TestTool {
   }
 
   Future<void> createSampleItems() async {
-    final String jsonString = await rootBundle.loadString('lib/sample/test_samples/item_cleaned.json');
+    final String jsonString = await rootBundle.loadString('lib/sample/test_samples/items_data_v2.json');
     final List<dynamic> jsonList = jsonDecode(jsonString);
     final List<ItemModel> items = jsonList.map((raw) => ItemModel.fromJson("", raw)).toList();
 
@@ -123,6 +123,7 @@ class TestTool {
 
     for (ItemModel item in items) {
       item.addDate = randomTool.generateRandomDate(startDate, endDate);
+      item.discountTime = item.addDate;
       item.detail = item.description;
       await waitRandomDuration(500, 600);
       await itemRepo.addItemToFirestore(item);
