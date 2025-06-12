@@ -45,7 +45,7 @@ class _HistoryOrderState extends State<HistoryOrder>
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'History Order',
+          'Lịch sử đơn hàng',
           style: TextDecor.robo24Medi.copyWith(color: Colors.black),
         ),
         leading: IconButton(

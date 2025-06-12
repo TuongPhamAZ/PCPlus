@@ -193,8 +193,9 @@ class HistoryOrderPresenter {
 
     // Gửi thông báo
     await _notificationService.createReceivedOrderNotification(shopID, billOfShopModel);
+
     for (BillShopItemModel billShopItem in billOfShopModel.items!) {
-      AwaitRatingModel awaitRatingModel = billShopItem.createAwaitRatingModel(shop!.name!);
+      AwaitRatingModel awaitRatingModel = billShopItem.createAwaitRatingModel(model.getBillShopModel(shopID)!.shopName!);
       await _awaitRatingRepo.addAwaitRatingToFirestore(billOfShopModel.userID!, awaitRatingModel);
     }
 

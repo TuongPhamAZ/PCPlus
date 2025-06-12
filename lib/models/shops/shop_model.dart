@@ -4,6 +4,7 @@ class ShopModel {
   String? location;
   String? phone;
   double? rating;
+  int? ratingCount;
   String? image;
 
   static String collectionName = 'Shops';
@@ -15,6 +16,7 @@ class ShopModel {
     required this.location,
     required this.phone,
     required this.rating,
+    this.ratingCount,
     this.image,
   });
 
@@ -24,6 +26,7 @@ class ShopModel {
     'phone': phone,
     'rating': rating,
     'image': image,
+    'ratingCount': ratingCount ?? 0,
   };
 
   static ShopModel fromJson(String id, Map<String, dynamic> json) {
@@ -35,6 +38,7 @@ class ShopModel {
       phone: json['phone'] as String,
       rating: (json['rating']) as double,
       image: json['image'] as String,
+      ratingCount: (json['ratingCount'] ?? 0) as int,
     );
   }
 

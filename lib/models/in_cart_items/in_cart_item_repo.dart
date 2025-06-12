@@ -147,7 +147,10 @@ class InCartItemRepo {
 
       Set<String?> sellerIds = items.map((item) => item.sellerID).toSet();
       List<ShopModel> sellers = await Future.wait(
-        sellerIds.map((id) => ShopRepository().getShopById(id!)),
+        sellerIds.map((id) async {
+          ShopModel? shopModel = await ShopRepository().getShopById(id!);
+          return shopModel!;
+        }),
       );
 
       Map<String, ShopModel> sellerMap = {
@@ -212,7 +215,10 @@ class InCartItemRepo {
 
       Set<String?> sellerIds = items.map((item) => item.sellerID).toSet();
       List<ShopModel> sellers = await Future.wait(
-        sellerIds.map((id) => ShopRepository().getShopById(id!)),
+        sellerIds.map((id) async {
+          ShopModel? shopModel = await ShopRepository().getShopById(id!);
+          return shopModel!;
+        }),
       );
 
       Map<String, ShopModel> sellerMap = {

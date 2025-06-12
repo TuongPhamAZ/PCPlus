@@ -40,7 +40,7 @@ class _RatingScreenState extends State<RatingScreen> implements RatingScreenCont
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'My Rating',
+          'Gửi đánh giá',
           style: TextDecor.robo24Medi.copyWith(color: Colors.black),
         ),
         leading: IconButton(

@@ -196,7 +196,7 @@ class _PaymentProductItemState extends State<PaymentProductItem> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => ListVoucherChoice(
-                        shopId: 'shop_id',
+                        shopId: widget.items.first.sellerID!,
                         orderAmount: _getTotalCost(),
                         currentSelectedVoucher: selectedVoucher,
                       ),

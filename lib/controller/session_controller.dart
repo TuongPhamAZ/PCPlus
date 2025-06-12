@@ -47,8 +47,8 @@ class SessionController {
     isSeller = user.userType == UserType.SHOP;
 
     if (isSeller) {
-      ShopModel shop = await _shopRepository.getShopById(userID!);
-      await PrefService.saveShopData(shopData: shop);
+      ShopModel? shop = await _shopRepository.getShopById(userID!);
+      await PrefService.saveShopData(shopData: shop!);
     }
 
     // Update FCM
