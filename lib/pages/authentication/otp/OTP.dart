@@ -1,5 +1,3 @@
-
-
 // ignore_for_file: deprecated_member_use
 
 import 'dart:async';
@@ -46,14 +44,28 @@ class _OTPScreenState extends State<OTPScreen> implements OtpViewContract {
     super.initState();
   }
 
-  @override
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+
+  //   final args = ModalRoute.of(context)!.settings.arguments as RegisterArgument;
+
+  //   if (_otpPresenter?.email != args.email) {
+  //     _otpPresenter?.email = args.email;
+  //     _otpPresenter!.initSendPinCode();
+  //   }
+  // }
+
+    @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
     final args = ModalRoute.of(context)!.settings.arguments as RegisterArgument;
 
-    _otpPresenter?.email = args.email;
-    _otpPresenter!.initSendPinCode();
+    if (_otpPresenter!.email == null || _otpPresenter!.email!.isEmpty) {
+      _otpPresenter?.email = args.email;
+      _otpPresenter!.initSendPinCode();
+    }
   }
 
   @override
