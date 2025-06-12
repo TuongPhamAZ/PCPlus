@@ -293,6 +293,28 @@ class _HistoryItemState extends State<HistoryItem> {
                 ),
               ],
             ),
+            if (isShop)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: size.width - 180,
+                    child: Text(
+                      "Đến: ${widget.receiverName}",
+                      style: TextDecor.robo17,
+                      maxLines: 1,
+                    ),
+                  ),
+                  SizedBox(
+                    width: size.width - 180,
+                    child: Text(
+                      widget.address,
+                      style: TextDecor.robo17,
+                      maxLines: 2,
+                    ),
+                  ),
+                ],
+              ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -360,48 +382,6 @@ class _HistoryItemState extends State<HistoryItem> {
                               ))
                           .toList(),
                     ),
-                    if (isShop)
-                      SizedBox(
-                        width: size.width - 180,
-                        height: 100,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SizedBox(
-                                  width: size.width - 180,
-                                  child: Text(
-                                    "To: ${widget.receiverName}",
-                                    style: TextDecor.robo17,
-                                    maxLines: 1,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: size.width - 180,
-                                  child: Text(
-                                    widget.address,
-                                    style: TextDecor.robo17,
-                                    maxLines: 2,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Expanded(child: Container()),
-                            Row(
-                              children: [
-                                Expanded(child: Container()),
-                                Text(
-                                  Utility.formatCurrency(widget.price),
-                                  style: TextDecor.robo17,
-                                ),
-                              ],
-                            ),
-                            const Gap(5),
-                          ],
-                        ),
-                      ),
                   ],
                 ),
               ],
