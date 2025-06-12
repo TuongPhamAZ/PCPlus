@@ -153,30 +153,30 @@ class AddProductPresenter {
     await _itemRepo.updateItem(model);
 
     // Gửi thông tin ảnh tới backend để tạo vector đặc trưng
-    bool vectorSuccess = false;
-    if (productImages.isNotEmpty) {
-      try {
-        vectorSuccess = await _vectorApiService.addProductImages(
-          shopId: model.sellerID!,
-          productImages: productImages,
-        );
+    // bool vectorSuccess = false;
+    // if (productImages.isNotEmpty) {
+    //   try {
+    //     vectorSuccess = await _vectorApiService.addProductImages(
+    //       shopId: model.sellerID!,
+    //       productImages: productImages,
+    //     );
 
-        if (!vectorSuccess) {
-          print("Warning: Không thể tạo vector đặc trưng cho sản phẩm $id");
-        }
-      } catch (e) {
-        print("Error creating product vectors: $e");
-        vectorSuccess = false;
-      }
-    }
+    //     if (!vectorSuccess) {
+    //       print("Warning: Không thể tạo vector đặc trưng cho sản phẩm $id");
+    //     }
+    //   } catch (e) {
+    //     print("Error creating product vectors: $e");
+    //     vectorSuccess = false;
+    //   }
+    // }
 
     // Tắt loading sau khi TẤT CẢ quá trình hoàn tất
     _view.onPopContext();
 
-    if (vectorSuccess) {
-      _view.onAddSuccessWithVector();
-    } else {
-      _view.onAddSuccessWithoutVector();
-    }
+    // if (vectorSuccess) {
+    //   _view.onAddSuccessWithVector();
+    // } else {
+    //   _view.onAddSuccessWithoutVector();
+    // }
   }
 }

@@ -111,10 +111,10 @@ class _VoucherDetailState extends State<VoucherDetail>
                   _buildVoucherCard(),
                   const Gap(20),
                   _buildVoucherInfo(),
-                  if (isShop) ...[
-                    const Gap(20),
-                    _buildShopStatistics(),
-                  ],
+                  // if (isShop) ...[
+                  //   const Gap(20),
+                  //   _buildShopStatistics(),
+                  // ],
                   const Gap(20),
                   isShop ? _buildShopManagement() : _buildUsageInfo(),
                   const Gap(20),
@@ -395,131 +395,131 @@ class _VoucherDetailState extends State<VoucherDetail>
     );
   }
 
-  Widget _buildShopStatistics() {
-    // Mock statistics data - replace with actual data
-    const int totalUsed = 25;
-    const int totalRevenue = 2500000;
-    final double usageRate =
-        (totalUsed / (_voucher!.quantity! + totalUsed)) * 100;
+  // Widget _buildShopStatistics() {
+  //   // Mock statistics data - replace with actual data
+  //   const int totalUsed = 25;
+  //   const int totalRevenue = 2500000;
+  //   final double usageRate =
+  //       (totalUsed / (_voucher!.quantity! + totalUsed)) * 100;
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Thống kê voucher',
-            style: TextDecor.robo18Bold.copyWith(
-              color: Colors.black87,
-            ),
-          ),
-          const Gap(16),
-          Row(
-            children: [
-              Expanded(
-                child: _buildStatCard(
-                  icon: Icons.redeem,
-                  title: 'Đã sử dụng',
-                  value: '$totalUsed',
-                  color: Colors.blue,
-                ),
-              ),
-              const Gap(12),
-              Expanded(
-                child: _buildStatCard(
-                  icon: Icons.inventory,
-                  title: 'Còn lại',
-                  value: '${_voucher!.quantity}',
-                  color: Colors.green,
-                ),
-              ),
-            ],
-          ),
-          const Gap(12),
-          Row(
-            children: [
-              Expanded(
-                child: _buildStatCard(
-                  icon: Icons.percent,
-                  title: 'Tỷ lệ sử dụng',
-                  value: '${usageRate.toStringAsFixed(1)}%',
-                  color: Colors.orange,
-                ),
-              ),
-              const Gap(12),
-              Expanded(
-                child: _buildStatCard(
-                  icon: Icons.attach_money,
-                  title: 'Doanh thu',
-                  value: _formatCurrency(totalRevenue),
-                  color: Colors.red,
-                  isSmallText: true,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+  //   return Container(
+  //     margin: const EdgeInsets.symmetric(horizontal: 16),
+  //     padding: const EdgeInsets.all(20),
+  //     decoration: BoxDecoration(
+  //       color: Colors.white,
+  //       borderRadius: BorderRadius.circular(16),
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: Colors.black.withOpacity(0.05),
+  //           blurRadius: 8,
+  //           offset: const Offset(0, 2),
+  //         ),
+  //       ],
+  //     ),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Text(
+  //           'Thống kê voucher',
+  //           style: TextDecor.robo18Bold.copyWith(
+  //             color: Colors.black87,
+  //           ),
+  //         ),
+  //         const Gap(16),
+  //         Row(
+  //           children: [
+  //             Expanded(
+  //               child: _buildStatCard(
+  //                 icon: Icons.redeem,
+  //                 title: 'Đã sử dụng',
+  //                 value: '$totalUsed',
+  //                 color: Colors.blue,
+  //               ),
+  //             ),
+  //             const Gap(12),
+  //             Expanded(
+  //               child: _buildStatCard(
+  //                 icon: Icons.inventory,
+  //                 title: 'Còn lại',
+  //                 value: '${_voucher!.quantity}',
+  //                 color: Colors.green,
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //         const Gap(12),
+  //         Row(
+  //           children: [
+  //             Expanded(
+  //               child: _buildStatCard(
+  //                 icon: Icons.percent,
+  //                 title: 'Tỷ lệ sử dụng',
+  //                 value: '${usageRate.toStringAsFixed(1)}%',
+  //                 color: Colors.orange,
+  //               ),
+  //             ),
+  //             const Gap(12),
+  //             Expanded(
+  //               child: _buildStatCard(
+  //                 icon: Icons.attach_money,
+  //                 title: 'Doanh thu',
+  //                 value: _formatCurrency(totalRevenue),
+  //                 color: Colors.red,
+  //                 isSmallText: true,
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
-  Widget _buildStatCard({
-    required IconData icon,
-    required String title,
-    required String value,
-    required Color color,
-    bool isSmallText = false,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: color.withOpacity(0.3),
-        ),
-      ),
-      child: Column(
-        children: [
-          Icon(
-            icon,
-            color: color,
-            size: 24,
-          ),
-          const Gap(8),
-          Text(
-            title,
-            style: TextDecor.robo12.copyWith(
-              color: Colors.grey[600],
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const Gap(4),
-          Text(
-            value,
-            style: (isSmallText ? TextDecor.robo14 : TextDecor.robo16Medi)
-                .copyWith(
-              color: color,
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildStatCard({
+  //   required IconData icon,
+  //   required String title,
+  //   required String value,
+  //   required Color color,
+  //   bool isSmallText = false,
+  // }) {
+  //   return Container(
+  //     padding: const EdgeInsets.all(16),
+  //     decoration: BoxDecoration(
+  //       color: color.withOpacity(0.1),
+  //       borderRadius: BorderRadius.circular(12),
+  //       border: Border.all(
+  //         color: color.withOpacity(0.3),
+  //       ),
+  //     ),
+  //     child: Column(
+  //       children: [
+  //         Icon(
+  //           icon,
+  //           color: color,
+  //           size: 24,
+  //         ),
+  //         const Gap(8),
+  //         Text(
+  //           title,
+  //           style: TextDecor.robo12.copyWith(
+  //             color: Colors.grey[600],
+  //           ),
+  //           textAlign: TextAlign.center,
+  //         ),
+  //         const Gap(4),
+  //         Text(
+  //           value,
+  //           style: (isSmallText ? TextDecor.robo14 : TextDecor.robo16Medi)
+  //               .copyWith(
+  //             color: color,
+  //             fontWeight: FontWeight.bold,
+  //           ),
+  //           textAlign: TextAlign.center,
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildShopManagement() {
     final isExpired = _voucher!.endDate!.isBefore(DateTime.now());

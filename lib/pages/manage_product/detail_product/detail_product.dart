@@ -256,7 +256,7 @@ class _DetailProductState extends State<DetailProduct>
                                           child: Image.network(
                                             currentDisplayImages[
                                                 index], // Sử dụng currentDisplayImages
-                                            fit: BoxFit.contain,
+                                            fit: BoxFit.cover,
                                           ),
                                         ),
                                       ),

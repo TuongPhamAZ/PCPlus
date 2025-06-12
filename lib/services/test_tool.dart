@@ -3,6 +3,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pcplus/models/interactions/interaction_model.dart';
+import 'package:pcplus/models/interactions/interaction_repo.dart';
 import 'package:pcplus/models/items/item_model.dart';
 import 'package:pcplus/models/items/item_repo.dart';
 import 'package:pcplus/models/shops/shop_repo.dart';
@@ -113,7 +115,7 @@ class TestTool {
   }
 
   Future<void> createSampleItems() async {
-    final String jsonString = await rootBundle.loadString('lib/sample/test_samples/item_cleaned.json');
+    final String jsonString = await rootBundle.loadString('lib/sample/test_samples/items_data_v2.json');
     final List<dynamic> jsonList = jsonDecode(jsonString);
     final List<ItemModel> items = jsonList.map((raw) => ItemModel.fromJson("", raw)).toList();
 
@@ -121,11 +123,24 @@ class TestTool {
 
     for (ItemModel item in items) {
       item.addDate = randomTool.generateRandomDate(startDate, endDate);
+      item.discountTime = item.addDate;
       item.detail = item.description;
       await waitRandomDuration(500, 600);
       await itemRepo.addItemToFirestore(item);
     }
     debugPrint('Done!');
+  }
+
+  Future<void> createSampleUsers() async {
+    final String jsonStringUsers = await rootBundle.loadString('lib/sample/test_samples/user.json');
+    final List<dynamic> jsonUsersList = jsonDecode(jsonStringUsers);
+    final List<UserModel> users = jsonUsersList.map((raw) => UserModel.fromJson(raw)).toList();
+
+    final UserRepository userRepository = UserRepository();
+
+    for (UserModel user in users) {
+      await userRepository.addUserToFirestore(user);
+    }
   }
 
   Future<void> createSampleSellers() async {
@@ -168,5 +183,39 @@ class TestTool {
 
     // Chờ trong khoảng thời gian ngẫu nhiên
     await Future.delayed(Duration(milliseconds: randomMilliseconds));
+  }
+
+  Future<void> createRandomInteractions() async {
+    final ItemRepository itemRepository = ItemRepository();
+    final UserRepository userRepository = UserRepository();
+    final InteractionRepository interactionRepository = InteractionRepository();
+
+    List<ItemModel> items = await itemRepository.getAllItems();
+    List<UserModel> users = await userRepository.getAllUsers();
+
+    for (UserModel user in users) {
+      if (user.userType == UserType.USER && user.activeFcm!.isEmpty) {
+        for (ItemModel item in items) {
+          int chance = randomTool.generateRandomNumber(0, 100);
+
+          if (chance < 40) {
+            int clickTimes = randomTool.generateRandomNumber(2, 10);
+            int buyTimes = randomTool.generateRandomNumber(0, clickTimes);
+            double rating = buyTimes > 0 ? randomTool.generateRandomNumber(2, 5).toDouble() : 0.0;
+
+            InteractionModel newInteraction = InteractionModel(
+                userID: user.userID,
+                itemID: item.itemID,
+                clickTimes: clickTimes,
+                buyTimes: buyTimes,
+                rating: rating,
+                isFavor: buyTimes > 0,
+            );
+
+            await interactionRepository.addInteractionToFirestore(newInteraction);
+          }
+        }
+      }
+    }
   }
 }
