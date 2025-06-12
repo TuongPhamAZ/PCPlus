@@ -10,6 +10,7 @@ import 'package:pcplus/models/in_cart_items/in_cart_item_repo.dart';
 import 'package:pcplus/models/items/item_repo.dart';
 import 'package:pcplus/models/users/user_model.dart';
 import 'package:pcplus/models/users/user_repo.dart';
+import 'package:pcplus/models/vouchers/voucher_repo.dart';
 import 'package:pcplus/pages/bill/bill_product/bill_product_contract.dart';
 import 'package:pcplus/services/pref_service.dart';
 import 'package:pcplus/services/utility.dart';
@@ -203,6 +204,11 @@ class BillProductPresenter {
       // Gửi thông báo tới shop
       await _notificationService.createOrderingNotification(
           shop.shopID!, billOfShopModel);
+      // Cập nhật lại voucher
+      if (billOfShopModel.voucher != null) {
+        billOfShopModel.voucher!.quantity = billOfShopModel.voucher!.quantity! - 1;
+        await VoucherRepository().updateVoucher(shop.shopID!, billOfShopModel.voucher!);
+      }
     }
     // Xóa item trong giỏ hàng
     for (ItemInCartWithSeller data in onPaymentItems!) {

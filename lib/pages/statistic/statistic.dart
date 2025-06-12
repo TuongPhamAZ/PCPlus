@@ -5,6 +5,7 @@ import 'package:pcplus/const/tax_rate.dart';
 import 'package:pcplus/models/bills/bill_of_shop_model.dart';
 import 'package:pcplus/pages/statistic/statistic_contract.dart';
 import 'package:pcplus/pages/statistic/statistic_presenter.dart';
+import 'package:pcplus/services/utility.dart';
 import 'package:pcplus/themes/text_decor.dart';
 
 import '../../const/item_type.dart';
@@ -192,7 +193,7 @@ class _StatisticState extends State<Statistic> implements StatisticContract {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'STATISTIC',
+          'THỐNG KÊ',
           style: TextDecor.robo24Medi.copyWith(color: Colors.black),
         ),
         automaticallyImplyLeading: false,
@@ -343,8 +344,8 @@ class _StatisticState extends State<Statistic> implements StatisticContract {
                           spacing: 8,
                           children: [
                             Text("Số đơn hàng: ${_getOrderCount()}"),
-                            Text("Doanh thu: ${_getPayout()}"),
-                            Text("Phí giao dịch (${TaxRate.totalFeePercent}): ${_getTotalFee()}"),
+                            Text("Doanh thu: ${Utility.formatCurrency(_getPayout())}"),
+                            Text("Phí giao dịch (${TaxRate.totalFeePercent}): ${Utility.formatCurrency(_getTotalFee())}"),
                           ],
                         ),
                         const SizedBox(height: 16),
