@@ -152,6 +152,7 @@ class _CartShoppingScreenState extends State<CartShoppingScreen> implements Cart
                             price: itemData.item.discountPrice!,
                             stock: itemData.item.stock!,
                             color: itemData.inCart.color!.name!,
+                            amount: itemData.inCart.amount!,
                             onDelete: () => _deleteItem(itemData.inCart),
                             onPressed: () => _presenter?.handleItemPressed(
                                 ItemWithSeller(

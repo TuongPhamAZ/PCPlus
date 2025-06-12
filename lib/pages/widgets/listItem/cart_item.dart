@@ -16,6 +16,7 @@ class CartItem extends StatefulWidget {
   final bool isCheck;
   final int price;
   final int stock;
+  final int amount;
   final String? color;
   final void Function(bool?)? onChanged;
   final void Function()? onDelete;
@@ -34,6 +35,7 @@ class CartItem extends StatefulWidget {
       required this.isCheck,
       required this.price,
       required this.stock,
+      required this.amount,
       required this.onDelete,
       required this.onChangeAmount,
       this.color});
@@ -49,6 +51,7 @@ class _CartItemState extends State<CartItem> {
   @override
   void initState() {
     _checkSoldOut();
+    soluong = widget.amount;
     super.initState();
   }
 
