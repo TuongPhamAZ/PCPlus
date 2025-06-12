@@ -108,7 +108,7 @@ class _RatingItemState extends State<RatingItem> {
                       Row(
                         children: [
                           Text(
-                            "Phan loai: ${widget.color}",
+                            "Phân loại: ${widget.color}",
                             textAlign: TextAlign.justify,
                             maxLines: 2,
                             style: TextDecor.robo14.copyWith(

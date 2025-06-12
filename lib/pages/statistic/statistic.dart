@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:pcplus/const/order_status.dart';
 import 'package:pcplus/const/tax_rate.dart';
 import 'package:pcplus/models/bills/bill_of_shop_model.dart';
 import 'package:pcplus/pages/statistic/statistic_contract.dart';
@@ -307,7 +308,11 @@ class _StatisticState extends State<Statistic> implements StatisticContract {
                       return result;
                     }
 
-                    final billData = snapshot.data ?? [];
+                    var billData = snapshot.data ?? [];
+
+                    billData = billData
+                        .where((v) => v.status == OrderStatus.COMPLETED)
+                        .toList();
 
                     bills = billData;
                     saleDataObjects.clear();

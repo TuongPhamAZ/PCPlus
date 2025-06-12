@@ -26,12 +26,18 @@ class ShopRepository {
     return isSuccess;
   }
 
-  Future<ShopModel> getShopById(String id) async {
-    final DocumentReference<Map<String, dynamic>> collectionRef = _storage.collection(ShopModel.collectionName).doc(id);
-    DocumentSnapshot<Map<String, dynamic>> documentSnapshot = await collectionRef.get();
+  Future<ShopModel?> getShopById(String id) async {
+    try {
+      final DocumentReference<Map<String, dynamic>> collectionRef = _storage.collection(ShopModel.collectionName).doc(id);
+      DocumentSnapshot<Map<String, dynamic>> documentSnapshot = await collectionRef.get();
 
-    final ShopModel shop = ShopModel.fromJson(documentSnapshot.id, documentSnapshot.data() as Map<String, dynamic>);
-    return shop;
+      final ShopModel shop = ShopModel.fromJson(documentSnapshot.id, documentSnapshot.data() as Map<String, dynamic>);
+      return shop;
+    } catch (e) {
+      debugPrint(e.toString());
+      return null;
+    }
+
   }
 
   Future<List<ShopModel>> getAllShops() async {

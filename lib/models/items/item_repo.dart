@@ -200,7 +200,8 @@ class ItemRepository {
       // Truy vấn tất cả ShopModel cùng lúc
       List<ShopModel> sellers = await Future.wait(
         sellerIds.map((id) async {
-          return ShopRepository().getShopById(id!);
+          ShopModel? shopModel = await ShopRepository().getShopById(id!);
+          return shopModel!;
         }),
       );
 
@@ -289,7 +290,8 @@ class ItemRepository {
       // Truy vấn tất cả UserModel cùng lúc
       List<ShopModel> sellers = await Future.wait(
         sellerIds.map((id) async {
-          return ShopRepository().getShopById(id!);
+          ShopModel? shopModel = await ShopRepository().getShopById(id!);
+          return shopModel!;
         }),
       );
 
@@ -381,7 +383,8 @@ class ItemRepository {
       // Truy vấn tất cả UserModel cùng lúc
       List<ShopModel> sellers = await Future.wait(
         sellerIds.map((id) async {
-          return ShopRepository().getShopById(id!);
+          ShopModel? seller = await ShopRepository().getShopById(id!);
+          return seller!;
         }),
       );
 

@@ -45,7 +45,7 @@ class _HistoryOrderState extends State<HistoryOrder>
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'History Order',
+          'Lịch sử đơn hàng',
           style: TextDecor.robo24Medi.copyWith(color: Colors.black),
         ),
         leading: IconButton(
@@ -54,7 +54,7 @@ class _HistoryOrderState extends State<HistoryOrder>
             size: 30,
           ),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.of(context, rootNavigator: true).pop();
           },
         ),
       ),
@@ -74,7 +74,7 @@ class _HistoryOrderState extends State<HistoryOrder>
                       return result;
                     }
 
-                    var orders = snapshot.data ?? [];
+                    var orders = [...(snapshot.data ?? [])];
 
                     // Filter order
                     if (widget.orderType.isNotEmpty) {
@@ -92,8 +92,11 @@ class _HistoryOrderState extends State<HistoryOrder>
                       shrinkWrap: true,
                       // physics: const Scroas(),
                       itemBuilder: (context, index) {
-                        return _presenter!
-                            .createHistoryOrderItemForShop(orders[index]);
+                        final order = orders[index];
+                        return KeyedSubtree(
+                          key: ValueKey("$index${order.status!}"), // <-- ép Flutter hiểu phần tử này là khác
+                          child: _presenter!.createHistoryOrderItemForShop(order)!,
+                        );
                       },
                     );
                   },

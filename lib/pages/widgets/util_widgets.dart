@@ -10,6 +10,7 @@ abstract class UtilWidgets {
 
   static void createLoadingWidget(BuildContext context) {
     showDialog(
+        useRootNavigator: true,
         context: context,
         barrierDismissible: false,
         builder: (context) {
@@ -20,6 +21,7 @@ abstract class UtilWidgets {
   static void createDialog(BuildContext context, String title, String content,
       VoidCallback onClick) {
     showDialog(
+      useRootNavigator: true,
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
@@ -40,6 +42,7 @@ abstract class UtilWidgets {
   static void createDismissibleDialog(BuildContext context, String title,
       String content, VoidCallback onClick) {
     showDialog(
+      useRootNavigator: true,
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
