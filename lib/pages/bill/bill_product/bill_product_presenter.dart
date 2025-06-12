@@ -200,10 +200,6 @@ class BillProductPresenter {
       // Tạo Bill trong shop
       await _billOfShopRepository.addBillOfShopToFirestore(
           shop.shopID!, billOfShopModel);
-      // Cộng tiền cho shop
-      UserModel? sellerModel = await _userRepo.getUserById(shop.shopID!);
-      sellerModel!.money = sellerModel.money! + billOfShopModel.payout!;
-      await _userRepo.updateUser(sellerModel);
       // Gửi thông báo tới shop
       await _notificationService.createOrderingNotification(
           shop.shopID!, billOfShopModel);

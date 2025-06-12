@@ -7,6 +7,7 @@ import 'package:pcplus/models/await_ratings/await_rating_repo.dart';
 import 'package:pcplus/models/bills/bill_of_shop_repo.dart';
 import 'package:pcplus/models/bills/bill_repo.dart';
 import 'package:pcplus/models/bills/bill_shop_item_model.dart';
+import 'package:pcplus/models/users/user_repo.dart';
 import 'package:pcplus/services/notification_service.dart';
 import 'package:pcplus/services/pref_service.dart';
 import '../../factories/widget_factories/history_order_item_for_shop_factory.dart';
@@ -30,6 +31,7 @@ class HistoryOrderPresenter {
   final AwaitRatingRepository _awaitRatingRepo = AwaitRatingRepository();
   final SessionController _sessionController = SessionController.getInstance();
   final NotificationService _notificationService = NotificationService();
+  final UserRepository _userRepo = UserRepository();
   UserModel? user;
   ShopModel? shop;
 
@@ -178,6 +180,18 @@ class HistoryOrderPresenter {
       _view.onError("Đã có lỗi xảy ra. Hãy thử lại sau.");
       return;
     }
+    // Cộng tiền cho shop
+    UserModel? sellerModel = await _userRepo.getUserById(shopID);
+    if (sellerModel != null) {
+      sellerModel.money = sellerModel.money! + billOfShopModel.payout!;
+      await _userRepo.updateUser(sellerModel);
+    } else {
+      _view.onPopContext();
+      _view.onError("Đã có lỗi xảy ra. Hãy thử lại sau.");
+      return;
+    }
+
+    // Gửi thông báo
     await _notificationService.createReceivedOrderNotification(shopID, billOfShopModel);
     for (BillShopItemModel billShopItem in billOfShopModel.items!) {
       AwaitRatingModel awaitRatingModel = billShopItem.createAwaitRatingModel(shop!.name!);
