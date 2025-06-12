@@ -25,21 +25,21 @@ class HistoryItem extends StatefulWidget {
   final CancelOrderCommand? onCancelOrder;
   final ReceivedOrderCommand? onReceivedOrder;
   final SentOrderCommand? onSentOrder;
-  const HistoryItem(
-      {super.key,
-      required this.shopName,
-      required this.status,
-      required this.products,
-      required this.address,
-      required this.receiverName,
-      required this.price,
-      required this.isShop,
-      required this.image,
-      this.onValidateOrder,
-      this.onCancelOrder,
-      this.onReceivedOrder,
-      this.onSentOrder,
-    });
+  const HistoryItem({
+    super.key,
+    required this.shopName,
+    required this.status,
+    required this.products,
+    required this.address,
+    required this.receiverName,
+    required this.price,
+    required this.isShop,
+    required this.image,
+    this.onValidateOrder,
+    this.onCancelOrder,
+    this.onReceivedOrder,
+    this.onSentOrder,
+  });
 
   @override
   State<HistoryItem> createState() => _HistoryItemState();
@@ -286,7 +286,7 @@ class _HistoryItemState extends State<HistoryItem> {
                   widget.shopName,
                   style: TextDecor.robo17Medi,
                 ),
-                Expanded(child: Container()),
+                const Spacer(),
                 Text(
                   status,
                   style: TextDecor.robo14.copyWith(color: Colors.red),
@@ -312,95 +312,98 @@ class _HistoryItemState extends State<HistoryItem> {
                   ),
                 ),
                 const Gap(10),
-                Wrap(
-                  spacing: 8,
-                  children: widget.products
-                    .asMap()
-                    .entries
-                    .map((entry) => SizedBox(
+                Column(
+                  children: [
+                    Wrap(
+                      spacing: 8,
+                      children: widget.products
+                          .asMap()
+                          .entries
+                          .map((entry) => SizedBox(
+                                width: size.width - 180,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    SizedBox(
+                                      width: size.width - 20,
+                                      child: Text(
+                                        entry.value.name!,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.justify,
+                                        style: TextDecor.robo16Medi,
+                                      ),
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          "Phân loại: ${entry.value.color!.name!}",
+                                          textAlign: TextAlign.justify,
+                                          maxLines: 2,
+                                          style: TextDecor.robo14.copyWith(
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                        Expanded(child: Container()),
+                                        Text(
+                                          "x${entry.value.amount!}",
+                                          textAlign: TextAlign.justify,
+                                          maxLines: 2,
+                                          style: TextDecor.robo14.copyWith(
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ))
+                          .toList(),
+                    ),
+                    if (isShop)
+                      SizedBox(
                         width: size.width - 180,
-                        height: 125,
+                        height: 100,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            SizedBox(
-                              width: size.width - 180,
-                              child: Text(
-                                entry.value.name!,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                textAlign: TextAlign.justify,
-                                style: TextDecor.robo16Medi,
-                              ),
-                            ),
-                            Row(
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  "Phân loại: ${entry.value.color!.name!}",
-                                  textAlign: TextAlign.justify,
-                                  maxLines: 2,
-                                  style: TextDecor.robo14.copyWith(
-                                    color: Colors.grey,
+                                SizedBox(
+                                  width: size.width - 180,
+                                  child: Text(
+                                    "To: ${widget.receiverName}",
+                                    style: TextDecor.robo17,
+                                    maxLines: 1,
                                   ),
                                 ),
-                                Expanded(child: Container()),
-                                Text(
-                                  "x${entry.value.amount!}",
-                                  textAlign: TextAlign.justify,
-                                  maxLines: 2,
-                                  style: TextDecor.robo14.copyWith(
-                                    color: Colors.grey,
+                                SizedBox(
+                                  width: size.width - 180,
+                                  child: Text(
+                                    widget.address,
+                                    style: TextDecor.robo17,
+                                    maxLines: 2,
                                   ),
                                 ),
                               ],
                             ),
-                          ],
-                        ),
-                    )
-                  ).toList(),
-                ),
-                if (isShop)
-                  SizedBox(
-                    width: size.width - 180,
-                    height: 25,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                width: size.width - 180,
-                                child: Text(
-                                  "To: ${widget.receiverName}",
-                                  style: TextDecor.robo17,
-                                  maxLines: 1,
-                                ),
-                              ),
-                              SizedBox(
-                                width: size.width - 180,
-                                child: Text(
-                                  widget.address,
-                                  style: TextDecor.robo17,
-                                  maxLines: 2,
-                                ),
-                              ),
-                            ],
-                          ),
-                        Expanded(child: Container()),
-                        Row(
-                          children: [
                             Expanded(child: Container()),
-                            Text(
-                              Utility.formatCurrency(widget.price),
-                              style: TextDecor.robo17,
+                            Row(
+                              children: [
+                                Expanded(child: Container()),
+                                Text(
+                                  Utility.formatCurrency(widget.price),
+                                  style: TextDecor.robo17,
+                                ),
+                              ],
                             ),
+                            const Gap(5),
                           ],
                         ),
-                        const Gap(5),
-                      ],
-                    ),
-                  ),
+                      ),
+                  ],
+                ),
               ],
             ),
             Row(

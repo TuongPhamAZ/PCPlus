@@ -89,7 +89,8 @@ class _AddProductState extends State<AddProduct> implements AddProductContract {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _detailController = TextEditingController();
-  final TextEditingController _priceOriginalController = TextEditingController();
+  final TextEditingController _priceOriginalController =
+      TextEditingController();
   final TextEditingController _priceSaleController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
 
@@ -468,8 +469,8 @@ class _AddProductState extends State<AddProduct> implements AddProductContract {
                                           shape: BoxShape.circle,
                                           boxShadow: [
                                             BoxShadow(
-                                              color:
-                                                  Colors.black.withValues(alpha: 0.2),
+                                              color: Colors.black
+                                                  .withValues(alpha: 0.2),
                                               blurRadius: 4,
                                               offset: const Offset(0, 2),
                                             ),
@@ -534,14 +535,14 @@ class _AddProductState extends State<AddProduct> implements AddProductContract {
         if (_formKey.currentState?.validate() ?? false) {
           // Xử lý logic thêm sản phẩm tại đây
           _presenter?.handleAddProduct(
-              name: _nameController.text.trim(),
-              description: _descriptionController.text.trim(),
-              detail: _detailController.text.trim(),
-              price: int.parse(_priceOriginalController.text.trim()),
-              amount: int.parse(_amountController.text.trim()),
-              discountPrice: int.parse(_priceSaleController.text.trim()),
-              images: _images,
-              colors: _colors,
+            name: _nameController.text.trim(),
+            description: _descriptionController.text.trim(),
+            detail: _detailController.text.trim(),
+            price: int.parse(_priceOriginalController.text.trim()),
+            amount: int.parse(_amountController.text.trim()),
+            discountPrice: int.parse(_priceSaleController.text.trim()),
+            images: _images,
+            colors: _colors,
           );
         }
       },
@@ -574,12 +575,88 @@ class _AddProductState extends State<AddProduct> implements AddProductContract {
 
   @override
   void onAddFailed(String message) {
-    UtilWidgets.createSnackBar(context, message);
+    _showResultDialog(
+      title: "Thất bại",
+      message: "Thêm sản phẩm thất bại.",
+      isSuccess: false,
+    );
   }
 
   @override
-  void onAddSucceeded() {
-    UtilWidgets.createSnackBar(context, "Thêm sản phẩm thành công");
+  void onAddSuccessWithVector() {
+    _showResultDialog(
+      title: "Thành công",
+      message: "Đã thêm sản phẩm thành công - Sẵn sàng cho tìm kiếm",
+      isSuccess: true,
+    );
+  }
+
+  @override
+  void onAddSuccessWithoutVector() {
+    _showResultDialog(
+      title: "Thành công",
+      message: "Đã thêm sản phẩm thành công - Chưa thể tìm kiếm",
+      isSuccess: true,
+    );
+  }
+
+  // Hiển thị dialog kết quả
+  void _showResultDialog({
+    required String title,
+    required String message,
+    required bool isSuccess,
+  }) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(
+                isSuccess ? Icons.check_circle : Icons.error,
+                color: isSuccess ? Colors.green : Colors.red,
+                size: 28,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                title,
+                style: TextDecor.robo18Semi.copyWith(
+                  color: isSuccess ? Colors.green : Colors.red,
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            message,
+            style: TextDecor.robo16,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Đóng dialog
+                if (isSuccess) {
+                  _clearForm(); // Clear form nếu thành công
+                }
+              },
+              child: Text(
+                "OK",
+                style: TextDecor.robo16Semi.copyWith(
+                  color: isSuccess ? Colors.green : Colors.red,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Clear form sau khi thêm thành công
+  void _clearForm() {
     setState(() {
       _nameController.clear();
       _amountController.clear();
