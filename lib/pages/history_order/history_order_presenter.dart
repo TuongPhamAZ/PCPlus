@@ -100,8 +100,6 @@ class HistoryOrderPresenter {
   }
 
   Future<bool> updateOrder(BillModel model, String shopID, String status) async {
-    _view.onWaitingProgressBar();
-
     model.updateShopStatus(shopID, status);
     await _billRepo.updateBill(model.userID!, model);
 
@@ -238,6 +236,6 @@ class HistoryOrderPresenter {
       billOfShops.remove(model);
     }
     _view.onPopContext();
-    // _view.onLoadDataSucceeded();
+    _view.onLoadDataSucceeded();
   }
 }
