@@ -8,38 +8,25 @@ class VectorApiService {
   factory VectorApiService() => _instance;
   VectorApiService._internal();
 
-  /// Thêm ảnh sản phẩm vào vector database
+  /// Thêm sản phẩm mới và tạo vector đặc trưng
   ///
-  /// [shopId] - ID của shop
-  /// [productImages] - Danh sách thông tin ảnh sản phẩm
+  /// [productId] - ID của sản phẩm
+  /// [imageUrls] - Danh sách URL ảnh của sản phẩm
   ///
   /// Returns true nếu thành công, false nếu thất bại
-  Future<bool> addProductImages({
-    required String shopId,
-    required List<Map<String, dynamic>> productImages,
+  Future<bool> addProduct({
+    required String productId,
+    required List<String> imageUrls,
   }) async {
     try {
-      print('VectorApiService: Adding product images for shop: $shopId');
-      print('VectorApiService: Number of images: ${productImages.length}');
-
-      final url = Uri.parse(ApiConfig.addProductImagesUrl);
+      final url = Uri.parse(ApiConfig.addProductUrl);
 
       final requestBody = {
-        'shop_id': shopId,
-        'product_images': productImages
-            .map((image) => {
-                  'url': image['url'],
-                  'filename': image['filename'],
-                  'public_id': image['public_id'] ?? '',
-                  'format': image['format'] ?? 'jpg',
-                  'width': image['width'] ?? 0,
-                  'height': image['height'] ?? 0,
-                  'bytes': image['bytes'] ?? 0,
-                })
-            .toList(),
+        'product_id': productId,
+        'image_urls': imageUrls,
       };
 
-      print('VectorApiService: Sending request to: $url');
+      print('VectorApiService: Adding product: $productId');
       print('VectorApiService: Request body: ${json.encode(requestBody)}');
 
       final response = await http
@@ -56,94 +43,36 @@ class VectorApiService {
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         bool success = responseData['status'] == 'success';
-        print('VectorApiService: API call success: $success');
+        print('VectorApiService: Add product success: $success');
         return success;
       } else {
         print(
-            'Error adding product images: ${response.statusCode} - ${response.body}');
+            'Error adding product: ${response.statusCode} - ${response.body}');
         return false;
       }
     } catch (e) {
-      print('Exception in addProductImages: $e');
+      print('Exception in addProduct: $e');
       return false;
     }
   }
 
-  /// Xóa ảnh sản phẩm khỏi vector database
+  /// Cập nhật vector đặc trưng cho sản phẩm
   ///
-  /// [shopId] - ID của shop
-  /// [productIds] - Danh sách ID sản phẩm cần xóa
-  ///
-  /// Returns true nếu thành công, false nếu thất bại
-  Future<bool> removeProductImages({
-    required String shopId,
-    required List<String> productIds,
-  }) async {
-    try {
-      final url = Uri.parse(ApiConfig.removeProductImagesUrl);
-
-      final requestBody = {
-        'shop_id': shopId,
-        'product_ids': productIds,
-      };
-
-      final response = await http
-          .post(
-            url,
-            headers: ApiConfig.defaultHeaders,
-            body: json.encode(requestBody),
-          )
-          .timeout(ApiConfig.defaultTimeout);
-
-      if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-        return responseData['status'] == 'success';
-      } else {
-        print(
-            'Error removing product images: ${response.statusCode} - ${response.body}');
-        return false;
-      }
-    } catch (e) {
-      print('Exception in removeProductImages: $e');
-      return false;
-    }
-  }
-
-  /// Cập nhật ảnh sản phẩm trong vector database
-  ///
-  /// [shopId] - ID của shop
-  /// [productId] - ID sản phẩm cần cập nhật
-  /// [imagesToRemove] - Danh sách filename ảnh cần xóa (optional)
-  /// [imagesToAdd] - Danh sách ảnh mới cần thêm (optional)
+  /// [productId] - ID của sản phẩm cần cập nhật
   ///
   /// Returns true nếu thành công, false nếu thất bại
-  Future<bool> updateProductImages({
-    required String shopId,
+  Future<bool> updateProduct({
     required String productId,
-    List<String>? imagesToRemove,
-    List<Map<String, dynamic>>? imagesToAdd,
   }) async {
     try {
-      final url = Uri.parse(ApiConfig.updateProductImagesUrl);
+      final url = Uri.parse(ApiConfig.updateProductUrl);
 
       final requestBody = {
-        'shop_id': shopId,
         'product_id': productId,
-        if (imagesToRemove != null && imagesToRemove.isNotEmpty)
-          'images_to_remove': imagesToRemove,
-        if (imagesToAdd != null && imagesToAdd.isNotEmpty)
-          'images_to_add': imagesToAdd
-              .map((image) => {
-                    'url': image['url'],
-                    'filename': image['filename'],
-                    'public_id': image['public_id'] ?? '',
-                    'format': image['format'] ?? 'jpg',
-                    'width': image['width'] ?? 0,
-                    'height': image['height'] ?? 0,
-                    'bytes': image['bytes'] ?? 0,
-                  })
-              .toList(),
       };
+
+      print('VectorApiService: Updating product: $productId');
+      print('VectorApiService: Request body: ${json.encode(requestBody)}');
 
       final response = await http
           .post(
@@ -153,38 +82,118 @@ class VectorApiService {
           )
           .timeout(ApiConfig.defaultTimeout);
 
+      print('VectorApiService: Response status: ${response.statusCode}');
+      print('VectorApiService: Response body: ${response.body}');
+
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
-        return responseData['status'] == 'success';
+        bool success = responseData['status'] == 'success';
+        print('VectorApiService: Update product success: $success');
+        return success;
       } else {
         print(
-            'Error updating product images: ${response.statusCode} - ${response.body}');
+            'Error updating product: ${response.statusCode} - ${response.body}');
         return false;
       }
     } catch (e) {
-      print('Exception in updateProductImages: $e');
+      print('Exception in updateProduct: $e');
       return false;
     }
   }
 
-  /// Lấy thống kê database
+  /// Xóa vector đặc trưng của sản phẩm
   ///
-  /// Returns Map chứa thông tin thống kê hoặc null nếu thất bại
-  Future<Map<String, dynamic>?> getDatabaseStats() async {
+  /// [productId] - ID của sản phẩm cần xóa
+  ///
+  /// Returns true nếu thành công, false nếu thất bại
+  Future<bool> deleteProduct({
+    required String productId,
+  }) async {
     try {
-      final url = Uri.parse(ApiConfig.getDatabaseStatsUrl);
+      final url = Uri.parse(ApiConfig.deleteProductUrl);
 
-      final response = await http.get(url).timeout(ApiConfig.shortTimeout);
+      final requestBody = {
+        'product_id': productId,
+      };
+
+      print('VectorApiService: Deleting product: $productId');
+      print('VectorApiService: Request body: ${json.encode(requestBody)}');
+
+      final response = await http
+          .post(
+            url,
+            headers: ApiConfig.defaultHeaders,
+            body: json.encode(requestBody),
+          )
+          .timeout(ApiConfig.defaultTimeout);
+
+      print('VectorApiService: Response status: ${response.statusCode}');
+      print('VectorApiService: Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        bool success = responseData['status'] == 'success';
+        print('VectorApiService: Delete product success: $success');
+        return success;
+      } else {
+        print(
+            'Error deleting product: ${response.statusCode} - ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      print('Exception in deleteProduct: $e');
+      return false;
+    }
+  }
+
+  /// Tìm kiếm sản phẩm bằng hình ảnh
+  ///
+  /// [imageUrl] - URL của ảnh cần tìm kiếm
+  /// [topK] - Số lượng kết quả tối đa
+  /// [similarityThreshold] - Ngưỡng độ tương đồng tối thiểu (0.0 - 1.0)
+  ///
+  /// Returns danh sách ID sản phẩm tìm được hoặc null nếu thất bại
+  Future<List<String>?> searchProducts({
+    required String imageUrl,
+    int topK = 10,
+    double similarityThreshold = 0.7,
+  }) async {
+    try {
+      final url = Uri.parse(ApiConfig.searchProductUrl);
+
+      final requestBody = {
+        'image_url': imageUrl,
+        'top_k': topK,
+        'similarity_threshold': similarityThreshold,
+      };
+
+      print('VectorApiService: Searching products');
+      print('VectorApiService: Request body: ${json.encode(requestBody)}');
+
+      final response = await http
+          .post(
+            url,
+            headers: ApiConfig.defaultHeaders,
+            body: json.encode(requestBody),
+          )
+          .timeout(ApiConfig.defaultTimeout);
+
+      print('VectorApiService: Response status: ${response.statusCode}');
+      print('VectorApiService: Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         if (responseData['status'] == 'success') {
-          return responseData['stats'];
+          final results = List<String>.from(responseData['results']);
+          print('VectorApiService: Found ${results.length} products: $results');
+          return results;
         }
       }
+      print(
+          'Error searching products: ${response.statusCode} - ${response.body}');
       return null;
     } catch (e) {
-      print('Exception in getDatabaseStats: $e');
+      print('Exception in searchProducts: $e');
       return null;
     }
   }
@@ -198,68 +207,78 @@ class VectorApiService {
 
       final response = await http.get(url).timeout(ApiConfig.shortTimeout);
 
-      return response.statusCode == 200;
+      print('VectorApiService: Health check status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        bool healthy = responseData['status'] == 'healthy';
+        print('VectorApiService: Backend health: $healthy');
+        return healthy;
+      }
+      return false;
     } catch (e) {
       print('Exception in checkBackendHealth: $e');
       return false;
     }
   }
 
-  /// Tìm kiếm sản phẩm bằng ảnh (cho người mua)
-  ///
-  /// [imageUrl] - URL ảnh để tìm kiếm
-  /// [topK] - Số lượng kết quả tối đa
-  /// [similarityThreshold] - Ngưỡng độ tương tự
-  ///
-  /// Returns danh sách filename hoặc null nếu thất bại
-  Future<List<String>?> searchProducts({
-    required String imageUrl,
-    int topK = 10,
-    double similarityThreshold = 0.5,
+  // ===== LEGACY METHODS (để tương thích với code cũ) =====
+
+  /// [DEPRECATED] Sử dụng addProduct thay thế
+  Future<bool> addNewProduct({
+    required String productId,
+    required String shopId,
+    required List<String> reviewImages,
+    required List<Map<String, String>> colors,
   }) async {
-    try {
-      final url = Uri.parse(ApiConfig.searchProductsUrl);
-
-      final requestBody = {
-        'image_url': imageUrl,
-        'top_k': topK,
-        'similarity_threshold': similarityThreshold,
-      };
-
-      print(
-          'VectorApiService: Searching with request: ${json.encode(requestBody)}');
-
-      final response = await http
-          .post(
-            url,
-            headers: ApiConfig.defaultHeaders,
-            body: json.encode(requestBody),
-          )
-          .timeout(ApiConfig.defaultTimeout);
-
-      print('VectorApiService: Search response status: ${response.statusCode}');
-      print('VectorApiService: Search response body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-        print('VectorApiService: Parsed response data: $responseData');
-
-        if (responseData['status'] == 'success') {
-          final filenames = List<String>.from(responseData['filenames'] ?? []);
-          print('VectorApiService: Extracted filenames: $filenames');
-          return filenames;
-        } else {
-          print(
-              'VectorApiService: Search not successful. Status: ${responseData['status']}');
-        }
-      } else {
-        print(
-            'VectorApiService: HTTP error: ${response.statusCode} - ${response.body}');
+    // Tạo danh sách tất cả ảnh
+    List<String> allImages = [...reviewImages];
+    for (var color in colors) {
+      if (color['image'] != null && color['image']!.isNotEmpty) {
+        allImages.add(color['image']!);
       }
-      return null;
-    } catch (e) {
-      print('Exception in searchProducts: $e');
-      return null;
     }
+
+    return await addProduct(
+      productId: productId,
+      imageUrls: allImages,
+    );
+  }
+
+  /// [DEPRECATED] Sử dụng addProduct thay thế
+  Future<bool> addProductImages({
+    required String shopId,
+    required List<Map<String, dynamic>> productImages,
+  }) async {
+    print('Warning: addProductImages is deprecated. Use addProduct instead.');
+    return false;
+  }
+
+  /// [DEPRECATED] Sử dụng deleteProduct thay thế
+  Future<bool> removeProductImages({
+    required String shopId,
+    required List<String> productIds,
+  }) async {
+    print(
+        'Warning: removeProductImages is deprecated. Use deleteProduct instead.');
+    return false;
+  }
+
+  /// [DEPRECATED] Sử dụng updateProduct thay thế
+  Future<bool> updateProductImages({
+    required String shopId,
+    required String productId,
+    List<String>? imagesToRemove,
+    List<Map<String, dynamic>>? imagesToAdd,
+  }) async {
+    print(
+        'Warning: updateProductImages is deprecated. Use updateProduct instead.');
+    return false;
+  }
+
+  /// [DEPRECATED] Không còn sử dụng
+  Future<Map<String, dynamic>?> getDatabaseStats() async {
+    print('Warning: getDatabaseStats is deprecated.');
+    return null;
   }
 }

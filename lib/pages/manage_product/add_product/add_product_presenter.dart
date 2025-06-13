@@ -1,4 +1,5 @@
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/pages/manage_product/add_product/add_product_contract.dart';
 import 'package:pcplus/models/items/item_model.dart';
@@ -83,11 +84,11 @@ class AddProductPresenter {
       String filename = '${id}_$basePathName';
 
       // Debug logging
-      print('Debug - Product ID: $id');
-      print('Debug - PathName: $pathName');
-      print('Debug - Base PathName: $basePathName');
-      print('Debug - Final Filename: $filename');
-      print('Debug - Image URL: $imagePath');
+      debugPrint('Debug - Product ID: $id');
+      debugPrint('Debug - PathName: $pathName');
+      debugPrint('Debug - Base PathName: $basePathName');
+      debugPrint('Debug - Final Filename: $filename');
+      debugPrint('Debug - Image URL: $imagePath');
 
       productImages.add({
         'url': imagePath,
@@ -122,11 +123,11 @@ class AddProductPresenter {
         String colorBasePathName = pathName.split('/').last;
         String colorFilename = '${id}_$colorBasePathName';
 
-        print('Debug Color - Product ID: $id');
-        print('Debug Color - PathName: $pathName');
-        print('Debug Color - Base PathName: $colorBasePathName');
-        print('Debug Color - Final Filename: $colorFilename');
-        print('Debug Color - Image URL: $imagePath');
+        debugPrint('Debug Color - Product ID: $id');
+        debugPrint('Debug Color - PathName: $pathName');
+        debugPrint('Debug Color - Base PathName: $colorBasePathName');
+        debugPrint('Debug Color - Final Filename: $colorFilename');
+        debugPrint('Debug Color - Image URL: $imagePath');
 
         productImages.add({
           'url': imagePath,
@@ -153,30 +154,56 @@ class AddProductPresenter {
     await _itemRepo.updateItem(model);
 
     // Gửi thông tin ảnh tới backend để tạo vector đặc trưng
-    // bool vectorSuccess = false;
-    // if (productImages.isNotEmpty) {
-    //   try {
-    //     vectorSuccess = await _vectorApiService.addProductImages(
-    //       shopId: model.sellerID!,
-    //       productImages: productImages,
-    //     );
+    bool vectorSuccess = false;
+    try {
+      // Tạo danh sách tất cả URL ảnh
+      List<String> allImageUrls = [];
 
-    //     if (!vectorSuccess) {
-    //       print("Warning: Không thể tạo vector đặc trưng cho sản phẩm $id");
-    //     }
-    //   } catch (e) {
-    //     print("Error creating product vectors: $e");
-    //     vectorSuccess = false;
-    //   }
-    // }
+      // Thêm ảnh review
+      if (model.reviewImages != null) {
+        allImageUrls.addAll(model.reviewImages!);
+      }
+
+      // Thêm ảnh màu
+      if (model.colors != null) {
+        for (var color in model.colors!) {
+          if (color.image != null && color.image!.isNotEmpty) {
+            allImageUrls.add(color.image!);
+          }
+        }
+      }
+
+      if (allImageUrls.isNotEmpty) {
+        debugPrint(
+            "Sending ${allImageUrls.length} images to vector API for product $id");
+
+        vectorSuccess = await _vectorApiService.addProduct(
+          productId: id,
+          imageUrls: allImageUrls,
+        );
+
+        if (vectorSuccess) {
+          debugPrint(
+              "✅ Vector đặc trưng đã được tạo thành công cho sản phẩm $id");
+        } else {
+          debugPrint(
+              "⚠️ Không thể tạo vector đặc trưng cho sản phẩm $id");
+        }
+      } else {
+        debugPrint("⚠️ Không có ảnh nào để tạo vector đặc trưng");
+      }
+    } catch (e) {
+      debugPrint("❌ Lỗi khi tạo vector đặc trưng: $e");
+      vectorSuccess = false;
+    }
 
     // Tắt loading sau khi TẤT CẢ quá trình hoàn tất
     _view.onPopContext();
 
-    // if (vectorSuccess) {
-    //   _view.onAddSuccessWithVector();
-    // } else {
-    //   _view.onAddSuccessWithoutVector();
-    // }
+    if (vectorSuccess) {
+      _view.onAddSuccessWithVector();
+    } else {
+      _view.onAddSuccessWithoutVector();
+    }
   }
 }

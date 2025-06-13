@@ -22,7 +22,48 @@ class _ImageSearchTestState extends State<ImageSearchTest> {
   File? _selectedImage;
   List<String> _searchResults = [];
   bool _isSearching = false;
+  bool _isCheckingHealth = false;
   String? _uploadedImageUrl;
+  bool _backendHealthy = false;
+  String _statusMessage = 'Chưa kiểm tra backend';
+
+  @override
+  void initState() {
+    super.initState();
+    _checkBackendHealth();
+  }
+
+  // Kiểm tra trạng thái backend
+  Future<void> _checkBackendHealth() async {
+    setState(() {
+      _isCheckingHealth = true;
+      _statusMessage = 'Đang kiểm tra backend...';
+    });
+
+    try {
+      print('🔍 ImageSearchTest: Checking backend health...');
+      final isHealthy = await _vectorApiService.checkBackendHealth();
+
+      setState(() {
+        _backendHealthy = isHealthy;
+        _statusMessage = isHealthy
+            ? '✅ Backend đang hoạt động bình thường'
+            : '❌ Backend không phản hồi';
+      });
+
+      print('🔍 ImageSearchTest: Backend health check result: $isHealthy');
+    } catch (e) {
+      setState(() {
+        _backendHealthy = false;
+        _statusMessage = '❌ Lỗi kết nối backend: $e';
+      });
+      print('🔍 ImageSearchTest: Health check error: $e');
+    } finally {
+      setState(() {
+        _isCheckingHealth = false;
+      });
+    }
+  }
 
   // Chọn ảnh từ gallery
   Future<void> _pickImage() async {
@@ -40,8 +81,10 @@ class _ImageSearchTestState extends State<ImageSearchTest> {
           _searchResults.clear();
           _uploadedImageUrl = null;
         });
+        print('📷 ImageSearchTest: Image selected: ${pickedFile.path}');
       }
     } catch (e) {
+      print('📷 ImageSearchTest: Error picking image: $e');
       _showSnackBar('Lỗi khi chọn ảnh: $e');
     }
   }
@@ -51,6 +94,8 @@ class _ImageSearchTestState extends State<ImageSearchTest> {
     if (_selectedImage == null) return null;
 
     try {
+      print('☁️ ImageSearchTest: Starting image upload...');
+
       // Convert File to PlatformFile
       final platformFile =
           await _imageStorageService.convertFileToPlatformFile(_selectedImage!);
@@ -62,9 +107,10 @@ class _ImageSearchTestState extends State<ImageSearchTest> {
         'search_${DateTime.now().millisecondsSinceEpoch}',
       );
 
+      print('☁️ ImageSearchTest: Image uploaded successfully: $imageUrl');
       return imageUrl;
     } catch (e) {
-      print('Error uploading image: $e');
+      print('☁️ ImageSearchTest: Error uploading image: $e');
       return null;
     }
   }
@@ -76,6 +122,11 @@ class _ImageSearchTestState extends State<ImageSearchTest> {
       return;
     }
 
+    if (!_backendHealthy) {
+      _showSnackBar('Backend không hoạt động. Vui lòng kiểm tra lại.');
+      return;
+    }
+
     setState(() {
       _isSearching = true;
       _searchResults.clear();
@@ -83,11 +134,13 @@ class _ImageSearchTestState extends State<ImageSearchTest> {
 
     try {
       // Upload ảnh lên Cloudinary trước
+      print('🔍 ImageSearchTest: Starting search process...');
       _showSnackBar('Đang upload ảnh...');
+
       final imageUrl = await _uploadImageToCloudinary();
 
       if (imageUrl == null) {
-        _showSnackBar('Lỗi khi upload ảnh');
+        _showSnackBar('❌ Lỗi khi upload ảnh');
         return;
       }
 
@@ -95,33 +148,37 @@ class _ImageSearchTestState extends State<ImageSearchTest> {
         _uploadedImageUrl = imageUrl;
       });
 
-      _showSnackBar('Đang tìm kiếm...');
+      _showSnackBar('Đang tìm kiếm sản phẩm...');
+      print('🔍 ImageSearchTest: Calling search API with URL: $imageUrl');
 
-      // Gọi API search
-      print('ImageSearchTest: Calling search API with URL: $imageUrl');
+      // Gọi API search với thông số chi tiết
       final results = await _vectorApiService.searchProducts(
         imageUrl: imageUrl,
         topK: 10,
-        similarityThreshold: 0.6,
+        similarityThreshold: 0.7,
       );
 
-      print('ImageSearchTest: Search API returned: $results');
+      print('🔍 ImageSearchTest: Search API response:');
+      print('   - Results: $results');
+      print('   - Type: ${results?.runtimeType}');
+      print('   - Length: ${results?.length}');
 
       setState(() {
         if (results != null && results.isNotEmpty) {
-          print('ImageSearchTest: Found ${results.length} results: $results');
+          print('✅ ImageSearchTest: Found ${results.length} results: $results');
           _searchResults = results;
+          _showSnackBar('✅ Tìm thấy ${results.length} sản phẩm tương tự');
         } else {
-          print('ImageSearchTest: No results found. Results = $results');
-          _searchResults = ['Không tìm thấy ảnh tương tự'];
+          print('❌ ImageSearchTest: No results found. Results = $results');
+          _searchResults = [];
+          _showSnackBar('❌ Không tìm thấy sản phẩm tương tự');
         }
       });
-
-      _showSnackBar('Tìm kiếm hoàn tất: ${_searchResults.length} kết quả');
     } catch (e) {
+      print('❌ ImageSearchTest: Search error: $e');
       _showSnackBar('Lỗi khi tìm kiếm: $e');
       setState(() {
-        _searchResults = ['Lỗi: $e'];
+        _searchResults = [];
       });
     } finally {
       setState(() {
@@ -132,7 +189,10 @@ class _ImageSearchTestState extends State<ImageSearchTest> {
 
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 3),
+      ),
     );
   }
 
@@ -141,18 +201,61 @@ class _ImageSearchTestState extends State<ImageSearchTest> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Test Tìm Kiếm Ảnh',
+          'Tìm Kiếm Sản Phẩm Bằng Hình Ảnh',
           style: TextDecor.robo24Medi.copyWith(color: Colors.black),
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 1,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _checkBackendHealth,
+            tooltip: 'Kiểm tra lại backend',
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Trạng thái backend
+            Card(
+              color: _backendHealthy ? Colors.green[50] : Colors.red[50],
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  children: [
+                    if (_isCheckingHealth)
+                      const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    else
+                      Icon(
+                        _backendHealthy ? Icons.check_circle : Icons.error,
+                        color: _backendHealthy ? Colors.green : Colors.red,
+                      ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _statusMessage,
+                        style: TextDecor.robo14.copyWith(
+                          color: _backendHealthy
+                              ? Colors.green[700]
+                              : Colors.red[700],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
             // Phần chọn và hiển thị ảnh
             Card(
               elevation: 4,
@@ -164,7 +267,7 @@ class _ImageSearchTestState extends State<ImageSearchTest> {
                 child: Column(
                   children: [
                     Text(
-                      'Chọn ảnh để tìm kiếm',
+                      'Chọn ảnh để tìm kiếm sản phẩm tương tự',
                       style: TextDecor.robo18Semi,
                     ),
                     const SizedBox(height: 16),
@@ -229,7 +332,9 @@ class _ImageSearchTestState extends State<ImageSearchTest> {
 
             // Nút tìm kiếm
             ElevatedButton.icon(
-              onPressed: _isSearching ? null : _searchSimilarImages,
+              onPressed: (_isSearching || !_backendHealthy)
+                  ? null
+                  : _searchSimilarImages,
               icon: _isSearching
                   ? const SizedBox(
                       width: 16,
@@ -239,11 +344,11 @@ class _ImageSearchTestState extends State<ImageSearchTest> {
                     )
                   : const Icon(Icons.search),
               label: Text(
-                _isSearching ? 'Đang tìm kiếm...' : 'Tìm kiếm',
+                _isSearching ? 'Đang tìm kiếm...' : 'Tìm kiếm sản phẩm',
                 style: TextDecor.robo18Semi,
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
+                backgroundColor: _backendHealthy ? Colors.blue : Colors.grey,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -263,11 +368,11 @@ class _ImageSearchTestState extends State<ImageSearchTest> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'URL ảnh đã upload:',
+                        '🔗 URL ảnh đã upload:',
                         style: TextDecor.robo16Semi,
                       ),
                       const SizedBox(height: 4),
-                      Text(
+                      SelectableText(
                         _uploadedImageUrl!,
                         style:
                             TextDecor.robo12.copyWith(color: Colors.blue[700]),
@@ -304,7 +409,8 @@ class _ImageSearchTestState extends State<ImageSearchTest> {
                     if (_searchResults.isEmpty && !_isSearching)
                       Center(
                         child: Text(
-                          'Chưa có kết quả tìm kiếm',
+                          '🔍 Chưa có kết quả tìm kiếm\n\nHướng dẫn:\n1. Kiểm tra backend đang chạy\n2. Chọn ảnh sản phẩm\n3. Nhấn "Tìm kiếm sản phẩm"',
+                          textAlign: TextAlign.center,
                           style: TextDecor.robo14
                               .copyWith(color: Colors.grey[600]),
                         ),
@@ -313,7 +419,13 @@ class _ImageSearchTestState extends State<ImageSearchTest> {
                       const Center(
                         child: Padding(
                           padding: EdgeInsets.all(20.0),
-                          child: CircularProgressIndicator(),
+                          child: Column(
+                            children: [
+                              CircularProgressIndicator(),
+                              SizedBox(height: 12),
+                              Text('Đang xử lý ảnh và tìm kiếm...'),
+                            ],
+                          ),
                         ),
                       )
                     else
@@ -321,7 +433,7 @@ class _ImageSearchTestState extends State<ImageSearchTest> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Tìm thấy ${_searchResults.length} filename:',
+                            '✅ Tìm thấy ${_searchResults.length} sản phẩm tương tự:',
                             style: TextDecor.robo16Semi
                                 .copyWith(color: Colors.green[700]),
                           ),
@@ -339,8 +451,8 @@ class _ImageSearchTestState extends State<ImageSearchTest> {
                                 child: Row(
                                   children: [
                                     Container(
-                                      width: 24,
-                                      height: 24,
+                                      width: 32,
+                                      height: 32,
                                       decoration: BoxDecoration(
                                         color: Colors.blue[100],
                                         shape: BoxShape.circle,
@@ -356,9 +468,21 @@ class _ImageSearchTestState extends State<ImageSearchTest> {
                                     ),
                                     const SizedBox(width: 12),
                                     Expanded(
-                                      child: Text(
-                                        _searchResults[index],
-                                        style: TextDecor.robo14,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Product ID: ${_searchResults[index]}',
+                                            style: TextDecor.robo16Semi,
+                                          ),
+                                          Text(
+                                            'Sản phẩm tương tự được tìm thấy',
+                                            style: TextDecor.robo12.copyWith(
+                                              color: Colors.grey[600],
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ],

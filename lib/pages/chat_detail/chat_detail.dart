@@ -40,9 +40,9 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> implements ChatDeta
     _presenter!.otherConversation = widget.otherConversation;
 
     // Debug: In ra thông tin conversation để kiểm tra
-    print(
+    debugPrint(
         'ChatDetail: participantName = ${widget.conversation.participantName}');
-    print(
+    debugPrint(
         'ChatDetail: participantAvatar = ${widget.conversation.participantAvatar}');
 
     // _loadMockMessages();

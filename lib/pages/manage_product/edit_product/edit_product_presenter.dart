@@ -3,6 +3,7 @@ import 'package:pcplus/models/items/item_repo.dart';
 import 'package:pcplus/models/items/item_with_seller.dart';
 import 'package:pcplus/pages/manage_product/edit_product/edit_product_contract.dart';
 import 'package:pcplus/services/image_storage_service.dart';
+import 'package:pcplus/services/vector_api_service.dart';
 import 'package:pcplus/objects/image_data.dart';
 
 import '../../../models/items/color_model.dart';
@@ -15,6 +16,7 @@ class EditProductPresenter {
 
   final ImageStorageService _imageStorageService = ImageStorageService();
   final ItemRepository _itemRepo = ItemRepository();
+  final VectorApiService _vectorApiService = VectorApiService();
 
   ItemWithSeller? itemWithSeller;
 
@@ -72,15 +74,13 @@ class EditProductPresenter {
     for (ImageData imageData in images) {
       if (imageData.isNew) {
         String pathName = _imageStorageService.formatProductImagePath(
-            itemModel.itemID!,
-            index
-        );
+            itemModel.itemID!, index);
 
         String? imagePath = await _imageStorageService.uploadImage(
             _imageStorageService.formatShopFolderName(itemModel.sellerID!),
-            await _imageStorageService.convertFileToPlatformFile(imageData.file!),
-            pathName
-        );
+            await _imageStorageService
+                .convertFileToPlatformFile(imageData.file!),
+            pathName);
 
         if (imagePath == null) {
           _view.onPopContext();
@@ -90,13 +90,10 @@ class EditProductPresenter {
 
         itemModel.reviewImages!.add(imagePath);
         index++;
-      }
-      else
-      {
+      } else {
         itemModel.reviewImages!.add(imageData.path);
         deleteUrls.remove(imageData.path);
       }
-
     }
 
     // Cập nhật color
@@ -111,15 +108,15 @@ class EditProductPresenter {
           colorInfo.name,
         )}_$index";
 
-        PlatformFile platformFile = await _imageStorageService.convertFileToPlatformFile(colorInfo.imageFile!);
+        PlatformFile platformFile = await _imageStorageService
+            .convertFileToPlatformFile(colorInfo.imageFile!);
 
         String? imagePath = await _imageStorageService.uploadImage(
             _imageStorageService.formatShopFolderName(itemModel.sellerID!),
             platformFile,
-            pathName
-        );
+            pathName);
 
-        index ++;
+        index++;
 
         ColorModel colorModel = ColorModel(
           name: colorInfo.name,
@@ -143,7 +140,28 @@ class EditProductPresenter {
       await _imageStorageService.deleteImage(deleteUrl);
     }
 
+    // Cập nhật sản phẩm trong database
     await _itemRepo.updateItem(itemModel);
+
+    // 🚀 CẬP NHẬT VECTOR DATABASE
+    print(
+        '🔄 EditProductPresenter: Updating vector database for product: ${itemModel.itemID}');
+    try {
+      final vectorUpdateSuccess = await _vectorApiService.updateProduct(
+        productId: itemModel.itemID!,
+      );
+
+      if (vectorUpdateSuccess) {
+        print('✅ EditProductPresenter: Vector database updated successfully');
+      } else {
+        print(
+            '⚠️ EditProductPresenter: Vector database update failed, but product was saved');
+        // Không fail toàn bộ process vì sản phẩm đã được lưu thành công
+      }
+    } catch (e) {
+      print('❌ EditProductPresenter: Vector database update error: $e');
+      // Không fail toàn bộ process vì sản phẩm đã được lưu thành công
+    }
 
     _view.onPopContext();
     _view.onEditSucceeded();
