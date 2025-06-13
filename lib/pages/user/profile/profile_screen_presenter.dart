@@ -1,12 +1,14 @@
 import 'package:pcplus/const/order_status.dart';
 import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/pages/user/profile/profile_screen_contract.dart';
-import 'package:pcplus/models/orders/order_repo.dart';
+import 'package:pcplus/models/bills/bill_repo.dart';
+import 'package:pcplus/models/bills/bill_of_shop_repo.dart';
 import 'package:pcplus/services/authentication_service.dart';
 import 'package:pcplus/services/pref_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
-import '../../../models/orders/order_model.dart';
+import '../../../models/bills/bill_model.dart';
+import '../../../models/bills/bill_of_shop_model.dart';
 import '../../../models/users/user_model.dart';
 
 class ProfileScreenPresenter {
@@ -16,34 +18,84 @@ class ProfileScreenPresenter {
   UserModel? user;
 
   final AuthenticationService _auth = AuthenticationService();
-  final OrderRepository _orderRepository = OrderRepository();
+  final BillRepository _billRepository = BillRepository();
+  final BillOfShopRepository _billOfShopRepository = BillOfShopRepository();
 
   int awaitConfirm = 0;
   int awaitPickup = 0;
   int awaitDelivery = 0;
   int awaitRating = 0;
 
-  Stream<List<OrderModel>>? orderStream;
+  Stream<List<BillModel>>? billStream;
+  Stream<List<BillOfShopModel>>? billOfShopStream;
 
   Future<void> getData() async {
     user = await PrefService.loadUserData();
 
-    orderStream = _orderRepository.getAllOrdersFromUserStream(user!.userID!);
+    bool isShop = SessionController.getInstance().isShop();
 
-    orderStream?.listen((snapshot) {
-      calculateOrderType(snapshot);
-    });
+    if (isShop) {
+      // Nếu là shop, sử dụng BillOfShopRepository
+      billOfShopStream =
+          _billOfShopRepository.getAllBillsOfShopFromShopStream(user!.userID!);
+      billOfShopStream?.listen((bills) {
+        calculateOrderTypeForShop(bills);
+      });
+    } else {
+      // Nếu là user, sử dụng BillRepository
+      billStream = _billRepository.getAllBillsFromUserStream(user!.userID!);
+      billStream?.listen((bills) {
+        calculateOrderTypeForUser(bills);
+      });
+    }
 
     _view.onLoadDataSucceeded();
   }
 
-  Future<void> calculateOrderType(List<OrderModel> orders) async {
+  Future<void> calculateOrderTypeForUser(List<BillModel> bills) async {
     awaitRating = 0;
     awaitPickup = 0;
     awaitConfirm = 0;
     awaitDelivery = 0;
-    for (OrderModel order in orders) {
-      switch (order.status!) {
+
+    for (BillModel bill in bills) {
+      // Đếm số lượng đơn hàng theo trạng thái từ tất cả shop trong bill
+      if (bill.shops != null) {
+        for (var shop in bill.shops!) {
+          String status = shop.status ?? '';
+          switch (status) {
+            case OrderStatus.PENDING_CONFIRMATION:
+              awaitConfirm++;
+              break;
+            case OrderStatus.AWAIT_PICKUP:
+              awaitPickup++;
+              break;
+            case OrderStatus.AWAIT_DELIVERY:
+              awaitDelivery++;
+              break;
+            case OrderStatus.AWAIT_RATING:
+              awaitRating++;
+              break;
+          }
+        }
+      }
+    }
+
+    // Debug output để kiểm tra
+    print(
+        'Profile Orders Count - Confirm: $awaitConfirm, Pickup: $awaitPickup, Delivery: $awaitDelivery, Rating: $awaitRating');
+
+    _view.onUpdateOrdersCount();
+  }
+
+  Future<void> calculateOrderTypeForShop(List<BillOfShopModel> bills) async {
+    awaitRating = 0;
+    awaitPickup = 0;
+    awaitConfirm = 0;
+    awaitDelivery = 0;
+
+    for (BillOfShopModel bill in bills) {
+      switch (bill.status!) {
         case OrderStatus.PENDING_CONFIRMATION:
           awaitConfirm++;
           break;
@@ -58,6 +110,11 @@ class ProfileScreenPresenter {
           break;
       }
     }
+
+    // Debug output để kiểm tra
+    print(
+        'Profile Shop Orders Count - Confirm: $awaitConfirm, Pickup: $awaitPickup, Delivery: $awaitDelivery, Rating: $awaitRating');
+
     _view.onUpdateOrdersCount();
   }
 
