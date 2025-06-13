@@ -1,25 +1,17 @@
+// ignore_for_file: provide_deprecation_message
+
 class ApiConfig {
   // Backend URL - sử dụng IP thực của máy tính
   static const String _developmentUrl = 'http://192.168.1.4:8000';
-  static const String _productionUrl = 'https://your-backend-domain.com';
 
-  // Chọn môi trường hiện tại
-  static const bool _isDevelopment = true;
+  static String get baseUrl => _developmentUrl;
 
-  static String get baseUrl =>
-      _isDevelopment ? _developmentUrl : _productionUrl;
-
-  // Endpoint paths
-  static const String addProductImages = '/shop/add-product-images';
-  static const String removeProductImages = '/shop/remove-product-images';
-  static const String updateProductImages = '/shop/update-product-images';
-  static const String getDatabaseStats = '/shop/database-stats';
+  // New API Endpoint paths
+  static const String addProduct = '/product/add';
+  static const String updateProduct = '/product/update';
+  static const String deleteProduct = '/product/delete';
+  static const String searchProduct = '/product/search';
   static const String healthCheck = '/health';
-  static const String searchProducts = '/buyer/search-products';
-  static const String searchProductsByFilename =
-      '/buyer/search-products-by-filename';
-  static const String searchProductsDetailed =
-      '/buyer/search-products-detailed';
 
   // Timeout settings
   static const Duration defaultTimeout = Duration(seconds: 30);
@@ -31,15 +23,46 @@ class ApiConfig {
         'Accept': 'application/json',
       };
 
-  // Full URL helpers
-  static String get addProductImagesUrl => '$baseUrl$addProductImages';
-  static String get removeProductImagesUrl => '$baseUrl$removeProductImages';
-  static String get updateProductImagesUrl => '$baseUrl$updateProductImages';
-  static String get getDatabaseStatsUrl => '$baseUrl$getDatabaseStats';
+  // Full URL helpers for new API
+  static String get addProductUrl => '$baseUrl$addProduct';
+  static String get updateProductUrl => '$baseUrl$updateProduct';
+  static String get deleteProductUrl => '$baseUrl$deleteProduct';
+  static String get searchProductUrl => '$baseUrl$searchProduct';
   static String get healthCheckUrl => '$baseUrl$healthCheck';
+
+  // ===== DEPRECATED ENDPOINTS (for backward compatibility) =====
+  @deprecated
+  static const String addProductImages = '/shop/add-product-images';
+  @deprecated
+  static const String removeProductImages = '/shop/remove-product-images';
+  @deprecated
+  static const String updateProductImages = '/shop/update-product-images';
+  @deprecated
+  static const String getDatabaseStats = '/shop/database-stats';
+  @deprecated
+  static const String searchProducts = '/buyer/search-products';
+  @deprecated
+  static const String searchProductsByFilename =
+      '/buyer/search-products-by-filename';
+  @deprecated
+  static const String searchProductsDetailed =
+      '/buyer/search-products-detailed';
+
+  // Deprecated URL helpers
+  @deprecated
+  static String get addProductImagesUrl => '$baseUrl$addProductImages';
+  @deprecated
+  static String get removeProductImagesUrl => '$baseUrl$removeProductImages';
+  @deprecated
+  static String get updateProductImagesUrl => '$baseUrl$updateProductImages';
+  @deprecated
+  static String get getDatabaseStatsUrl => '$baseUrl$getDatabaseStats';
+  @deprecated
   static String get searchProductsUrl => '$baseUrl$searchProducts';
+  @deprecated
   static String get searchProductsByFilenameUrl =>
       '$baseUrl$searchProductsByFilename';
+  @deprecated
   static String get searchProductsDetailedUrl =>
       '$baseUrl$searchProductsDetailed';
 }

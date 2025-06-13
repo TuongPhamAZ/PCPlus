@@ -34,6 +34,7 @@ import 'package:pcplus/pages/voucher/listvoucher/list_voucher.dart';
 import 'package:pcplus/pages/voucher/voucherDetail/voucher_detail.dart';
 import 'package:pcplus/pages/conversations/conversations.dart';
 import 'package:pcplus/pages/chat_detail/chat_detail.dart';
+import 'package:pcplus/pages/image_search_result/image_search_result.dart';
 import 'package:pcplus/sample/comment.dart';
 import 'package:pcplus/sample/voice_search.dart';
 
@@ -85,9 +86,9 @@ final Map<String, WidgetBuilder> routes = {
         ModalRoute.of(context)!.settings.arguments as ConversationArgument;
     return ChatDetailScreen(
         conversation: conversation.ownerConversation,
-        otherConversation: conversation.partnerConversation
-    );
+        otherConversation: conversation.partnerConversation);
   },
+  ImageSearchResult.routeName: (context) => const ImageSearchResult(),
   SampleComment.routeName: (context) => const SampleComment(),
   VoiceSearchSample.routeName: (context) => const VoiceSearchSample(),
 };
