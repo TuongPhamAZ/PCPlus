@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pcplus/const/feedbacks.dart';
 import 'package:pcplus/models/interactions/interaction_model.dart';
 import 'package:pcplus/models/interactions/interaction_repo.dart';
 import 'package:pcplus/models/items/item_model.dart';
@@ -11,6 +12,7 @@ import 'package:pcplus/models/shops/shop_repo.dart';
 import 'package:pcplus/models/users/user_model.dart';
 import 'package:pcplus/models/users/user_repo.dart';
 import 'package:pcplus/services/random_tool.dart';
+import 'package:pcplus/services/vector_api_service.dart';
 
 import '../const/product_status.dart';
 import '../const/test_image.dart';
@@ -90,27 +92,38 @@ class TestTool {
     }
   }
 
-  void createRandomRating() {
+  Future<void> createRandomRating() async {
     final RatingRepository ratingRepo = RatingRepository();
     final UserRepository userRepo = UserRepository();
-    final ItemRepository itemRepo = ItemRepository();
-    itemRepo.getAllItems().then((items) {
-      userRepo.getAllUsers().then((users) {
-        for (ItemModel item in items) {
-          for (UserModel user in users) {
-            RatingModel rating = RatingModel(
-              itemID: item.itemID,
-              userID: user.userID,
-              rating: randomTool.generateRandomNumber(1, 5).toDouble(),
-              comment: randomTool.generateRandomText(18, true),
-              date: randomTool.generateRandomDate(startDate, endDate),
-              like: [],
-              dislike: [],
-            );
-            ratingRepo.addRatingToFirestore(item.itemID!, rating);
+    final InteractionRepository interactionRepo = InteractionRepository();
+
+    await userRepo.getAllUsers().then((users) async {
+      for (UserModel user in users) {
+        List<InteractionModel> interactions = await interactionRepo.getAllInteractionsByUserID(user.userID!);
+
+        for (InteractionModel interaction in interactions) {
+          double ratingNumber = interaction.rating!;
+          String comment = "";
+          if (ratingNumber <= 2) {
+            comment = feedbackDislike[randomTool.generateRandomNumber(0, feedbackDislike.length)];
+          } else if (ratingNumber <= 4) {
+            comment = feedbackNeutral[randomTool.generateRandomNumber(0, feedbackNeutral.length)];
+          } else {
+            comment = feedbackLike[randomTool.generateRandomNumber(0, feedbackLike.length)];
           }
+
+          RatingModel rating = RatingModel(
+            itemID: interaction.itemID,
+            userID: user.userID,
+            rating: ratingNumber,
+            comment: comment,
+            date: randomTool.generateRandomDate(startDate, endDate),
+            like: [],
+            dislike: [],
+          );
+          await ratingRepo.addRatingToFirestore(interaction.itemID!, rating);
         }
-      });
+      }
     });
   }
 
@@ -120,13 +133,23 @@ class TestTool {
     final List<ItemModel> items = jsonList.map((raw) => ItemModel.fromJson("", raw)).toList();
 
     final ItemRepository itemRepo = ItemRepository();
+    final VectorApiService vectorApiService = VectorApiService();
 
     for (ItemModel item in items) {
       item.addDate = randomTool.generateRandomDate(startDate, endDate);
       item.discountTime = item.addDate;
       item.detail = item.description;
       await waitRandomDuration(500, 600);
-      await itemRepo.addItemToFirestore(item);
+      String itemID = await itemRepo.addItemToFirestore(item);
+
+      List<String> imageUrls = [];
+      imageUrls.addAll(item.reviewImages!);
+      imageUrls.addAll(item.colors!.map((v) => v.image!).toList());
+
+      await vectorApiService.addProduct(
+          productId: itemID,
+           imageUrls: imageUrls,
+      );
     }
     debugPrint('Done!');
   }
@@ -144,11 +167,11 @@ class TestTool {
   }
 
   Future<void> createSampleSellers() async {
-    final String jsonStringSellers = await rootBundle.loadString('lib/sample/test_samples/user_seller.json');
+    final String jsonStringSellers = await rootBundle.loadString('lib/sample/test_samples/user_seller_v2.json');
     final List<dynamic> jsonSellersList = jsonDecode(jsonStringSellers);
     final List<UserModel> sellers = jsonSellersList.map((raw) => UserModel.fromJson(raw)).toList();
 
-    final String jsonStringShops = await rootBundle.loadString('lib/sample/test_samples/shop.json');
+    final String jsonStringShops = await rootBundle.loadString('lib/sample/test_samples/shop_v2.json');
     final List<dynamic> jsonShopsList = jsonDecode(jsonStringShops);
     final List<ShopModel> shops = jsonShopsList.map((raw) => ShopModel.fromJson(raw['shopID'], raw)).toList();
 
