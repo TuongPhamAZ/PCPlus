@@ -1,0 +1,26 @@
+[
+  {
+    "shopID": "g49R1z72ADhvBNqBguMBVkpmIAj2",
+    "name": "An Phát Computer",
+    "location": "Hà Nội",
+    "phone": "0926095770",
+    "rating": 0.0,
+    "image": "https://images.pexels.com/photos/31869843/pexels-photo-31869843.jpeg"
+  },
+  {
+    "shopID": "yBWbetlOgLUlaWx355OB608Gk0m1",
+    "name": "Bình Minh Tech",
+    "location": "Đà Nẵng",
+    "phone": "0912123816",
+    "rating": 0.0,
+    "image": "https://images.pexels.com/photos/31869847/pexels-photo-31869847.jpeg"
+  },
+  {
+    "shopID": "dtuaAUzOX5dmm9q2z4QmJnIgn8H3",
+    "name": "Cường PC",
+    "location": "TP. Hồ Chí Minh",
+    "phone": "0986983403",
+    "rating": 0.0,
+    "image": "https://images.pexels.com/photos/2588757/pexels-photo-2588757.jpeg"
+  }
+]

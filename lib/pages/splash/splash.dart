@@ -54,6 +54,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   Future<void> _getUserData() async {
     // TestTool testTool = TestTool();
+    // await testTool.createSampleItems();
     // await testTool.createSampleUsers();
     // await testTool.createRandomInteractions();
     // return;
