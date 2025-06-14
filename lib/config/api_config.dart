@@ -2,7 +2,7 @@
 
 class ApiConfig {
   // Backend URL - sử dụng IP thực của máy tính
-  static const String _developmentUrl = 'http://192.168.1.4:8000';
+  static const String _developmentUrl = 'http://174.138.16.55:8000';
 
   static String get baseUrl => _developmentUrl;
 
