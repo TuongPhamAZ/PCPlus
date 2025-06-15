@@ -57,6 +57,7 @@ class _SplashScreenState extends State<SplashScreen>
     // await testTool.createSampleItems();
     // await testTool.createSampleUsers();
     // await testTool.createRandomInteractions();
+    // await testTool.createRandomRating();
     // return;
 
     UserModel? loggedUser = await PrefService.loadUserData();

@@ -36,7 +36,7 @@ class ShopModel {
       name: json['name'] as String,
       location: json['location'] as String,
       phone: json['phone'] as String,
-      rating: (json['rating']) as double,
+      rating: (json['rating'] ?? 0.0) as double,
       image: json['image'] as String,
       ratingCount: (json['ratingCount'] ?? 0) as int,
     );
