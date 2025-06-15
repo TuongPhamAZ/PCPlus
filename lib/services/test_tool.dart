@@ -96,6 +96,9 @@ class TestTool {
     final RatingRepository ratingRepo = RatingRepository();
     final UserRepository userRepo = UserRepository();
     final InteractionRepository interactionRepo = InteractionRepository();
+    final ItemRepository itemRepo = ItemRepository();
+
+    List<ItemModel> items = await itemRepo.getAllItems();
 
     await userRepo.getAllUsers().then((users) async {
       for (UserModel user in users) {
@@ -103,13 +106,37 @@ class TestTool {
 
         for (InteractionModel interaction in interactions) {
           double ratingNumber = interaction.rating!;
+          // update item data
+          for (ItemModel item in items) {
+            if (item.itemID == interaction.itemID) {
+              bool needUpdate = false;
+              if (ratingNumber > 0) {
+                // update rating
+                double totalRating = item.rating! * item.ratingCount!;
+                item.ratingCount = item.ratingCount! + 1;
+                item.rating = (totalRating + ratingNumber) / item.ratingCount!;
+                needUpdate = true;
+              }
+              // add new sell count
+              if (interaction.buyTimes! > 0) {
+                item.sold = item.sold! + interaction.buyTimes!;
+                needUpdate = true;
+              }
+
+              if (needUpdate) await itemRepo.updateItem(item);
+              break;
+            }
+          }
+
           String comment = "";
-          if (ratingNumber <= 2) {
-            comment = feedbackDislike[randomTool.generateRandomNumber(0, feedbackDislike.length)];
+          if (ratingNumber <= 0){
+            continue;
+          } else if (ratingNumber <= 2) {
+            comment = feedbackDislike[randomTool.generateRandomNumber(0, feedbackDislike.length - 1)];
           } else if (ratingNumber <= 4) {
-            comment = feedbackNeutral[randomTool.generateRandomNumber(0, feedbackNeutral.length)];
+            comment = feedbackNeutral[randomTool.generateRandomNumber(0, feedbackNeutral.length - 1)];
           } else {
-            comment = feedbackLike[randomTool.generateRandomNumber(0, feedbackLike.length)];
+            comment = feedbackLike[randomTool.generateRandomNumber(0, feedbackLike.length - 1)];
           }
 
           RatingModel rating = RatingModel(
@@ -223,8 +250,13 @@ class TestTool {
 
           if (chance < 40) {
             int clickTimes = randomTool.generateRandomNumber(2, 10);
-            int buyTimes = randomTool.generateRandomNumber(0, clickTimes);
-            double rating = buyTimes > 0 ? randomTool.generateRandomNumber(2, 5).toDouble() : 0.0;
+            int buyTimes = randomTool.generateRandomNumber(0, max((clickTimes / 2).toInt(), 1));
+            double rating = 0;
+            if (buyTimes == 1) {
+              rating = randomTool.generateRandomNumber(2, 5).toDouble();
+            } else if (buyTimes > 1) {
+              rating = randomTool.generateRandomNumber(4, 5).toDouble();
+            }
 
             InteractionModel newInteraction = InteractionModel(
                 userID: user.userID,
@@ -236,6 +268,7 @@ class TestTool {
             );
 
             await interactionRepository.addInteractionToFirestore(newInteraction);
+            await Future.delayed(const Duration(milliseconds: 50));
           }
         }
       }

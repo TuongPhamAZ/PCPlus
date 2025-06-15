@@ -89,7 +89,7 @@ class ItemModel {
       status: json['status'] as String,
       reviewImages: List.castFrom(reviewImagesData!),
       colors: listColors.map((raw) => ColorModel.fromJson(raw)).toList(),
-      rating: (json['rating'] ?? 0.0) as double,
+      rating: (json['rating'] ?? 0.0).toDouble(),
       ratingCount: (json['ratingCount'] ?? 0) as int,
       discountPrice: (json['discountPrice'] ?? json['price']) as int,
       discountTime: ((json['discountTime'] ?? Timestamp.now()) as Timestamp).toDate(),
