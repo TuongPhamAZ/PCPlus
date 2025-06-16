@@ -56,6 +56,15 @@ class InteractionRepository {
     return items;
   }
 
+  Future<List<InteractionModel>> getAllInteractions() async {
+    final QuerySnapshot querySnapshot = await _storage.collection(InteractionModel.collectionName).get();
+    final items = querySnapshot
+        .docs
+        .map((doc) => InteractionModel.fromJson(doc.id, doc.data() as Map<String, dynamic>))
+        .toList();
+    return items;
+  }
+
   Future<int> getSoldCountByItemID(String id) async {
     final QuerySnapshot querySnapshot = await _storage.collection(InteractionModel.collectionName)
         .where('itemID', isEqualTo: id).get();
