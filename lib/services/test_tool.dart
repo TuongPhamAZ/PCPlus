@@ -99,12 +99,16 @@ class TestTool {
     final ItemRepository itemRepo = ItemRepository();
 
     List<ItemModel> items = await itemRepo.getAllItems();
+    List<InteractionModel> interactions = await interactionRepo.getAllInteractions();
 
     await userRepo.getAllUsers().then((users) async {
       for (UserModel user in users) {
-        List<InteractionModel> interactions = await interactionRepo.getAllInteractionsByUserID(user.userID!);
 
         for (InteractionModel interaction in interactions) {
+          if (interaction.userID != user.userID) {
+            continue;
+          }
+
           double ratingNumber = interaction.rating!;
           // update item data
           for (ItemModel item in items) {
@@ -152,10 +156,11 @@ class TestTool {
         }
       }
     });
+    debugPrint('Done!');
   }
 
   Future<void> createSampleItems() async {
-    final String jsonString = await rootBundle.loadString('lib/sample/test_samples/items_data_v2.json');
+    final String jsonString = await rootBundle.loadString('lib/sample/test_samples/items_v2.json');
     final List<dynamic> jsonList = jsonDecode(jsonString);
     final List<ItemModel> items = jsonList.map((raw) => ItemModel.fromJson("", raw)).toList();
 
@@ -166,7 +171,7 @@ class TestTool {
       item.addDate = randomTool.generateRandomDate(startDate, endDate);
       item.discountTime = item.addDate;
       item.detail = item.description;
-      await waitRandomDuration(500, 600);
+      await Future.delayed(const Duration(milliseconds: 50));
       String itemID = await itemRepo.addItemToFirestore(item);
 
       List<String> imageUrls = [];
