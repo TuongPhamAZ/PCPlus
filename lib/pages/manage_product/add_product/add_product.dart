@@ -10,6 +10,7 @@ import 'package:pcplus/pages/manage_product/add_product/add_product_presenter.da
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 
+import '../../../const/product_types.dart';
 import '../../widgets/util_widgets.dart';
 
 class ColorInfo {
@@ -227,7 +228,7 @@ class _AddProductState extends State<AddProduct> implements AddProductContract {
         ),
       ),
       value: _selectedProductType,
-      items: ItemType.collections.map((String type) {
+      items: ProductTypes.all.map((String type) {
         return DropdownMenuItem<String>(
           value: type,
           child: Text(type),
