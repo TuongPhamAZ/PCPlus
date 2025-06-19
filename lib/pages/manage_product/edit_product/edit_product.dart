@@ -10,6 +10,7 @@ import 'package:pcplus/themes/text_decor.dart';
 import 'package:pcplus/objects/image_data.dart';
 import 'package:pcplus/const/item_type.dart';
 import '../../../component/item_argument.dart';
+import '../../../const/product_types.dart';
 import '../../../models/items/item_model.dart';
 import '../../../models/items/color_model.dart';
 import '../../widgets/util_widgets.dart';
@@ -125,7 +126,7 @@ class _EditProductState extends State<EditProduct>
       // Kiểm tra và đặt giá trị loại sản phẩm
       _selectedProductType = itemModel.itemType;
       // Đảm bảo loại sản phẩm có trong danh sách, nếu không thì đặt là "Khác"
-      if (!ItemType.collections.contains(_selectedProductType)) {
+      if (!ProductTypes.all.contains(_selectedProductType)) {
         _selectedProductType = "Khác";
       }
 
@@ -282,7 +283,7 @@ class _EditProductState extends State<EditProduct>
         ),
       ),
       value: _selectedProductType,
-      items: ItemType.collections.map((String type) {
+      items: ProductTypes.all.map((String type) {
         return DropdownMenuItem<String>(
           value: type,
           child: Text(type),
