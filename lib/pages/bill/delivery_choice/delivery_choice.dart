@@ -29,7 +29,7 @@ class _DeliveryChoiceState extends State<DeliveryChoice> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Delivery Method',
+          'Phương thức vận chuyển',
           style: TextDecor.robo24Medi.copyWith(color: Colors.black),
         ),
         leading: IconButton(
@@ -185,7 +185,7 @@ class _DeliveryChoiceState extends State<DeliveryChoice> {
               color: Colors.red,
               borderRadius: BorderRadius.circular(5),
             ),
-            child: Text('Confirm',
+            child: Text('Xác nhận',
                 style: TextDecor.robo18Bold.copyWith(color: Colors.white)),
           ),
         ),

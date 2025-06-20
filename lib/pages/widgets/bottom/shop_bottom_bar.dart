@@ -46,15 +46,15 @@ class ShopBottomBar extends StatelessWidget {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.bar_chart),
-            label: 'Statistic',
+            label: 'Thống kê',
           ),
           BottomNavigationBarItem(
             icon: Icon(FontAwesomeIcons.bell),
-            label: 'Notification',
+            label: 'Thông báo',
           ),
           BottomNavigationBarItem(
             icon: Icon(FontAwesomeIcons.solidUser),
-            label: 'Profile',
+            label: 'Hồ sơ',
           ),
         ],
       ),

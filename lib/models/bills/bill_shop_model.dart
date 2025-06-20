@@ -43,7 +43,7 @@ class BillShopModel {
       'shopName': shopName,
       'buyItems': (buyItems ?? []).map((item) => item.toJson()).toList(),
       'status': status,
-      'voucher': voucher,
+      'voucher': voucher?.toJson(),
       'totalPrice': totalPrice,
       'noteForShop': noteForShop ?? "",
       'deliveryMethod': deliveryMethod ?? "",

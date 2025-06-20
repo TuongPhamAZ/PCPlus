@@ -46,7 +46,7 @@ class BillOfShopModel {
     'status': status,
     'shipInformation': shipInformation?.toJson(),
     'paymentType': paymentType,
-    'voucher': voucher,
+    'voucher': voucher?.toJson(),
     'totalPrice': totalPrice,
     'vat': vat,
     'pit': pit,

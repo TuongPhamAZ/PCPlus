@@ -80,7 +80,7 @@ class _ShopInformationScreenState extends State<ShopInformationScreen>
             children: [
               const Gap(30),
               Text(
-                'SHOP INFORMATION',
+                'THÔNG TIN CỬA HÀNG',
                 style: TextDecor.profileTitle,
               ),
               const Gap(10),
@@ -130,7 +130,7 @@ class _ShopInformationScreenState extends State<ShopInformationScreen>
                   keyboardType: TextInputType.text,
                   decoration: InputDecoration(
                     label: Text(
-                      'Shop Name',
+                      'Tên cửa hàng',
                       style: TextDecor.profileHintText,
                     ),
                     hintStyle: TextDecor.profileHintText,
@@ -151,7 +151,7 @@ class _ShopInformationScreenState extends State<ShopInformationScreen>
                   keyboardType: TextInputType.text,
                   decoration: InputDecoration(
                     label: Text(
-                      'Shop Address',
+                      'Địa chỉ',
                       style: TextDecor.profileHintText,
                     ),
                     hintStyle: TextDecor.profileHintText,
@@ -170,7 +170,7 @@ class _ShopInformationScreenState extends State<ShopInformationScreen>
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     label: Text(
-                      'Phone Number',
+                      'Số điện thoại',
                       style: TextDecor.profileHintText,
                     ),
                     hintStyle: TextDecor.profileHintText,
@@ -181,7 +181,7 @@ class _ShopInformationScreenState extends State<ShopInformationScreen>
               ),
               const Gap(30),
               ButtonProfile(
-                name: 'DONE',
+                name: 'HOÀN TẤT',
                 onPressed: () {
                   _presenter?.handleConfirm(
                       name: _shopNameController.text.trim(),

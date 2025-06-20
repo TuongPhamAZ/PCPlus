@@ -145,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
                               ),
                             ],
                           ),
-                          hintText: 'Search',
+                          hintText: 'Tìm kiếm',
                           hintStyle: const TextStyle(
                             fontSize: 14,
                           ),
@@ -170,12 +170,12 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "Music and No more",
+                                  "Music and no\nmore",
                                   style: TextDecor.robo24Medi,
                                 ),
-                                const Gap(5),
+                                const Gap(0),
                                 Text(
-                                  "10% off for One of the best\nheadphones in the world",
+                                  "Giảm 10% cho một trong\nnhững tai nghe tốt nhất\nthế giới",
                                   style: TextDecor.robo12,
                                 ),
                               ],
@@ -188,7 +188,7 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
                       ),
                     ),
                     const Gap(30),
-                    Text('New Products', style: TextDecor.robo18Bold),
+                    Text('Sản phẩm mới', style: TextDecor.robo18Bold),
                     const Gap(10),
                     SizedBox(
                       height: 285,
@@ -206,7 +206,7 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
                             final itemsWithSeller = snapshot.data ?? [];
 
                             if (itemsWithSeller.isEmpty) {
-                              return const Center(child: Text('No data'));
+                              return const Center(child: Text('Không có dữ liệu'));
                             }
 
                             return ListView.builder(
@@ -225,7 +225,7 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
                           }),
                     ),
                     const Gap(30),
-                    Text('Suggestions for you', style: TextDecor.robo18Bold),
+                    Text('Gợi ý cho bạn', style: TextDecor.robo18Bold),
                     const Gap(10),
                     StreamBuilder<List<ItemWithSeller>>(
                         stream: _presenter!.recommendedItemStream,
@@ -240,7 +240,7 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
                           final itemsWithSeller = snapshot.data ?? [];
 
                           if (itemsWithSeller.isEmpty) {
-                            return const Center(child: Text('No data'));
+                            return const Center(child: Text('Không có dữ liệu'));
                           }
 
                           return ListView.builder(

@@ -56,7 +56,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> implements EditPr
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'EDIT PROFILE',
+          'THAY ĐỔI HỒ SƠ',
           style: TextDecor.profileTitle,
         ),
         centerTitle: true,
@@ -108,7 +108,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> implements EditPr
                   controller: _fullNameController,
                   decoration: InputDecoration(
                     label: Text(
-                      'Full Name',
+                      'Họ và tên',
                       style: TextDecor.profileHintText,
                     ),
                     hintStyle: TextDecor.profileHintText,
@@ -127,7 +127,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> implements EditPr
                   controller: _phoneController,
                   decoration: InputDecoration(
                     label: Text(
-                      'Phone Number',
+                      'Số điện thoại',
                       style: TextDecor.profileHintText,
                     ),
                     hintStyle: TextDecor.profileHintText,
@@ -141,7 +141,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> implements EditPr
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Gender',
+                      'Giới tính',
                       style: TextDecor.profileHintText.copyWith(
                         fontSize: 13,
                       ),
@@ -164,7 +164,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> implements EditPr
                               },
                             ),
                             Text(
-                              'Male',
+                              'Nam',
                               style: TextDecor.robo16Medi,
                             ),
                           ],
@@ -183,7 +183,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> implements EditPr
                                 });
                               },
                             ),
-                            Text('Female', style: TextDecor.robo16Medi),
+                            Text('Nữ', style: TextDecor.robo16Medi),
                             const Gap(15),
                           ],
                         ),
@@ -221,7 +221,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> implements EditPr
                       color: Palette.hintText,
                     ),
                     label: Text(
-                      'Birth Date',
+                      'Ngày sinh',
                       style: TextDecor.profileHintText,
                     ),
                     hintStyle: TextDecor.profileHintText,
@@ -240,7 +240,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> implements EditPr
                       isMale: _isMale
                   );
                 },
-                name: 'Save',
+                name: 'Lưu',
               ),
               const Gap(10),
               CancelButton(
@@ -250,7 +250,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> implements EditPr
               ),
               const Gap(20),
               Text(
-                'Do you want to change password?',
+                'Bạn có muốn thay đổi mật khẩu?',
                 style: TextDecor.profileIntroText,
               ),
               InkWell(
@@ -261,7 +261,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> implements EditPr
                   );
                 },
                 child: Text(
-                  'Change Password',
+                  'Đổi mật khẩu',
                   style: TextDecor.profileTextButton,
                 ),
               ),
@@ -319,7 +319,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> implements EditPr
       _birthDate = _presenter!.user!.dateOfBirth;
       _userName = _presenter!.user!.name!;
     });
-    UtilWidgets.createSnackBar(context, "Save successfully!");
+    UtilWidgets.createSnackBar(context, "Lưu thành công!");
   }
 
   @override

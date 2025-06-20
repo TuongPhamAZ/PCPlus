@@ -23,6 +23,7 @@ class AddProductPresenter {
 
   Future<void> handleAddProduct({
     required String name,
+    required String itemType,
     required String description,
     required String detail,
     required int price,
@@ -41,7 +42,7 @@ class AddProductPresenter {
 
     ItemModel model = ItemModel(
       name: name,
-      itemType: "Product",
+      itemType: itemType,
       sellerID: _sessionController.userID,
       addDate: DateTime.now(),
       price: price,
@@ -73,7 +74,7 @@ class AddProductPresenter {
           pathName);
       if (imagePath == null) {
         _view.onPopContext();
-        _view.onAddFailed("Something was wrong. Please try again.");
+        _view.onAddFailed("Đã có lỗi xảy ra. Hãy thử lại.");
         return;
       }
       index++;

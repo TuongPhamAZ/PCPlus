@@ -228,7 +228,7 @@ class _HistoryItemState extends State<HistoryItem> {
               onPressed: () {
                 Navigator.of(context).pop(); // Đóng dialog
               },
-              child: const Text("Cancel"),
+              child: const Text("Hủy"),
             ),
             ElevatedButton(
               onPressed: () {
@@ -239,7 +239,7 @@ class _HistoryItemState extends State<HistoryItem> {
                 widget.onCancelOrder!.execute();
                 debugPrint("Lý do huỷ đơn: $reason");
               },
-              child: const Text("Confirm"),
+              child: const Text("Xác nhận"),
             ),
           ],
         );
@@ -407,7 +407,9 @@ class _HistoryItemState extends State<HistoryItem> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         InkWell(
-                          onTap: () {},
+                          onTap: () {
+                            _showCancelOrderDialog(context);
+                          },
                           child: Container(
                             alignment: Alignment.center,
                             height: 45,

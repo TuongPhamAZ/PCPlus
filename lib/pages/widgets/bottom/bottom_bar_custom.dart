@@ -46,15 +46,15 @@ class BottomBarCustom extends StatelessWidget {
           ),
           BottomNavigationBarItem(
             icon: Icon(FontAwesomeIcons.cartShopping),
-            label: 'Category',
+            label: 'Giỏ hàng',
           ),
           BottomNavigationBarItem(
             icon: Icon(FontAwesomeIcons.bell),
-            label: 'Notification',
+            label: 'Thông báo',
           ),
           BottomNavigationBarItem(
             icon: Icon(FontAwesomeIcons.solidUser),
-            label: 'Profile',
+            label: 'Hồ sơ',
           ),
         ],
       ),

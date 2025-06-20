@@ -52,19 +52,19 @@ class _RegisterScreenState extends State<RegisterScreen> implements RegisterView
               ),
               const Gap(20),
               Text(
-                'REGISTER',
+                'ĐĂNG KÝ',
                 style: TextDecor.profileTitle,
               ),
               const Gap(30),
               ProfileInput(
                 controller: emailController,
                 icon: FontAwesomeIcons.user,
-                hintText: 'Your Email',
+                hintText: 'Email',
                 errorText: error,
               ),
               const Gap(35),
               ButtonProfile(
-                name: 'Register',
+                name: 'Đăng ký',
                 onPressed: () async {
                   await _registerPresenter!.register(emailController.text);
                 },
@@ -77,7 +77,7 @@ class _RegisterScreenState extends State<RegisterScreen> implements RegisterView
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Already have an account?',
+                      'Đã có tài khoản?',
                       style: TextDecor.profileIntroText,
                     ),
                     InkWell(
@@ -85,7 +85,7 @@ class _RegisterScreenState extends State<RegisterScreen> implements RegisterView
                         Navigator.of(context).pushNamed(LoginScreen.routeName);
                       },
                       child: Text(
-                        'Log In',
+                        'Đăng nhập',
                         style: TextDecor.profileTextButton,
                       ),
                     ),
@@ -102,7 +102,7 @@ class _RegisterScreenState extends State<RegisterScreen> implements RegisterView
   @override
   void onEmailAlreadyInUse() {
     setState(() {
-      error = "This email is already registered";
+      error = "Email đã được đăng ký";
     });
   }
 
@@ -116,8 +116,8 @@ class _RegisterScreenState extends State<RegisterScreen> implements RegisterView
     UtilWidgets.createDismissibleDialog(
         context,
         UtilWidgets.NOTIFICATION,
-        "An error occurred while registering your account."
-        " Please try again later.",
+        "Đã có lỗi xảy ra khi đăng ký tài khoản."
+        " Hãy thử lại sau.",
         () {
           Navigator.of(context, rootNavigator: true).pop();
         }

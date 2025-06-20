@@ -27,18 +27,18 @@ class _NoNetworkScreenState extends State<NoNetworkScreen> {
               height: 260,
             ),
             Text(
-              'Not Connected',
+              'Không có kết nối',
               style: TextDecor.noInternetTitle,
             ),
             const Gap(12),
             Text(
-              'Ups. You are not connected to internet\nTry again',
+              'Ups. Bạn chưa kết nối Internet.\nHãy thử lại sau.',
               textAlign: TextAlign.center,
               style: TextDecor.noInternetDes,
             ),
             const Gap(30),
             ButtonProfile(
-              name: 'Try Again',
+              name: 'Thử lại',
               onPressed: () {},
             )
           ],

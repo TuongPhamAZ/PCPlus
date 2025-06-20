@@ -13,7 +13,7 @@ class ForgotPasswordPresenter {
 
     if (result == null || result == false){
       _view.onPopContext();
-      _view.onForgotPasswordError("This email is not registered.");
+      _view.onForgotPasswordError("Email này chưa được đăng ký.");
       return;
     }
 

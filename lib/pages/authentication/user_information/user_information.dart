@@ -98,7 +98,7 @@ class _UserInformationState extends State<UserInformation>
             children: [
               const Gap(30),
               Text(
-                'Complete Your Profile',
+                'Hoàn thiện hồ sơ của bạn',
                 style: TextDecor.profileTitle,
               ),
               const Gap(10),
@@ -165,7 +165,7 @@ class _UserInformationState extends State<UserInformation>
                   keyboardType: TextInputType.text,
                   decoration: InputDecoration(
                     label: Text(
-                      'Full Name',
+                      'Họ và tên',
                       style: TextDecor.profileHintText,
                     ),
                     hintStyle: TextDecor.profileHintText,
@@ -184,7 +184,7 @@ class _UserInformationState extends State<UserInformation>
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     label: Text(
-                      'Phone Number',
+                      'Số điện thoại',
                       style: TextDecor.profileHintText,
                     ),
                     hintStyle: TextDecor.profileHintText,
@@ -198,7 +198,7 @@ class _UserInformationState extends State<UserInformation>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Gender',
+                      'Giới tính',
                       style: TextDecor.profileHintText.copyWith(
                         fontSize: 13,
                       ),
@@ -221,7 +221,7 @@ class _UserInformationState extends State<UserInformation>
                               },
                             ),
                             Text(
-                              'Male',
+                              'Nam',
                               style: TextDecor.robo16Medi,
                             ),
                           ],
@@ -240,7 +240,7 @@ class _UserInformationState extends State<UserInformation>
                                 });
                               },
                             ),
-                            Text('Female', style: TextDecor.robo16Medi),
+                            Text('Nữ', style: TextDecor.robo16Medi),
                             const Gap(15),
                           ],
                         ),
@@ -266,7 +266,7 @@ class _UserInformationState extends State<UserInformation>
                       color: Palette.hintText,
                     ),
                     label: Text(
-                      'Birth Date',
+                      'Ngày sinh',
                       style: TextDecor.profileHintText,
                     ),
                     hintStyle: TextDecor.profileHintText,
@@ -286,7 +286,7 @@ class _UserInformationState extends State<UserInformation>
                   obscureText: !_passwordVisible,
                   decoration: InputDecoration(
                     label: Text(
-                      'Password',
+                      'Mật khẩu',
                       style: TextDecor.profileHintText,
                     ),
                     hintStyle: TextDecor.profileHintText,
@@ -321,7 +321,7 @@ class _UserInformationState extends State<UserInformation>
                   obscureText: !_rePasswordVisible,
                   decoration: InputDecoration(
                     label: Text(
-                      'Confirm Password',
+                      'Xác nhận mật khẩu',
                       style: TextDecor.profileHintText,
                     ),
                     hintStyle: TextDecor.profileHintText,
@@ -347,7 +347,7 @@ class _UserInformationState extends State<UserInformation>
               ),
               const Gap(20),
               ButtonProfile(
-                name: _isShopOwner ? 'NEXT' : 'DONE',
+                name: _isShopOwner ? 'TIẾP TỤC' : 'HOÀN TẤT',
                 onPressed: () {
                   _presenter!.handleConfirm(
                       name: _fullNameController.text.trim(),

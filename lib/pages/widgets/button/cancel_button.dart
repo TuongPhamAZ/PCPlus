@@ -4,7 +4,7 @@ import 'package:pcplus/themes/text_decor.dart';
 class CancelButton extends StatelessWidget {
   final Function()? onPressed;
   final String name;
-  const CancelButton({super.key, this.name = 'CANCLE', this.onPressed});
+  const CancelButton({super.key, this.name = 'HỦY', this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +20,7 @@ class CancelButton extends StatelessWidget {
       ),
       child: name.isEmpty
           ? Text(
-              'Cancel',
+              'Hủy',
               style: TextDecor.profileTextButton.copyWith(color: Colors.white),
             )
           : Text(

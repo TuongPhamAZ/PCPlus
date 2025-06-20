@@ -426,7 +426,7 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
                       final itemsWithSeller = snapshot.data ?? [];
 
                       if (itemsWithSeller.isEmpty) {
-                        return const Center(child: Text('No data'));
+                        return const Center(child: Text('Không có sản phẩm nào'));
                       }
 
                       return ListView.builder(

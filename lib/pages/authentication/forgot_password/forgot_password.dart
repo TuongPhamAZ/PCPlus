@@ -59,19 +59,19 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> implements 
             ),
             const Gap(20),
             Text(
-              'Forgot Password',
+              'Quên mật khẩu',
               style: TextDecor.profileTitle,
             ),
             const Gap(50),
             ProfileInput(
               icon: FontAwesomeIcons.user,
-              hintText: 'Your Email',
+              hintText: 'Email',
               controller: emailController,
               errorText: error,
             ),
             const Gap(35),
             ButtonProfile(
-              name: 'Confirm',
+              name: 'Xác nhận',
               onPressed: () {
                 _presenter!.resetPassword(emailController.text);
               },
@@ -95,8 +95,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> implements 
     UtilWidgets.createDialog(
         context,
         UtilWidgets.NOTIFICATION,
-        "A password reset email has been sent to ${emailController.text.trim()}."
-        " Please check your inbox and follow the instructions to reset your password.",
+        "Email khôi phục mật khẩu đã được gửi đến ${emailController.text.trim()}."
+        " Hãy kiểm tra hộp thư của bạn và làm theo hướng dẫn để khôi phục mật khẩu.",
         () {
           Navigator.of(context, rootNavigator: true).pop();
           Navigator.of(context)

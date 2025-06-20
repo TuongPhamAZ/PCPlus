@@ -96,7 +96,7 @@ class SuggestItem extends StatelessWidget {
                     children: [
                       const Icon(Icons.star, size: 18, color: Colors.amber),
                       Text(
-                        "$rating",
+                        Utility.formatRatingValue(rating),
                         style: TextDecor.robo14,
                       ),
                       Expanded(child: Container()),
@@ -122,7 +122,7 @@ class SuggestItem extends StatelessWidget {
                       ),
                       Expanded(child: Container()),
                       Text(
-                        "Sold: ${Utility.formatSoldCount(sold)}",
+                        "Đã bán: ${Utility.formatSoldCount(sold)}",
                         style: TextDecor.robo11,
                       ),
                     ],

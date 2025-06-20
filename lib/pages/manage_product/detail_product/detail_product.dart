@@ -132,7 +132,7 @@ class _DetailProductState extends State<DetailProduct>
                 ),
                 const Gap(10),
                 Text(
-                  'Add to cart successfully!',
+                  'Thêm vào giỏ hàng thành công!',
                   style: TextDecor.robo18Semi.copyWith(
                     color: Colors.white,
                   ),
@@ -318,7 +318,7 @@ class _DetailProductState extends State<DetailProduct>
                             ),
                             Expanded(child: Container()),
                             Text(
-                              Utility.formatSoldCount(sold),
+                              "Đã bán: ${Utility.formatSoldCount(sold)}",
                               style: TextDecor.robo13Medi,
                             ),
                           ],
@@ -346,7 +346,7 @@ class _DetailProductState extends State<DetailProduct>
                             ),
                             const Gap(10),
                             Text(
-                              'Product Specifications',
+                              'Chi tiết sản phẩm',
                               style: TextDecor.robo16,
                             ),
                             Expanded(child: Container()),
@@ -401,7 +401,7 @@ class _DetailProductState extends State<DetailProduct>
                                 ),
                                 const Gap(10),
                                 Text(
-                                  'Color',
+                                  'Màu',
                                   style: TextDecor.robo16,
                                 ),
                               ],
@@ -678,7 +678,7 @@ class _DetailProductState extends State<DetailProduct>
                         // Chỉ hiển thị phần Product's Reviews khi có review
                         if (reviews.isNotEmpty) ...[
                           const Gap(8),
-                          Text("Product's Reviews",
+                          Text("Review sản phẩm",
                               style: TextDecor.robo18Semi),
                           Row(
                             children: [
@@ -770,8 +770,8 @@ class _DetailProductState extends State<DetailProduct>
                     onTap: () {
                       _showProductActionDialog(
                         context: context,
-                        title: 'Add to Cart',
-                        buttonText: 'Add to Cart',
+                        title: 'Thêm vào giỏ',
+                        buttonText: 'Thêm vào giỏ',
                         buttonColor: Colors.blueGrey,
                         onAction: () {
                           Navigator.pop(context);
@@ -799,7 +799,7 @@ class _DetailProductState extends State<DetailProduct>
                             size: 24,
                           ),
                           Text(
-                            'Add to Cart',
+                            'Thêm vào giỏ',
                             style: TextDecor.robo16Semi.copyWith(
                               color: Colors.white,
                             ),
@@ -812,8 +812,8 @@ class _DetailProductState extends State<DetailProduct>
                     onTap: () {
                       _showProductActionDialog(
                         context: context,
-                        title: 'Buy now',
-                        buttonText: 'Buy now',
+                        title: 'Mua ngay',
+                        buttonText: 'Mua ngay',
                         buttonColor: Colors.red,
                         onAction: () {
                           Navigator.pop(context);
@@ -833,7 +833,7 @@ class _DetailProductState extends State<DetailProduct>
                         ),
                       ),
                       child: Text(
-                        'Buy now',
+                        'Mua ngay',
                         style: TextDecor.robo24Medi.copyWith(
                           color: Colors.white,
                         ),

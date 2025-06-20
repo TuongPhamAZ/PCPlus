@@ -43,7 +43,7 @@ class UserInformationPresenter {
         rePassword.isEmpty ||
         birthDate == null) {
       _view.onPopContext();
-      _view.onConfirmFailed("Please complete all required fields");
+      _view.onConfirmFailed("Vui lòng điền đầy đủ thông tin.");
       return;
     }
 
@@ -56,13 +56,13 @@ class UserInformationPresenter {
 
     if (password.length < 8) {
       _view.onPopContext();
-      _view.onConfirmFailed("Password must be equal or more than 8 characters");
+      _view.onConfirmFailed("Mật khẩu phải ừ 8 ký tự trở lên");
       return;
     }
 
     if (password != rePassword) {
       _view.onPopContext();
-      _view.onConfirmFailed("Passwords do not match");
+      _view.onConfirmFailed("Xác nhận mật khẩu không khớp");
       return;
     }
 
@@ -71,7 +71,7 @@ class UserInformationPresenter {
           await _auth.signUpWithEmailAndPassword(email, password);
       if (userCredential == null) {
         _view.onPopContext();
-        _view.onConfirmFailed("Something was wrong. Please try again.");
+        _view.onConfirmFailed("Đã có lỗi xảy ra. Hãy thử lại sau.");
         return;
       }
 
@@ -89,7 +89,7 @@ class UserInformationPresenter {
           _imageStorageService.formatAvatarFolderName(), pickedImage!, userCredential.user!.uid);
         if (imagePath == null) {
           _view.onPopContext();
-          _view.onConfirmFailed("Something was wrong. Please try again.");
+          _view.onConfirmFailed("Đã có lỗi xảy ra. Hãy thử lại sau.");
           return;
         }
       }
@@ -120,7 +120,7 @@ class UserInformationPresenter {
     } catch (e) {
       debugPrint(e.toString());
       _view.onPopContext();
-      _view.onConfirmFailed("Something was wrong. Please try again.");
+      _view.onConfirmFailed("Đã có lỗi xảy ra. Hãy thử lại sau.");
     }
   }
 }

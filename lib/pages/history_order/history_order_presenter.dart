@@ -144,7 +144,7 @@ class HistoryOrderPresenter {
   Future<void> handleCancelOrderForShop(BillOfShopModel model, String reason) async {
     _view.onWaitingProgressBar();
 
-    BillModel? billModel = await _billRepo.getBill(model.userID!, shop!.shopID!);
+    BillModel? billModel = await _billRepo.getBill(model.userID!, model.billID!);
     if (billModel == null) {
       _view.onPopContext();
       _view.onError("Đã có lỗi xảy ra. Hãy thử lại sau.");
