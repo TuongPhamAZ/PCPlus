@@ -34,14 +34,14 @@ class LoginPresenter {
         return;
       } else if (authResult.code == AuthResult.UnknownError) {
         _view.onPopContext();
-        _view.onError("Login failed.");
+        _view.onError("Đăng nhập thất bại.");
       }
       UserModel? userData =
           await _userRepo.getUserById(userCredential!.user!.uid);
 
       if (userData == null) {
         _view.onPopContext();
-        _view.onError("Something was wrong. Please try again.");
+        _view.onError("Đã có lỗi xảy ra. Vui lòng thử lại.");
         return;
       }
 
@@ -51,7 +51,7 @@ class LoginPresenter {
     } catch (e) {
       debugPrint(e as String?);
       _view.onPopContext();
-      _view.onError("Something was wrong. Please try again.");
+      _view.onError("Đã có lỗi xảy ra. Vui lòng thử lại.");
       return;
     }
     _view.onPopContext();

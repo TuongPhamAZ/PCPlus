@@ -49,7 +49,7 @@ class _NotificationScreenState extends State<NotificationScreen>
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Notification',
+          'Thông báo',
           style: TextDecor.robo24Medi.copyWith(color: Colors.black),
         ),
         automaticallyImplyLeading: false,

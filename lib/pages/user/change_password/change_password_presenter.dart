@@ -14,18 +14,18 @@ class ChangePasswordPresenter {
     required String rePass}
   ) async {
     if (newPass.length < 8) {
-      _view.onChangedFailed("Password must be equal or more than 8 characters");
+      _view.onChangedFailed("Mật khẩu phải từ 8 ký tự trở lên");
       return;
     } else if (newPass != rePass) {
-      _view.onChangedFailed("Passwords do not match");
+      _view.onChangedFailed("Mật khẩu không khớp");
     }
 
     String password = await PrefService.getPassword();
     if (oldPass != password) {
-      _view.onChangedFailed("Incorrect old password");
+      _view.onChangedFailed("Mật khẩu cũ sai");
       return;
     } else if (newPass == password) {
-      _view.onChangedFailed("New password must be different from old one");
+      _view.onChangedFailed("Mật khẩu mới phải khác mật khẩu cũ");
      return;
     }
     _view.onWaitingProgressBar();
@@ -34,7 +34,7 @@ class ChangePasswordPresenter {
     if (result) {
       _view.onChangeSucceeded();
     } else {
-      _view.onChangedFailed("Something was wrong. Please try again.");
+      _view.onChangedFailed("Đã có lỗi xảy ra. Hãy thử lại sau.");
     }
   }
 }

@@ -48,6 +48,7 @@ class _BillProductState extends State<BillProduct>
 
   final ValueNotifier<String> shippingCost = ValueNotifier<String>("-");
   final ValueNotifier<String> totalCost = ValueNotifier<String>("-");
+  final ValueNotifier<String> voucherReduce = ValueNotifier<String>("");
 
   @override
   void initState() {
@@ -69,6 +70,10 @@ class _BillProductState extends State<BillProduct>
     shippingCost.value = value;
   }
 
+  void updateVoucherReduce(String value) {
+    voucherReduce.value = value;
+  }
+
   void updateTotalCost(String value) {
     totalCost.value = value;
   }
@@ -79,7 +84,7 @@ class _BillProductState extends State<BillProduct>
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Payment',
+          'Thanh toán',
           style: TextDecor.robo24Medi.copyWith(color: Colors.black),
         ),
         leading: IconButton(
@@ -242,6 +247,10 @@ class _BillProductState extends State<BillProduct>
                         voucher: null,
                       );
 
+                      if (_presenter!.cacheVouchers!.containsKey(shopId)) {
+                        billShop.voucher = _presenter!.cacheVouchers![shopId];
+                      }
+
                       billShops[shopId] = billShop;
                     }
 
@@ -274,7 +283,7 @@ class _BillProductState extends State<BillProduct>
                   }
 
                   if (_presenter!.onPaymentItems!.isEmpty) {
-                    return const Center(child: Text('Nothing here'));
+                    return const Center(child: Text('Không có gì ở đây'));
                   }
 
                   return ListView.builder(
@@ -309,7 +318,7 @@ class _BillProductState extends State<BillProduct>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Payment Method', style: TextDecor.robo18Semi),
+                  Text('Phương thức thanh toán', style: TextDecor.robo18Semi),
                   const Gap(5),
                   InkWell(
                     onTap: () async {
@@ -367,7 +376,7 @@ class _BillProductState extends State<BillProduct>
                     ),
                   ),
                   const Gap(12),
-                  Text('Payment Detail', style: TextDecor.robo18Semi),
+                  Text('Chi tiết thanh toán', style: TextDecor.robo18Semi),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Column(
@@ -378,9 +387,13 @@ class _BillProductState extends State<BillProduct>
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Product cost:', style: TextDecor.robo16),
+                                Text('Giá sản phẩm:', style: TextDecor.robo16),
                                 const Gap(5),
-                                Text('Shipping fee:', style: TextDecor.robo16),
+                                Text('Phí vận chuyển:', style: TextDecor.robo16),
+                                if (voucherReduce.value.isNotEmpty)
+                                  const Gap(5),
+                                if (voucherReduce.value.isNotEmpty)
+                                  Text('Giảm giá:', style: TextDecor.robo16),
                               ],
                             ),
                             Column(
@@ -392,8 +405,16 @@ class _BillProductState extends State<BillProduct>
                                 ValueListenableBuilder<String>(
                                   valueListenable: shippingCost,
                                   builder: (context, value, _) =>
-                                      Text(value, style: TextDecor.robo18Semi),
+                                      Text(value, style: TextDecor.robo16),
                                 ),
+                                if (voucherReduce.value.isNotEmpty)
+                                  const Gap(5),
+                                if (voucherReduce.value.isNotEmpty)
+                                  ValueListenableBuilder<String>(
+                                    valueListenable: voucherReduce,
+                                    builder: (context, value, _) =>
+                                        Text(value, style: TextDecor.robo16),
+                                  ),
                               ],
                             ),
                           ],
@@ -405,7 +426,7 @@ class _BillProductState extends State<BillProduct>
                         ),
                         Row(
                           children: [
-                            Text('Total:', style: TextDecor.robo18Semi),
+                            Text('Tổng:', style: TextDecor.robo18Semi),
                             Expanded(child: Container()),
                             ValueListenableBuilder<String>(
                               valueListenable: totalCost,
@@ -442,7 +463,7 @@ class _BillProductState extends State<BillProduct>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            Text('Total:', style: TextDecor.robo18Semi),
+            Text('Tổng:', style: TextDecor.robo18Semi),
             const Gap(5),
             ValueListenableBuilder<String>(
               valueListenable: totalCost,
@@ -470,7 +491,7 @@ class _BillProductState extends State<BillProduct>
                   ),
                 ),
                 child: Text(
-                  'Order',
+                  'Đặt hàng',
                   style: TextDecor.robo24Medi.copyWith(color: Colors.white),
                 ),
               ),
@@ -687,6 +708,7 @@ class _BillProductState extends State<BillProduct>
     if (context.mounted == false) {
       return;
     }
+    updateVoucherReduce(_presenter!.getVoucherReduce());
     updateTotalCost(_presenter!.getTotalCost());
   }
 }

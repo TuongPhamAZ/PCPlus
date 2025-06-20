@@ -119,7 +119,7 @@ class NewItem extends StatelessWidget {
                       ),
                       Expanded(child: Container()),
                       Text(
-                        "Sold: ${Utility.formatSoldCount(sold)}",
+                        "Đã bán: ${Utility.formatSoldCount(sold)}",
                         style: TextDecor.robo11,
                       ),
                     ],

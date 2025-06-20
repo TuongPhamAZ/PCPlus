@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/pages/user/edit_profile/edit_profile_screen_contract.dart';
 import 'package:pcplus/models/users/user_repo.dart';
 import 'package:pcplus/services/image_storage_service.dart';
@@ -18,7 +19,7 @@ class EditProfileScreenPresenter {
   File? avatarFile;
 
   Future<void> getData() async {
-    user = await PrefService.loadUserData();
+    user = SessionController.getInstance().currentUser;
     _view.onLoadDataSucceeded();
   }
 
@@ -37,7 +38,7 @@ class EditProfileScreenPresenter {
 
     if (fullName.isEmpty || phone.isEmpty) {
       _view.onPopContext();
-      _view.onSaveFailed("Please complete all required fields");
+      _view.onSaveFailed("Vui lòng điền đầy đủ thông tin");
       return;
     }
 

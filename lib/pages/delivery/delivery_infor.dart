@@ -45,7 +45,7 @@ class _DeliveryInforState extends State<DeliveryInfor> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Edit Address',
+          'Thay đổi địa chỉ',
           style: TextDecor.robo24Medi.copyWith(color: Colors.black),
         ),
         leading: IconButton(
@@ -126,7 +126,7 @@ class _DeliveryInforState extends State<DeliveryInfor> {
               color: Colors.red,
               borderRadius: BorderRadius.circular(5),
             ),
-            child: Text('Confirm',
+            child: Text('Xác nhận',
                 style: TextDecor.robo18Bold.copyWith(color: Colors.white)),
           ),
         ),

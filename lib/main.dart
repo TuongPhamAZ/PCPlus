@@ -8,6 +8,7 @@ import 'package:pcplus/pages/splash/splash.dart';
 import 'package:pcplus/route.dart';
 // import 'package:pcplus/sample/image_search.dart';
 import 'package:pcplus/services/fcm_noti.dart';
+import 'package:pcplus/services/nav_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
@@ -55,6 +56,7 @@ class MyApp extends StatelessWidget {
       ),
       // home: Dashboard(title: 'PC Plus', version: '1.0.0'),
       // home: const ImageSearchTest(),
+      navigatorKey: NavService.key,
       home: const SplashScreen(),
       routes: routes,
       debugShowCheckedModeBanner: false,

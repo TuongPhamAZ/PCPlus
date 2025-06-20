@@ -106,13 +106,13 @@ class ShopItem extends StatelessWidget {
                   ),
                   quantity > 0
                       ? Text(
-                          "Available: $quantity",
+                          "Còn lại: $quantity",
                           style: TextDecor.robo14.copyWith(
                             color: Colors.black,
                           ),
                         )
                       : Text(
-                          "Out of stock",
+                          "Hết hàng",
                           style: TextDecor.robo14.copyWith(
                             color: Colors.red,
                           ),
@@ -152,7 +152,7 @@ class ShopItem extends StatelessWidget {
                       ),
                       Expanded(child: Container()),
                       Text(
-                        "Sold: ${Utility.formatSoldCount(sold)}",
+                        "Đã bán: ${Utility.formatSoldCount(sold)}",
                         style: TextDecor.robo11,
                       ),
                     ],
@@ -186,22 +186,22 @@ class ShopItem extends StatelessWidget {
                               context: context,
                               builder: (BuildContext context) {
                                 return AlertDialog(
-                                  title: const Text('Delete Item'),
+                                  title: const Text('Xóa sản phẩm'),
                                   content: const Text(
-                                      'Are you sure you want to delete this item?'),
+                                      'Bạn có muốn xóa sản phẩm này?'),
                                   actions: <Widget>[
                                     TextButton(
                                       onPressed: () {
                                         Navigator.of(context).pop();
                                       },
-                                      child: const Text('Cancel'),
+                                      child: const Text('Hủy'),
                                     ),
                                     TextButton(
                                       onPressed: () {
                                         Navigator.of(context).pop();
                                         deleteCommand?.execute();
                                       },
-                                      child: const Text('Delete'),
+                                      child: const Text('Xóa'),
                                     ),
                                   ],
                                 );

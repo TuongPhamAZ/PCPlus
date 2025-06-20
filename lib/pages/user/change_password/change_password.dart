@@ -53,7 +53,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> implements 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'CHANGE PASSWORD',
+          "ĐỔI MẬT KHẨU",
           style: TextDecor.profileTitle.copyWith(fontSize: 30),
         ),
         centerTitle: true,
@@ -109,7 +109,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> implements 
                   controller: _oldPassController,
                   decoration: InputDecoration(
                     label: Text(
-                      'Old Password',
+                      'Mật khẩu cũ',
                       style: TextDecor.profileHintText,
                     ),
                     hintStyle: TextDecor.profileHintText,
@@ -144,7 +144,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> implements 
                   obscureText: !_newPasswordVisible,
                   decoration: InputDecoration(
                     label: Text(
-                      'New Password',
+                      'Mật khẩu mới',
                       style: TextDecor.profileHintText,
                     ),
                     hintStyle: TextDecor.profileHintText,
@@ -179,7 +179,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> implements 
                   controller: _rePassController,
                   decoration: InputDecoration(
                     label: Text(
-                      'Confirm Password',
+                      'Xác nhận mật khẩu',
                       style: TextDecor.profileHintText,
                     ),
                     hintStyle: TextDecor.profileHintText,
@@ -212,7 +212,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> implements 
                       rePass: _rePassController.text,
                   );
                 },
-                name: 'CHANGE',
+                name: 'ĐỔI MẬT KHẨU',
               ),
               const Gap(10),
               CancelButton(

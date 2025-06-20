@@ -56,27 +56,27 @@ class _LoginScreenState extends State<LoginScreen> implements LoginViewContract 
               ),
               const Gap(20),
               Text(
-                'LOGIN',
+                'ĐĂNG NHẬP',
                 style: TextDecor.profileTitle,
               ),
               const Gap(30),
               ProfileInput(
                 controller: emailController,
                 icon: FontAwesomeIcons.user,
-                hintText: 'Username',
+                hintText: 'Tài khoản',
                 errorText: error,
               ),
               const Gap(20),
               ProfileInput(
                 controller: passwordController,
                 icon: Icons.lock_outline_rounded,
-                hintText: 'Password',
+                hintText: 'Mật khẩu',
                 obscureText: true,
                 errorText: error,
               ),
               const Gap(35),
               ButtonProfile(
-                name: 'Login',
+                name: 'Đăng nhập',
                 onPressed: () async {
                   await _loginPresenter!.login(emailController.text, passwordController.text);
                 },
@@ -89,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> implements LoginViewContract 
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Don\'t have an account? ',
+                      'Chưa có tài khoản? ',
                       style: TextDecor.profileIntroText,
                     ),
                     InkWell(
@@ -97,7 +97,7 @@ class _LoginScreenState extends State<LoginScreen> implements LoginViewContract 
                         onRegister();
                       },
                       child: Text(
-                        'Register',
+                        'Đăng ký',
                         style: TextDecor.profileTextButton,
                       ),
                     ),
@@ -114,7 +114,7 @@ class _LoginScreenState extends State<LoginScreen> implements LoginViewContract 
                   width: 280,
                   alignment: Alignment.center,
                   child: Text(
-                    'Forgot Password',
+                    'Quên mật khẩu',
                     style: TextDecor.profileTextButton
                         .copyWith(color: Palette.main1),
                   ),
@@ -134,7 +134,7 @@ class _LoginScreenState extends State<LoginScreen> implements LoginViewContract 
   @override
   void onLoginFailed() {
     setState(() {
-      error = "Email or password is invalid";
+      error = "Email hoặc mật khẩu không chính xác";
     });
   }
 

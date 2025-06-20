@@ -86,7 +86,7 @@ class ColorSelectionWidget extends StatelessWidget {
                 const Gap(5),
                 Expanded(
                   child: Text(
-                    color.name ?? 'Color ${index + 1}',
+                    color.name ?? 'Màu ${index + 1}',
                     style: TextDecor.robo14.copyWith(
                       color: isSelected ? Palette.primaryColor : Colors.black87,
                       fontWeight:

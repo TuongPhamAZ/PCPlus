@@ -1,5 +1,8 @@
 import 'package:pcplus/const/order_status.dart';
 import 'package:pcplus/controller/session_controller.dart';
+import 'package:pcplus/models/await_ratings/await_rating_model.dart';
+import 'package:pcplus/models/await_ratings/await_rating_repo.dart';
+import 'package:pcplus/models/ratings/rating_model.dart';
 import 'package:pcplus/pages/user/profile/profile_screen_contract.dart';
 import 'package:pcplus/models/bills/bill_repo.dart';
 import 'package:pcplus/models/bills/bill_of_shop_repo.dart';
@@ -20,6 +23,7 @@ class ProfileScreenPresenter {
   final AuthenticationService _auth = AuthenticationService();
   final BillRepository _billRepository = BillRepository();
   final BillOfShopRepository _billOfShopRepository = BillOfShopRepository();
+  final AwaitRatingRepository _awaitRatingRepository = AwaitRatingRepository();
 
   int awaitConfirm = 0;
   int awaitPickup = 0;
@@ -28,6 +32,7 @@ class ProfileScreenPresenter {
 
   Stream<List<BillModel>>? billStream;
   Stream<List<BillOfShopModel>>? billOfShopStream;
+  Stream<List<AwaitRatingModel>>? awaitRatingStream;
 
   Future<void> getData() async {
     user = await PrefService.loadUserData();
@@ -46,6 +51,10 @@ class ProfileScreenPresenter {
       billStream = _billRepository.getAllBillsFromUserStream(user!.userID!);
       billStream?.listen((bills) {
         calculateOrderTypeForUser(bills);
+      });
+      awaitRatingStream = _awaitRatingRepository.getAllAwaitRatingStream(user!.userID!);
+      awaitRatingStream?.listen((awaitRatings) {
+        calculateAwaitRatingForUser(awaitRatings);
       });
     }
 
@@ -84,6 +93,16 @@ class ProfileScreenPresenter {
     // Debug output để kiểm tra
     print(
         'Profile Orders Count - Confirm: $awaitConfirm, Pickup: $awaitPickup, Delivery: $awaitDelivery, Rating: $awaitRating');
+
+    _view.onUpdateOrdersCount();
+  }
+
+  Future<void> calculateAwaitRatingForUser(List<AwaitRatingModel> ratings) async {
+    awaitRating = ratings.length;
+
+    // Debug output để kiểm tra
+    print(
+        'Profile Orders Await Rating: $awaitRating');
 
     _view.onUpdateOrdersCount();
   }

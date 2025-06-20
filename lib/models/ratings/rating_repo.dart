@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pcplus/models/ratings/rating_model.dart';
+import 'package:pcplus/models/ratings/rating_with_user.dart';
 import 'package:pcplus/services/utility.dart';
 import 'package:async/async.dart';
 import '../items/item_model.dart';
+import '../users/user_model.dart';
 
 class RatingRepository {
   final FirebaseFirestore _storage = FirebaseFirestore.instance;
@@ -124,4 +126,41 @@ class RatingRepository {
     });
   }
 
+  Stream<List<RatingWithUser>> getAllRatingWithUserByItemID(String itemId) {
+    final ratingRef = FirebaseFirestore.instance
+        .collection(ItemModel.collectionName)
+        .doc(itemId)
+        .collection(RatingModel.collectionName);
+
+    // Lắng nghe mọi thay đổi trong subcollection ratings
+    return ratingRef.snapshots().asyncMap((querySnapshot) async {
+      final ratingDocs = querySnapshot.docs;
+
+      // Lấy toàn bộ RatingModel
+      final ratings = ratingDocs.map((doc) {
+        return RatingModel.fromJson(doc.id, doc.data());
+      }).toList();
+
+      // Với mỗi rating, lấy UserModel tương ứng
+      final futures = ratings.map((rating) async {
+        try {
+          final userSnap = await FirebaseFirestore.instance
+              .collection(UserModel.collectionName)
+              .doc(rating.userID)
+              .get();
+
+          final user = UserModel.fromJson(userSnap.data()!);
+
+          return RatingWithUser(rating: rating, user: user);
+        } catch (e) {
+          // fallback nếu không lấy được user
+          return null;
+        }
+      }).toList();
+
+      // Chờ tất cả tương lai hoàn thành, và lọc null
+      final result = await Future.wait(futures);
+      return result.whereType<RatingWithUser>().toList();
+    });
+  }
 }

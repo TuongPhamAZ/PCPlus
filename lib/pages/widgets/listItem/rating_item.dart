@@ -165,6 +165,7 @@ class _RatingItemState extends State<RatingItem> {
             TextField(
               minLines: 1,
               maxLines: 10,
+              controller: _commentController,
               onTapOutside: (event) {
                 FocusScope.of(context).unfocus();
               },

@@ -44,6 +44,7 @@ class BillProductPresenter {
   Stream<List<ItemInCartWithSeller>>? inCartItemsStream;
   List<ItemInCartWithSeller>? onPaymentItems;
   Map<String, BillShopModel>? billShops;
+  Map<String, VoucherModel?>? cacheVouchers;
 
   Future<void> getData() async {
     if (inCartItemsStream != null) {
@@ -51,6 +52,7 @@ class BillProductPresenter {
     }
 
     billShops = {};
+    cacheVouchers = {};
 
     userId = SessionController.getInstance().userID;
     UserModel? user = await _userRepo.getUserById(userId!);
@@ -84,6 +86,7 @@ class BillProductPresenter {
     required VoucherModel? voucher
   }) async {
     data.voucher = voucher;
+    cacheVouchers![data.shopID!] = voucher;
     _view.onChangeVoucher();
   }
 
@@ -260,6 +263,20 @@ class BillProductPresenter {
     return Utility.formatCurrency(total);
   }
 
+  String getVoucherReduce() {
+    int total = 0;
+
+    if (billShops == null) return "-";
+
+    for (BillShopModel data in billShops!.values) {
+      if (data.voucher != null) {
+        total -= data.voucher!.discount!;
+      }
+    }
+
+    return Utility.formatCurrency(total);
+  }
+
   String getTotalCost() {
     int total = 0;
 
@@ -267,11 +284,11 @@ class BillProductPresenter {
 
     for (BillShopModel data in billShops!.values) {
       total += data.deliveryCost ?? 0;
+      if (data.voucher != null) {
+        total -= data.voucher!.discount!;
+      }
       for (BillShopItemModel item in data.buyItems ?? []) {
         total += item.amount! * item.price!;
-        if (data.voucher != null) {
-          total -= data.voucher!.discount!;
-        }
       }
     }
 

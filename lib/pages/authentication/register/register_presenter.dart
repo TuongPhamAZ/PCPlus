@@ -11,9 +11,9 @@ class RegisterPresenter {
   String? validateEmail(String? email) {
     email = email?.trim();
     if (email == null || email.isEmpty) {
-      return "Please enter your email!";
+      return "Vui lòng nhập email!";
     } else if (!isEmail(email)) {
-      return "Email is not in the correct format!";
+      return "Cú pháp Email không hợp lệ!";
     }
     return null;
   }

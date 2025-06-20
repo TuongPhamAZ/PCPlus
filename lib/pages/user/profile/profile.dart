@@ -391,7 +391,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text(
-          'PROFILE',
+          'HỒ SƠ',
           style: TextDecor.profileTitle,
         ),
         centerTitle: true,
@@ -764,7 +764,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                                   ),
                                 ),
                                 Text(
-                                  'Edit Profile',
+                                  'Thay đổi hồ sơ',
                                   style: TextDecor.profileTextButton,
                                 ),
                               ],
@@ -785,7 +785,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                                   ),
                                 ),
                                 Text(
-                                  'Change Language',
+                                  "Ngôn ngữ",
                                   style: TextDecor.profileTextButton,
                                 ),
                               ],
@@ -806,7 +806,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                                   ),
                                 ),
                                 Text(
-                                  'Notification Setting',
+                                  'Cài đặt thông báo',
                                   style: TextDecor.profileTextButton,
                                 ),
                               ],
@@ -829,7 +829,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                                   ),
                                 ),
                                 Text(
-                                  'Help Center',
+                                  'Hỗ trợ',
                                   style: TextDecor.profileTextButton,
                                 ),
                               ],
@@ -853,7 +853,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                                   ),
                                 ),
                                 Text(
-                                  'Sign Out',
+                                  'Đăng xuất',
                                   style: TextDecor.profileTextButton,
                                 ),
                               ],

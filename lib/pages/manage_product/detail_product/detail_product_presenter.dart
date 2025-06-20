@@ -34,12 +34,18 @@ class DetailProductPresenter {
   int shopProductsCount = 0;
   ConversationModel? currentConversation;
 
+  bool init = false;
+
   Future<void> getData() async {
     // Kiểm tra nếu đang chạy trong debug mode và có mock data
     if (kDebugMode && itemWithSeller?.item.itemID == "mock_id_123") {
       await _loadMockData();
       return;
     }
+
+    if (init) return;
+
+    init = true;
 
     // Logic gốc để load data từ API
     ratings.clear();
@@ -52,8 +58,7 @@ class DetailProductPresenter {
         await _itemRepo.getItemsBySeller(itemWithSeller!.seller.shopID!);
     shopProductsCount = sellerProducts.length;
 
-    ratings =
-        await _ratingRepo.getAllRatingsByItemID(itemWithSeller!.item.itemID!);
+    ratings = await _ratingRepo.getAllRatingsByItemID(itemWithSeller!.item.itemID!);
 
     Map<String, UserModel?> users = {};
     for (RatingModel rating in ratings) {

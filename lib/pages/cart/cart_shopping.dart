@@ -78,7 +78,7 @@ class _CartShoppingScreenState extends State<CartShoppingScreen> implements Cart
           children: [
             const Gap(10),
             Text(
-              'Cart Shopping',
+              'Giỏ hàng',
               style: TextDecor.robo24Medi.copyWith(
                 color: Colors.black,
               ),
@@ -128,7 +128,7 @@ class _CartShoppingScreenState extends State<CartShoppingScreen> implements Cart
                       }
 
                       if (itemsWithSeller.isEmpty) {
-                        return const Center(child: Text('Nothing here'));
+                        return const Center(child: Text('Không có gì ở đây'));
                       }
 
                       return ListView.builder(
@@ -188,11 +188,11 @@ class _CartShoppingScreenState extends State<CartShoppingScreen> implements Cart
                   onChanged: _toggleSelectAll,
                 ),
                 Text(
-                  'Select All',
+                  'Chọn tất cả',
                   style: TextDecor.robo15Medi,
                 ),
                 Expanded(child: Container()),
-                Text("Total: ", style: TextDecor.robo14),
+                Text("Tổng: ", style: TextDecor.robo14),
                 Text(totalPrice, style: TextDecor.robo17Medi),
                 const Gap(8),
                 InkWell(

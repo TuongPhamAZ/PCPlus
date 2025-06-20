@@ -154,7 +154,7 @@ class _AddProductState extends State<AddProduct> implements AddProductContract {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'NEW PRODUCT',
+          'SẢN PHẨM MỚI',
           style: TextDecor.robo24Medi.copyWith(color: Colors.black),
         ),
         leading: IconButton(
@@ -537,6 +537,7 @@ class _AddProductState extends State<AddProduct> implements AddProductContract {
           // Xử lý logic thêm sản phẩm tại đây
           _presenter?.handleAddProduct(
             name: _nameController.text.trim(),
+            itemType: _selectedProductType!,
             description: _descriptionController.text.trim(),
             detail: _detailController.text.trim(),
             price: int.parse(_priceOriginalController.text.trim()),

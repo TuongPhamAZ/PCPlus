@@ -57,7 +57,7 @@ class _AccountTypeScreenState extends State<AccountTypeScreen>
               ),
               const Gap(20),
               Text(
-                'ACCOUNT TYPE?',
+                'BẠN LÀ?',
                 style: TextDecor.profileTitle,
               ),
               const Gap(85),
@@ -74,7 +74,7 @@ class _AccountTypeScreenState extends State<AccountTypeScreen>
                   _accountTypePresenter?.onSelectAccountType(UserType.SHOP);
                 },
                 child: Text(
-                  "SHOP OWNER",
+                  "CHỦ CỬA HÀNG",
                   style:
                       TextDecor.noInternetTitle.copyWith(color: Colors.white),
                 ),
@@ -94,7 +94,7 @@ class _AccountTypeScreenState extends State<AccountTypeScreen>
                   _accountTypePresenter?.onSelectAccountType(UserType.USER);
                 },
                 child: Text(
-                  "CUSTOMER",
+                  "KHÁCH HÀNG",
                   style:
                       TextDecor.noInternetTitle.copyWith(color: Palette.main3),
                 ),

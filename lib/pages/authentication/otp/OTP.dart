@@ -109,7 +109,7 @@ class _OTPScreenState extends State<OTPScreen> implements OtpViewContract {
               Column(
                 children: [
                   Text(
-                    'OTP code has been sent to:',
+                    'Mã OTP đã được gửi đến:',
                     style: TextDecor.profileButtonText,
                   ),
                   Text(
@@ -120,7 +120,7 @@ class _OTPScreenState extends State<OTPScreen> implements OtpViewContract {
                   Container(
                     alignment: Alignment.topLeft,
                     child: Text(
-                      'Input code here:',
+                      'Nhập mã ở đây:',
                       style: TextDecor.otpIntroText,
                     ),
                   ),
@@ -184,7 +184,7 @@ class _OTPScreenState extends State<OTPScreen> implements OtpViewContract {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Didn\'t receive the code?',
+                        'Chưa nhận được mã?',
                         style: TextDecor.profileIntroText,
                       ),
                       InkWell(
@@ -192,7 +192,7 @@ class _OTPScreenState extends State<OTPScreen> implements OtpViewContract {
                           _otpPresenter!.resendConfirmationCode();
                         },
                         child: Text(
-                          'Resend',
+                          'Gửi lại',
                           style: TextDecor.profileTextButton.copyWith(
                             color: Palette.main1,
                           ),
@@ -204,7 +204,7 @@ class _OTPScreenState extends State<OTPScreen> implements OtpViewContract {
               ),
               const Gap(35),
               ButtonProfile(
-                name: 'NEXT',
+                name: 'TIẾP TỤC',
                 onPressed: () {
                   _otpPresenter!.pinCodeVerify(currentText);
                 },
@@ -219,7 +219,7 @@ class _OTPScreenState extends State<OTPScreen> implements OtpViewContract {
 
   @override
   void onResendPinCode() {
-    UtilWidgets.createSnackBar(context, "OTP code has been resent.");
+    UtilWidgets.createSnackBar(context, "Mã OTP đã được gửi lại");
   }
 
   @override
@@ -231,7 +231,7 @@ class _OTPScreenState extends State<OTPScreen> implements OtpViewContract {
   @override
   void onWrongPinCodeError() {
     UtilWidgets.createDismissibleDialog(
-        context, UtilWidgets.NOTIFICATION, "Input code is incorrect", () {
+        context, UtilWidgets.NOTIFICATION, "Mã OTP không hợp lệ", () {
       Navigator.of(context, rootNavigator: true).pop();
     });
   }

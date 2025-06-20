@@ -24,6 +24,7 @@ class EditProductPresenter {
     required String name,
     required String description,
     required String detail,
+    required String itemType,
     required int price,
     required int salePrice,
     required int amount,
@@ -84,7 +85,7 @@ class EditProductPresenter {
 
         if (imagePath == null) {
           _view.onPopContext();
-          _view.onEditFailed("Something was wrong. Please try again.");
+          _view.onEditFailed("Đã có lỗi xảy ra. Hãy thử lại sau.");
           return;
         }
 

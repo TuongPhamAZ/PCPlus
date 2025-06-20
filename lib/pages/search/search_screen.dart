@@ -131,7 +131,7 @@ class _SearchScreenState extends State<SearchScreen> implements SearchScreenCont
                             //color: Palette.greenText,
                           ),
                         ),
-                        hintText: 'Search',
+                        hintText: 'Tìm kiếm',
                         hintStyle: const TextStyle(
                           fontSize: 14,
                         ),
@@ -307,7 +307,7 @@ class _SearchScreenState extends State<SearchScreen> implements SearchScreenCont
                     sortedItems = itemsWithSeller;
 
                     if (itemsWithSeller.isEmpty) {
-                      return const Center(child: Text('No data'));
+                      return const Center(child: Text('Không có dữ liệu'));
                     }
 
                     return ListView.builder(

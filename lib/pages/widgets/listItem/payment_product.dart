@@ -43,6 +43,7 @@ class _PaymentProductItemState extends State<PaymentProductItem> {
         sum -= selectedVoucher!.discount!;
       }
     }
+    sum += deliveryCost;
     return sum;
   }
 
@@ -153,7 +154,7 @@ class _PaymentProductItemState extends State<PaymentProductItem> {
             thickness: 1,
           ),
           const Gap(5),
-          Text('Note for shop', style: TextDecor.robo16Medi),
+          Text('Ghi chú cho cửa hàng', style: TextDecor.robo16Medi),
           TextField(
             minLines: 1,
             maxLines: 100,
@@ -166,7 +167,7 @@ class _PaymentProductItemState extends State<PaymentProductItem> {
             },
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.all(8),
-              hintText: 'Write your note here',
+              hintText: 'Viết ghi chú ở đây',
               hintStyle: TextDecor.robo15.copyWith(
                 color: Palette.hintText,
               ),
@@ -215,7 +216,7 @@ class _PaymentProductItemState extends State<PaymentProductItem> {
                   children: [
                     if (selectedVoucher == null)
                       Text(
-                        'None',
+                        'Không có',
                         style: TextDecor.robo15.copyWith(
                           color: Colors.black.withValues(alpha: 0.5),
                         ),
@@ -225,7 +226,7 @@ class _PaymentProductItemState extends State<PaymentProductItem> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            '1 voucher applied',
+                            '1 voucher áp dụng',
                             style: TextDecor.robo14.copyWith(
                               color: Colors.green.shade700,
                               fontWeight: FontWeight.w500,
@@ -260,7 +261,7 @@ class _PaymentProductItemState extends State<PaymentProductItem> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Delivery method', style: TextDecor.robo16Medi),
+              Text('Phương thức vận chuyển', style: TextDecor.robo16Medi),
               InkWell(
                 onTap: () async {
                   final selectedMethod = await Navigator.push<String>(
@@ -280,7 +281,7 @@ class _PaymentProductItemState extends State<PaymentProductItem> {
                 child: Row(
                   children: [
                     Text(
-                      'View all ',
+                      'Xem tất cả ',
                       style: TextDecor.robo15.copyWith(
                         color: Colors.black.withValues(alpha: 0.5),
                       ),
@@ -436,12 +437,10 @@ class _PaymentProductItemState extends State<PaymentProductItem> {
           const Gap(10),
           Row(
             children: [
-              Text('Total cost: ', style: TextDecor.robo16Medi),
+              Text('Tổng: ', style: TextDecor.robo16Medi),
               Expanded(child: Container()),
               Text(
-                Utility.formatCurrency(_getTotalCost() +
-                    deliveryCost -
-                    (selectedVoucher?.discount ?? 0)),
+                Utility.formatCurrency(_getTotalCost()),
                 style: TextDecor.robo16Medi.copyWith(
                   color: Colors.red,
                 ),

@@ -649,6 +649,7 @@ class _EditProductState extends State<EditProduct>
           // Xử lý logic sửa sản phẩm tại đây
           _presenter?.handleEditProduct(
             name: _nameController.text.trim(),
+            itemType: _selectedProductType!,
             description: _descriptionController.text.trim(),
             detail: _detailController.text.trim(),
             price: int.parse(_priceOriginalController.text.trim()),

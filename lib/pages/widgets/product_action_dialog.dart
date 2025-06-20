@@ -116,7 +116,7 @@ class _ProductActionDialogState extends State<ProductActionDialog> {
                         ),
                         const Gap(10),
                         Text(
-                          'Stock: ${widget.stock}',
+                          'Tồn kho: ${widget.stock}',
                           style: TextDecor.robo17Medi,
                         ),
                       ],
@@ -136,7 +136,7 @@ class _ProductActionDialogState extends State<ProductActionDialog> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(width: size.width),
-                      Text('Colors:', style: TextDecor.robo16),
+                      Text('Màu:', style: TextDecor.robo16),
                       const Gap(10),
                       ColorSelectionWidget(
                         colors: widget.colors,
@@ -162,7 +162,7 @@ class _ProductActionDialogState extends State<ProductActionDialog> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
                   children: [
-                    Text("Quantity:", style: TextDecor.robo16),
+                    Text("Số lượng:", style: TextDecor.robo16),
                     Expanded(child: Container()),
                     _buildQuantitySelector(),
                   ],

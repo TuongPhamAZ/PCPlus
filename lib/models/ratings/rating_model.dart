@@ -33,7 +33,7 @@ class RatingModel {
     'comment': comment,
     'date': date,
     'like': (like ?? []).toList(),
-    'dislike': (dislike ?? []).toString(),
+    'dislike': (dislike ?? []).toList(),
     'response': response,
   };
 
@@ -52,7 +52,7 @@ class RatingModel {
         date: (json['date'] as Timestamp).toDate(),
         like: listLikes.map((raw) => raw as String).toList(),
         dislike: listDislikes.map((raw) => raw as String).toList(),
-        response: json['response'] as String
+        response: (json['response'] ?? "") as String
     );
   }
 }

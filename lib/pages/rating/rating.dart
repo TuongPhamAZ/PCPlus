@@ -97,7 +97,7 @@ class _RatingScreenState extends State<RatingScreen> implements RatingScreenCont
                             buyAmount: items[index].item!.amount!,
                             onSubmit: RatingItemOnSubmitCommand(
                               presenter: _presenter!,
-                              model: items[index]
+                              model: items[index],
                             ),
                         );
                       },
