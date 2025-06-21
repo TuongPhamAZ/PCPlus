@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:pcplus/const/order_status.dart';
 import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/models/await_ratings/await_rating_model.dart';
@@ -34,6 +36,10 @@ class ProfileScreenPresenter {
   Stream<List<BillOfShopModel>>? billOfShopStream;
   Stream<List<AwaitRatingModel>>? awaitRatingStream;
 
+  StreamSubscription<List<BillModel>>? _billSubscription;
+  StreamSubscription<List<BillOfShopModel>>? _billOfShopSubscription;
+  StreamSubscription<List<AwaitRatingModel>>? _awaitRatingSubscription;
+
   Future<void> getData() async {
     user = await PrefService.loadUserData();
 
@@ -43,17 +49,17 @@ class ProfileScreenPresenter {
       // Nếu là shop, sử dụng BillOfShopRepository
       billOfShopStream =
           _billOfShopRepository.getAllBillsOfShopFromShopStream(user!.userID!);
-      billOfShopStream?.listen((bills) {
+      _billOfShopSubscription = billOfShopStream?.listen((bills) {
         calculateOrderTypeForShop(bills);
       });
     } else {
       // Nếu là user, sử dụng BillRepository
       billStream = _billRepository.getAllBillsFromUserStream(user!.userID!);
-      billStream?.listen((bills) {
+      _billSubscription = billStream?.listen((bills) {
         calculateOrderTypeForUser(bills);
       });
       awaitRatingStream = _awaitRatingRepository.getAllAwaitRatingStream(user!.userID!);
-      awaitRatingStream?.listen((awaitRatings) {
+      _awaitRatingSubscription = awaitRatingStream?.listen((awaitRatings) {
         calculateAwaitRatingForUser(awaitRatings);
       });
     }
@@ -150,6 +156,12 @@ class ProfileScreenPresenter {
     } catch (e) {
       _view.onUnsubtopicFailed(e.toString());
     }
+  }
+
+  void dispose() {
+    _billSubscription?.cancel();
+    _billOfShopSubscription?.cancel();
+    _awaitRatingSubscription?.cancel();
   }
 
   Future<void> signOut() async {

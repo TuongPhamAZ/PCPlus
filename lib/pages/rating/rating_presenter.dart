@@ -33,6 +33,7 @@ class RatingPresenter {
         await _awaitRatingRepo.deleteAwaitRatingByKey(SessionController.getInstance().userID!, item.key!);
       }
     }
+    _view.onLoadDataSucceeded();
   }
 
   Future<void> sendRating(AwaitRatingModel model, double rating, String? comment) async {
