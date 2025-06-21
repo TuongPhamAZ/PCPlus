@@ -106,22 +106,26 @@ class NewItem extends StatelessWidget {
                   ),
                   Row(
                     children: [
-                      const Icon(
-                        FontAwesomeIcons.sackDollar,
-                        size: 14,
-                        color: Colors.red,
-                      ),
-                      Text(
-                        Utility.formatCurrency(price),
-                        style: TextDecor.robo16Medi.copyWith(
-                          color: Colors.red,
+                      SizedBox(
+                        width: size.width * 0.22,
+                        child: Text(
+                          overflow: TextOverflow.ellipsis,
+                          Utility.formatCurrency(price),
+                          style: TextDecor.robo16Medi.copyWith(
+                            color: Colors.red,
+                          ),
                         ),
                       ),
-                      Expanded(child: Container()),
-                      Text(
-                        "Đã bán: ${Utility.formatSoldCount(sold)}",
-                        style: TextDecor.robo11,
-                      ),
+                      const Spacer(),
+                      SizedBox(
+                        width: size.width * 0.14,
+                        child: Text(
+                          "Đã bán: ${Utility.formatSoldCount(sold)}",
+                          style: TextDecor.robo11,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      )
                     ],
                   ),
                 ],
