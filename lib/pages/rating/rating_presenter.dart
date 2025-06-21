@@ -36,6 +36,8 @@ class RatingPresenter {
   }
 
   Future<void> sendRating(AwaitRatingModel model, double rating, String? comment) async {
+    if (_view.submitComment(comment) == false) return;
+
     _view.onWaitingProgressBar();
     RatingModel ratingModel = RatingModel(
         userID: _sessionController.userID,
