@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:pcplus/const/order_status.dart';
+import 'package:pcplus/const/product_types.dart';
 import 'package:pcplus/const/tax_rate.dart';
 import 'package:pcplus/models/bills/bill_of_shop_model.dart';
 import 'package:pcplus/pages/statistic/statistic_contract.dart';
@@ -34,7 +35,7 @@ class _StatisticState extends State<Statistic> implements StatisticContract {
       List.generate(12, (index) => "${index + 1}"); // Tháng 1–12
   final List<String> _years =
       List.generate(DateTime.now().year - 2020 + 1, (index) => "${2020 + index}"); // Năm 2020–nay
-  final List<String> _itemTypes = ["Tất cả", ...ItemType.collections];
+  final List<String> _itemTypes = ["Tất cả", ...ProductTypes.all];
 
   // Dữ liệu bán hàng (tháng và năm trong cùng một cấu trúc)
   final Map<String, Map<String, List<int>>> salesData = {
