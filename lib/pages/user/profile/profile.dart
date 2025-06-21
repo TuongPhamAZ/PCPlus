@@ -381,6 +381,7 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   @override
   void dispose() {
+    _presenter?.dispose();
     super.dispose();
   }
 
