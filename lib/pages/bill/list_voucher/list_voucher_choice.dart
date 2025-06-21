@@ -28,18 +28,18 @@ class ListVoucherChoice extends StatefulWidget {
   State<ListVoucherChoice> createState() => _ListVoucherChoiceState();
 }
 
-class _ListVoucherChoiceState extends State<ListVoucherChoice> implements ListVoucherChoiceContract {
+class _ListVoucherChoiceState extends State<ListVoucherChoice>
+    implements ListVoucherChoiceContract {
   ListVoucherChoicePresenter? _presenter;
-  
+
   VoucherModel? selectedVoucher;
-  List<VoucherModel> mockVouchers = [];
+  List<VoucherModel> vouchers = [];
 
   @override
   void initState() {
     _presenter = ListVoucherChoicePresenter(this);
     super.initState();
     selectedVoucher = widget.currentSelectedVoucher;
-    _initMockVouchers();
   }
 
   @override
@@ -51,56 +51,6 @@ class _ListVoucherChoiceState extends State<ListVoucherChoice> implements ListVo
   Future<void> loadData() async {
     _presenter!.shopID = widget.shopId;
     await _presenter?.getData();
-  }
-
-  void _initMockVouchers() {
-    mockVouchers = [
-      VoucherModel(
-        voucherID: "1",
-        name: "Giảm 50k",
-        description: "Voucher giảm 50,000đ cho đơn hàng từ 200,000đ",
-        condition: 200000,
-        endDate: DateTime.now().add(const Duration(days: 30)),
-        discount: 50000,
-        quantity: 100,
-      ),
-      VoucherModel(
-        voucherID: "2",
-        name: "Giảm 20%",
-        description: "Voucher giảm 20% tối đa 100,000đ cho đơn từ 500,000đ",
-        condition: 500000,
-        endDate: DateTime.now().add(const Duration(days: 15)),
-        discount: 100000,
-        quantity: 50,
-      ),
-      VoucherModel(
-        voucherID: "3",
-        name: "Freeship",
-        description: "Miễn phí vận chuyển cho đơn từ 100,000đ",
-        condition: 100000,
-        endDate: DateTime.now().add(const Duration(days: 7)),
-        discount: 30000,
-        quantity: 0, // Hết lượt
-      ),
-      VoucherModel(
-        voucherID: "4",
-        name: "Voucher VIP",
-        description: "Giảm 300,000đ cho đơn hàng trên 1 triệu",
-        condition: 1000000,
-        endDate: DateTime.now().add(const Duration(days: 10)),
-        discount: 300000,
-        quantity: 25,
-      ),
-      VoucherModel(
-        voucherID: "5",
-        name: "Sinh nhật shop",
-        description: "Voucher sinh nhật giảm 100,000đ cho đơn từ 300,000đ",
-        condition: 300000,
-        endDate: DateTime.now().add(const Duration(days: 60)),
-        discount: 100000,
-        quantity: 200,
-      ),
-    ];
   }
 
   bool _isVoucherEligible(VoucherModel voucher) {
@@ -249,13 +199,31 @@ class _ListVoucherChoiceState extends State<ListVoucherChoice> implements ListVo
                       return result;
                     }
 
-                    var vouchers = snapshot.data ?? [];
+                    var voucherData = snapshot.data ?? [];
 
-                    if (vouchers.isEmpty) {
+                    if (voucherData.isEmpty) {
                       return const Center(child: Text('Không có voucher nào'));
                     }
 
-                    mockVouchers = vouchers;
+                    vouchers = voucherData;
+
+                    // Tìm lại voucher đã chọn trong danh sách mới dựa trên ID
+                    if (selectedVoucher != null) {
+                      final matchingVoucher = vouchers.firstWhere(
+                        (v) => v.voucherID == selectedVoucher!.voucherID,
+                        orElse: () => VoucherModel(
+                            voucherID: '',
+                            name: '',
+                            description: '',
+                            condition: 0,
+                            endDate: DateTime.now(),
+                            discount: 0,
+                            quantity: 0),
+                      );
+                      if (matchingVoucher.voucherID!.isNotEmpty) {
+                        selectedVoucher = matchingVoucher;
+                      }
+                    }
 
                     return _createListVoucher();
                   }),
@@ -301,12 +269,11 @@ class _ListVoucherChoiceState extends State<ListVoucherChoice> implements ListVo
 
   Widget _createListVoucher() {
     return ListView.builder(
-      itemCount: mockVouchers.length,
+      itemCount: vouchers.length,
       itemBuilder: (context, index) {
-        final voucher = mockVouchers[index];
+        final voucher = vouchers[index];
         final isEligible = _isVoucherEligible(voucher);
-        final isSelected =
-            selectedVoucher?.voucherID == voucher.voucherID;
+        final isSelected = selectedVoucher?.voucherID == voucher.voucherID;
 
         return Container(
           margin: const EdgeInsets.only(bottom: 16),
@@ -318,11 +285,11 @@ class _ListVoucherChoiceState extends State<ListVoucherChoice> implements ListVo
                   color: isSelected
                       ? Palette.primaryColor
                       : (isEligible
-                      ? Colors.grey.shade300
-                      : Colors.grey.shade400),
+                          ? Colors.grey.shade300
+                          : Colors.grey.shade400),
                   width: isSelected ? 2 : 1,
                 ),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(18),
               ),
               child: Stack(
                 children: [
@@ -331,26 +298,25 @@ class _ListVoucherChoiceState extends State<ListVoucherChoice> implements ListVo
                     isShop: false,
                     onTap: isEligible
                         ? () {
-                      setState(() {
-                        selectedVoucher =
-                        isSelected ? null : voucher;
-                      });
-                    }
+                            setState(() {
+                              selectedVoucher = isSelected ? null : voucher;
+                            });
+                          }
                         : null,
                   ),
                   // Overlay checkbox
                   Positioned(
-                    top: 12,
+                    top: 45,
                     right: 12,
                     child: Radio<VoucherModel>(
                       value: voucher,
                       groupValue: selectedVoucher,
                       onChanged: isEligible
                           ? (value) {
-                        setState(() {
-                          selectedVoucher = value;
-                        });
-                      }
+                              setState(() {
+                                selectedVoucher = value;
+                              });
+                            }
                           : null,
                       activeColor: Palette.primaryColor,
                     ),
@@ -379,10 +345,9 @@ class _ListVoucherChoiceState extends State<ListVoucherChoice> implements ListVo
                             child: Text(
                               voucher.quantity! <= 0
                                   ? 'Hết lượt sử dụng'
-                                  : voucher.endDate!
-                                  .isBefore(DateTime.now())
-                                  ? 'Đã hết hạn'
-                                  : 'Không đủ điều kiện',
+                                  : voucher.endDate!.isBefore(DateTime.now())
+                                      ? 'Đã hết hạn'
+                                      : 'Không đủ điều kiện',
                               style: TextDecor.robo12.copyWith(
                                 color: Colors.red.shade700,
                                 fontWeight: FontWeight.w500,
@@ -402,9 +367,7 @@ class _ListVoucherChoiceState extends State<ListVoucherChoice> implements ListVo
   }
 
   @override
-  void onPopContext() {
-    // TODO: implement onPopContext
-  }
+  void onPopContext() {}
 
   @override
   void onVoucherPressed(VoucherModel? voucher) {
@@ -412,7 +375,5 @@ class _ListVoucherChoiceState extends State<ListVoucherChoice> implements ListVo
   }
 
   @override
-  void onWaitingProgressBar() {
-    // TODO: implement onWaitingProgressBar
-  }
+  void onWaitingProgressBar() {}
 }
