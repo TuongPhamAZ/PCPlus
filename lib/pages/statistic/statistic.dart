@@ -387,10 +387,16 @@ class _StatisticState extends State<Statistic> implements StatisticContract {
                           children: chartItemsName
                               .asMap()
                               .entries
-                              .map((entry) => Chip(
-                            label: Text(
-                                "(${entry.key}) ${entry.value}: ${chartSalesData[entry.key]} sản phẩm"),
-                            backgroundColor: Colors.blue[100],
+                              .map((entry) => Card(
+                            color: Colors.blue[100],
+                            child: Padding(
+                                padding: const EdgeInsets.all(4),
+                                child: Text(
+                                  "(${entry.key}) ${entry.value}: ${chartSalesData[entry.key]} sản phẩm",
+                                  softWrap: true,
+                                  overflow: TextOverflow.visible,
+                                ),
+                            ),
                           ))
                               .toList(),
                         ),
