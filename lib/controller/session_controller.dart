@@ -5,6 +5,7 @@ import 'dart:async';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:path/path.dart';
 import 'package:pcplus/models/shops/shop_repo.dart';
 import 'package:pcplus/models/users/user_repo.dart';
 import 'package:pcplus/pages/widgets/util_widgets.dart';
@@ -88,6 +89,7 @@ class SessionController {
     if (currentFcm != currentUser!.activeFcm) {
       AuthenticationService _auth = AuthenticationService();
       await _auth.signOut();
+      await signOut();
       NavService.nav!.pushNamedAndRemoveUntil(
         LoginScreen.routeName,
             (Route<dynamic> route) => false,
@@ -96,7 +98,9 @@ class SessionController {
           NavService.context!,
           "Thông báo",
           "Tài khoản của bạn đã được đăng nhập trên thiết bị khác.",
-          () => {}
+          () {
+            NavService.nav!.pop();
+          }
       );
     }
     changeUserCallback.invoke(currentUser);
