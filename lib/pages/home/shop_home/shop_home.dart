@@ -43,7 +43,7 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
 
   ShopModel? shop;
 
-  bool init = true;
+  bool init = false;
   bool isShop = false;
   bool isLoading = true;
   String avatarUrl = "";
@@ -113,6 +113,9 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
+    if (init) return;
+    init = true;
 
     if (SessionController.getInstance().isShop() == false) {
       final args = ModalRoute.of(context)!.settings.arguments as ShopArgument;
