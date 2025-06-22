@@ -261,7 +261,7 @@ class _ImageSearchResultState extends State<ImageSearchResult>
                       shrinkWrap: true,
                       padding: EdgeInsets.zero,
                       physics: const NeverScrollableScrollPhysics(),
-                      itemCount: _presenter!.filteredItems.length,
+                      itemCount: _presenter!.filteredItems.length > 15 ? 15 : _presenter!.filteredItems.length,
                       itemBuilder: (context, index) {
                         return SuggestItemFactory.create(
                           itemWithSeller: _presenter!.filteredItems[index],
