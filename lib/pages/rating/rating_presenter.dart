@@ -6,6 +6,7 @@ import 'package:pcplus/models/ratings/rating_model.dart';
 import 'package:pcplus/models/ratings/rating_repo.dart';
 import 'package:pcplus/models/shops/shop_repo.dart';
 import 'package:pcplus/pages/rating/rating_contract.dart';
+import 'package:rxdart/rxdart.dart';
 import 'dart:async';
 import '../../models/await_ratings/await_rating_model.dart';
 import '../../models/items/item_model.dart';
@@ -73,24 +74,42 @@ class RatingPresenter {
     if (_view.submitComment(comment) == false) return;
 
     _view.onWaitingProgressBar();
-    RatingModel ratingModel = RatingModel(
-      userID: _sessionController.userID,
-      itemID: model.item!.itemID!,
-      rating: rating,
-      date: DateTime.now(),
-      comment: comment ?? "",
-      like: [],
-      dislike: [],
-    );
-    await _ratingRepo.addRatingToFirestore(model.item!.itemID!, ratingModel);
+
+    RatingModel? ratingModel = await _ratingRepo.getRatingByUserIDAndItemID(_sessionController.userID!, model.item!.itemID!);
+
+    bool isNewRating = true;
+    if (ratingModel == null) {
+      // Chưa có rating
+      ratingModel = RatingModel(
+        userID: _sessionController.userID,
+        itemID: model.item!.itemID!,
+        rating: rating,
+        date: DateTime.now(),
+        comment: comment ?? "",
+        like: [],
+        dislike: [],
+      );
+      await _ratingRepo.addRatingToFirestore(model.item!.itemID!, ratingModel);
+    } else {
+      // Đã có rating, cập nhật lại
+      isNewRating = false;
+    }
+
     await _awaitRatingRepo.deleteAwaitRatingByKey(
         _sessionController.userID!, model.key!);
     await SessionController.getInstance().onRating(model.item!.itemID!, rating);
     ItemModel? itemModel = await _itemRepo.getItemById(model.item!.itemID!);
     if (itemModel != null) {
-      double sumRating = itemModel.ratingCount! * itemModel.rating!;
-      itemModel.ratingCount = itemModel.ratingCount! + 1;
-      itemModel.rating = (sumRating + rating) / itemModel.ratingCount!;
+      if (isNewRating) {
+        // rating mới, thêm rating
+        double sumRating = itemModel.ratingCount! * itemModel.rating!;
+        itemModel.ratingCount = itemModel.ratingCount! + 1;
+        itemModel.rating = (sumRating + rating) / itemModel.ratingCount!;
+      } else {
+        // cập nhật rating
+        double sumRating = itemModel.ratingCount! * itemModel.rating!;
+        itemModel.rating = (sumRating - ratingModel.rating! + rating) / itemModel.ratingCount!;
+      }
       await _itemRepo.updateItem(itemModel);
     } else {
       _view.onPopContext();
@@ -100,10 +119,18 @@ class RatingPresenter {
     // Cập nhật rating của shop
     ShopModel? shopModel = await _shopRepo.getShopById(model.item!.sellerID!);
     if (shopModel != null) {
-      shopModel.ratingCount = shopModel.ratingCount! + 1;
-      shopModel.rating =
-          ((shopModel.rating! * shopModel.ratingCount! - 1) + rating) /
-              shopModel.ratingCount!;
+      if (isNewRating) {
+        // Rating mới
+        shopModel.ratingCount = shopModel.ratingCount! + 1;
+        shopModel.rating =
+            (shopModel.rating! * (shopModel.ratingCount! - 1) + rating) /
+                shopModel.ratingCount!;
+      } else {
+        // Cập nhật lại rating
+        shopModel.rating =
+            (shopModel.rating! * shopModel.ratingCount! + rating) /
+                shopModel.ratingCount!;
+      }
       await _shopRepo.updateShop(shopModel);
     } else {
       _view.onPopContext();

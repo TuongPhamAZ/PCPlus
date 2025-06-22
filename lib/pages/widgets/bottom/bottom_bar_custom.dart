@@ -7,6 +7,8 @@ import 'package:pcplus/pages/home/user_home/home.dart';
 import 'package:pcplus/pages/notification/notification.dart';
 import 'package:pcplus/pages/user/profile/profile.dart';
 
+import '../../../services/nav_service.dart';
+
 class BottomBarCustom extends StatelessWidget {
   final int currentIndex;
   const BottomBarCustom({super.key, required this.currentIndex});
@@ -26,13 +28,13 @@ class BottomBarCustom extends StatelessWidget {
         currentIndex: currentIndex,
         onTap: (value) {
           if (value == 0) {
-            Navigator.of(context).pushNamed(HomeScreen.routeName);
+            NavService.pushNamedAndReplaceUntil(context, HomeScreen.routeName);
           } else if (value == 1) {
-            Navigator.of(context).pushNamed(CartShoppingScreen.routeName);
+            NavService.pushNamedAndReplaceUntil(context, CartShoppingScreen.routeName);
           } else if (value == 2) {
-            Navigator.of(context).pushNamed(NotificationScreen.routeName);
+            NavService.pushNamedAndReplaceUntil(context, NotificationScreen.routeName);
           } else if (value == 3) {
-            Navigator.of(context).pushNamed(ProfileScreen.routeName);
+            NavService.pushNamedAndReplaceUntil(context, ProfileScreen.routeName);
           } else {}
         },
         selectedItemColor: Palette.primaryColor,

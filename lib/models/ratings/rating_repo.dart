@@ -74,6 +74,25 @@ class RatingRepository {
     }
   }
 
+  Future<RatingModel?> getRatingByUserIDAndItemID(String userId, String itemId) async {
+    try {
+      final QuerySnapshot querySnapshot =
+      await _storage.collection(ItemModel.collectionName)
+          .doc(itemId)
+          .collection(RatingModel.collectionName)
+          .where('userID', isEqualTo: userId)
+          .where('itemID', isEqualTo: itemId)
+          .get();
+      final items = querySnapshot
+          .docs
+          .map((doc) => RatingModel.fromJson(doc.id, doc.data() as Map<String, dynamic>))
+          .toList();
+      return items.isNotEmpty ? items.first : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
   Future<double> getRatingValueByItemID(String itemId) async {
     try {
       final QuerySnapshot querySnapshot =

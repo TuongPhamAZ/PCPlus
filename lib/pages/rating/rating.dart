@@ -76,9 +76,6 @@ class _RatingScreenState extends State<RatingScreen>
     } catch (e) {
       debugPrint('Lỗi khi khởi tạo Remote Config: $e');
       _filter.wordsToFilterOutList = _getDefaultBadWords();
-      setState(() {
-        _isLoading = false;
-      });
     }
   }
 

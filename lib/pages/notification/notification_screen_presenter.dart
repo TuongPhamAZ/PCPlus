@@ -37,7 +37,7 @@ class NotificationScreenPresenter {
 
     // Create new controller
     _notificationController =
-        StreamController<List<NotificationModel>>.broadcast();
+        StreamController<List<NotificationModel>>();
 
     // Subscribe to repository stream for real-time updates
     _notificationSubscription = _notificationRepo
