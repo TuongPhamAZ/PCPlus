@@ -46,6 +46,8 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
   final VectorApiService _vectorApiService = VectorApiService();
   final ImageStorageService _imageStorageService = ImageStorageService();
 
+  bool init = false;
+
   @override
   void initState() {
     _presenter = HomePresenter(this);
@@ -55,6 +57,10 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
+    if (init) return;
+    init = true;
+
     loadData();
   }
 
