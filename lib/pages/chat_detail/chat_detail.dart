@@ -51,7 +51,9 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> implements ChatDeta
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    loadData();
+    if (firstEnter) {
+      loadData();
+    }
   }
 
   Future<void> loadData() async {

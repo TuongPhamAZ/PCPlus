@@ -24,6 +24,8 @@ class _ConversationsScreenState extends State<ConversationsScreen> implements Co
 
   List<ConversationModel> conversations = [];
 
+  bool _isFirstLoaded = false;
+
   @override
   void initState() {
     _presenter = ConversationPresenter(this);
@@ -34,7 +36,11 @@ class _ConversationsScreenState extends State<ConversationsScreen> implements Co
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    loadData();
+    if (!_isFirstLoaded) {
+      loadData();
+      _isFirstLoaded = true;
+    }
+
   }
 
   Future<void> loadData() async {
