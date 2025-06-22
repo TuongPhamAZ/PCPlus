@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/models/in_cart_items/in_cart_item_model.dart';
 import 'package:pcplus/models/in_cart_items/in_cart_item_repo.dart';
@@ -11,16 +12,45 @@ class CartShoppingScreenPresenter {
   CartShoppingScreenPresenter(this._view);
 
   final InCartItemRepo _inCartItemRepo = InCartItemRepo();
-
   final SessionController _sessionController = SessionController.getInstance();
-  Stream<List<ItemInCartWithSeller>>? inCartItemsStream;
+
+  // StreamController để quản lý stream lifecycle
+  StreamController<List<ItemInCartWithSeller>>? _inCartItemsController;
+
+  // Stream subscription để dispose
+  StreamSubscription<List<ItemInCartWithSeller>>? _inCartItemsSubscription;
+
+  Stream<List<ItemInCartWithSeller>>? get inCartItemsStream =>
+      _inCartItemsController?.stream;
   List<ItemInCartWithSeller>? inCartItems;
 
   bool initCart = false;
+  bool _isDisposed = false;
 
   Future<void> getData() async {
+    if (_isDisposed) return;
+
+    // Dispose existing streams if any
+    await _disposeStreams();
+
     String userId = _sessionController.userID!;
-    inCartItemsStream = _inCartItemRepo.getAllItemsInCartStream(userId);
+
+    // Create new controller
+    _inCartItemsController =
+        StreamController<List<ItemInCartWithSeller>>.broadcast();
+
+    // Subscribe to repository stream
+    _inCartItemsSubscription =
+        _inCartItemRepo.getAllItemsInCartStream(userId).listen((data) {
+      if (!_isDisposed && !_inCartItemsController!.isClosed) {
+        _inCartItemsController!.add(data);
+      }
+    }, onError: (error) {
+      if (!_isDisposed && !_inCartItemsController!.isClosed) {
+        _inCartItemsController!.addError(error);
+      }
+    });
+
     _view.onLoadDataSucceeded();
   }
 
@@ -46,7 +76,8 @@ class CartShoppingScreenPresenter {
 
   Future<void> handleSelectAll(bool value) async {
     // _view.onWaitingProgressBar();
-    await _inCartItemRepo.selectAllItemInCart(_sessionController.userID!, value);
+    await _inCartItemRepo.selectAllItemInCart(
+        _sessionController.userID!, value);
     _view.onSelectAll();
     // _view.onPopContext();
   }
@@ -86,7 +117,7 @@ class CartShoppingScreenPresenter {
     int count = 0;
     for (ItemInCartWithSeller item in inCartItems!) {
       if (item.inCart.isSelected!) {
-        count ++;
+        count++;
       }
     }
     return count;
@@ -104,5 +135,19 @@ class CartShoppingScreenPresenter {
       }
     }
     return Utility.formatCurrency(total);
+  }
+
+  // Dispose streams khi không sử dụng nữa
+  Future<void> _disposeStreams() async {
+    await _inCartItemsSubscription?.cancel();
+    await _inCartItemsController?.close();
+
+    _inCartItemsSubscription = null;
+    _inCartItemsController = null;
+  }
+
+  Future<void> dispose() async {
+    _isDisposed = true;
+    await _disposeStreams();
   }
 }

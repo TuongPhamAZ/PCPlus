@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:pcplus/const/order_status.dart';
 import 'package:pcplus/controller/session_controller.dart';
@@ -20,10 +21,7 @@ import 'history_order_contract.dart';
 class HistoryOrderPresenter {
   final HistoryOrderContract _view;
   final String orderType;
-  HistoryOrderPresenter(
-    this._view, {
-    required this.orderType
-  });
+  HistoryOrderPresenter(this._view, {required this.orderType});
 
   // final OrderRepository _orderRepo = OrderRepository();
   final BillRepository _billRepo = BillRepository();
@@ -42,27 +40,71 @@ class HistoryOrderPresenter {
   bool get isShop => _sessionController.isShop();
   String? shopName;
 
-  // Stream<List<OrderModel>>? orderStream;
-  Stream<List<BillModel>>? billStream;
-  Stream<List<BillOfShopModel>>? billsOfShopStream;
+  // StreamController để quản lý stream lifecycle
+  StreamController<List<BillModel>>? _billController;
+  StreamController<List<BillOfShopModel>>? _billsOfShopController;
+
+  // Stream subscriptions để dispose
+  StreamSubscription<List<BillModel>>? _billSubscription;
+  StreamSubscription<List<BillOfShopModel>>? _billsOfShopSubscription;
+
+  Stream<List<BillModel>>? get billStream => _billController?.stream;
+  Stream<List<BillOfShopModel>>? get billsOfShopStream =>
+      _billsOfShopController?.stream;
+
+  bool _isDisposed = false;
 
   Future<void> getData() async {
+    if (_isDisposed) return;
+
+    // Dispose existing streams if any
+    await _disposeStreams();
+
     user = await PrefService.loadUserData();
 
     if (isShop) {
       shop = await PrefService.loadShopData();
-      billsOfShopStream = _billOfShopRepo.getAllBillsOfShopFromShopStream(user!.userID!);
-    }
-    else {
-      billStream = _billRepo.getAllBillsFromUserStream(user!.userID!);
+
+      // Create new controller for shop bills
+      _billsOfShopController =
+          StreamController<List<BillOfShopModel>>.broadcast();
+
+      // Subscribe to repository stream for real-time updates
+      _billsOfShopSubscription = _billOfShopRepo
+          .getAllBillsOfShopFromShopStream(user!.userID!)
+          .listen((data) {
+        if (!_isDisposed && !_billsOfShopController!.isClosed) {
+          _billsOfShopController!.add(data);
+        }
+      }, onError: (error) {
+        if (!_isDisposed && !_billsOfShopController!.isClosed) {
+          _billsOfShopController!.addError(error);
+        }
+      });
+    } else {
+      // Create new controller for user bills
+      _billController = StreamController<List<BillModel>>.broadcast();
+
+      // Subscribe to repository stream for real-time updates
+      _billSubscription =
+          _billRepo.getAllBillsFromUserStream(user!.userID!).listen((data) {
+        if (!_isDisposed && !_billController!.isClosed) {
+          _billController!.add(data);
+        }
+      }, onError: (error) {
+        if (!_isDisposed && !_billController!.isClosed) {
+          _billController!.addError(error);
+        }
+      });
     }
 
     _view.onLoadDataSucceeded();
   }
 
   Widget? createHistoryOrderItemForUser(BillModel order, String shopID) {
-
-    String type = orderType.isNotEmpty ? orderType : order.getBillShopModel(shopID)!.status!;
+    String type = orderType.isNotEmpty
+        ? orderType
+        : order.getBillShopModel(shopID)!.status!;
 
     switch (type) {
       case OrderStatus.PENDING_CONFIRMATION:
@@ -70,7 +112,8 @@ class HistoryOrderPresenter {
       case OrderStatus.AWAIT_PICKUP:
         return OrderItemFactory.createCanCancelOrderWidget(this, order, shopID);
       case OrderStatus.AWAIT_DELIVERY:
-        return OrderItemFactory.createConfirmReceivedOrderWidget(this, order, shopID);
+        return OrderItemFactory.createConfirmReceivedOrderWidget(
+            this, order, shopID);
       case OrderStatus.AWAIT_RATING:
         return OrderItemFactory.createNormalOrderWidget(this, order, shopID);
       case OrderStatus.COMPLETED:
@@ -87,21 +130,28 @@ class HistoryOrderPresenter {
 
     switch (type) {
       case OrderStatus.PENDING_CONFIRMATION:
-        return OrderItemForShopFactory.createNeedConfirmOrderWidget(this, order, shopName);
+        return OrderItemForShopFactory.createNeedConfirmOrderWidget(
+            this, order, shopName);
       case OrderStatus.AWAIT_PICKUP:
-        return OrderItemForShopFactory.createSentOrderWidget(this, order, shopName);
+        return OrderItemForShopFactory.createSentOrderWidget(
+            this, order, shopName);
       case OrderStatus.AWAIT_DELIVERY:
-        return OrderItemForShopFactory.createNormalOrderWidget(this, order, shopName);
+        return OrderItemForShopFactory.createNormalOrderWidget(
+            this, order, shopName);
       case OrderStatus.AWAIT_RATING:
-        return OrderItemForShopFactory.createNormalOrderWidget(this, order, shopName);
+        return OrderItemForShopFactory.createNormalOrderWidget(
+            this, order, shopName);
       case OrderStatus.COMPLETED:
-        return OrderItemForShopFactory.createNormalOrderWidget(this, order, shopName);
+        return OrderItemForShopFactory.createNormalOrderWidget(
+            this, order, shopName);
       default:
-        return OrderItemForShopFactory.createNormalOrderWidget(this, order, shopName);
+        return OrderItemForShopFactory.createNormalOrderWidget(
+            this, order, shopName);
     }
   }
 
-  Future<bool> updateOrder(BillModel model, String shopID, String status) async {
+  Future<bool> updateOrder(
+      BillModel model, String shopID, String status) async {
     model.updateShopStatus(shopID, status);
     await _billRepo.updateBill(model.userID!, model);
 
@@ -116,7 +166,8 @@ class HistoryOrderPresenter {
     return true;
   }
 
-  Future<void> handleCancelOrder(BillModel model, String shopID, String reason) async {
+  Future<void> handleCancelOrder(
+      BillModel model, String shopID, String reason) async {
     _view.onWaitingProgressBar();
 
     if (await updateOrder(model, shopID, OrderStatus.CANCELLED) == false) {
@@ -131,7 +182,8 @@ class HistoryOrderPresenter {
       _view.onError("Đã có lỗi xảy ra. Hãy thử lại sau.");
       return;
     }
-    await _notificationService.createCancelOrderingNotification(shopID, billOfShopModel, reason);
+    await _notificationService.createCancelOrderingNotification(
+        shopID, billOfShopModel, reason);
 
     if (orderType.isNotEmpty) {
       bills.remove(model);
@@ -141,16 +193,19 @@ class HistoryOrderPresenter {
     _view.onLoadDataSucceeded();
   }
 
-  Future<void> handleCancelOrderForShop(BillOfShopModel model, String reason) async {
+  Future<void> handleCancelOrderForShop(
+      BillOfShopModel model, String reason) async {
     _view.onWaitingProgressBar();
 
-    BillModel? billModel = await _billRepo.getBill(model.userID!, model.billID!);
+    BillModel? billModel =
+        await _billRepo.getBill(model.userID!, model.billID!);
     if (billModel == null) {
       _view.onPopContext();
       _view.onError("Đã có lỗi xảy ra. Hãy thử lại sau.");
       return;
     }
-    if (await updateOrder(billModel, shop!.shopID!, OrderStatus.CANCELLED) == false) {
+    if (await updateOrder(billModel, shop!.shopID!, OrderStatus.CANCELLED) ==
+        false) {
       _view.onPopContext();
       _view.onError("Đã có lỗi xảy ra. Hãy thử lại sau.");
       return;
@@ -160,13 +215,15 @@ class HistoryOrderPresenter {
       billOfShops.remove(model);
     }
 
-    await _notificationService.createShopCancelOrderingNotification(model, shop!.name!, reason);
+    await _notificationService.createShopCancelOrderingNotification(
+        model, shop!.name!, reason);
 
     _view.onPopContext();
     _view.onLoadDataSucceeded();
   }
 
-  Future<void> handleAlreadyReceivedOrder(BillModel model, String shopID) async {
+  Future<void> handleAlreadyReceivedOrder(
+      BillModel model, String shopID) async {
     _view.onWaitingProgressBar();
     if (await updateOrder(model, shopID, OrderStatus.COMPLETED) == false) {
       _view.onPopContext();
@@ -192,11 +249,14 @@ class HistoryOrderPresenter {
     }
 
     // Gửi thông báo
-    await _notificationService.createReceivedOrderNotification(shopID, billOfShopModel);
+    await _notificationService.createReceivedOrderNotification(
+        shopID, billOfShopModel);
 
     for (BillShopItemModel billShopItem in billOfShopModel.items!) {
-      AwaitRatingModel awaitRatingModel = billShopItem.createAwaitRatingModel(model.getBillShopModel(shopID)!.shopName!);
-      await _awaitRatingRepo.addAwaitRatingToFirestore(billOfShopModel.userID!, awaitRatingModel);
+      AwaitRatingModel awaitRatingModel = billShopItem
+          .createAwaitRatingModel(model.getBillShopModel(shopID)!.shopName!);
+      await _awaitRatingRepo.addAwaitRatingToFirestore(
+          billOfShopModel.userID!, awaitRatingModel);
     }
 
     if (orderType.isNotEmpty) {
@@ -209,19 +269,22 @@ class HistoryOrderPresenter {
   Future<void> handleConfirmOrderForShop(BillOfShopModel model) async {
     _view.onWaitingProgressBar();
 
-    BillModel? billModel = await _billRepo.getBill(model.userID!, model.billID!);
+    BillModel? billModel =
+        await _billRepo.getBill(model.userID!, model.billID!);
     if (billModel == null) {
       _view.onPopContext();
       _view.onError("Đã có lỗi xảy ra. Hãy thử lại sau.");
       return;
     }
-    if (await updateOrder(billModel, shop!.shopID!, OrderStatus.AWAIT_PICKUP) == false) {
+    if (await updateOrder(billModel, shop!.shopID!, OrderStatus.AWAIT_PICKUP) ==
+        false) {
       _view.onPopContext();
       _view.onError("Đã có lỗi xảy ra. Hãy thử lại sau.");
       return;
     }
 
-    await _notificationService.createShopConfirmOrderNotification(model, shop!.name!);
+    await _notificationService.createShopConfirmOrderNotification(
+        model, shop!.name!);
 
     if (orderType.isNotEmpty) {
       billOfShops.remove(model);
@@ -233,24 +296,47 @@ class HistoryOrderPresenter {
   Future<void> handleSentOrderForShop(BillOfShopModel model) async {
     _view.onWaitingProgressBar();
 
-    BillModel? billModel = await _billRepo.getBill(model.userID!, model.billID!);
+    BillModel? billModel =
+        await _billRepo.getBill(model.userID!, model.billID!);
     if (billModel == null) {
       _view.onPopContext();
       _view.onError("Đã có lỗi xảy ra. Hãy thử lại sau.");
       return;
     }
-    if (await updateOrder(billModel, shop!.shopID!, OrderStatus.AWAIT_DELIVERY) == false) {
+    if (await updateOrder(
+            billModel, shop!.shopID!, OrderStatus.AWAIT_DELIVERY) ==
+        false) {
       _view.onPopContext();
       _view.onError("Đã có lỗi xảy ra. Hãy thử lại sau.");
       return;
     }
 
-    await _notificationService.createShopSentOrderNotification(model, shop!.name!);
+    await _notificationService.createShopSentOrderNotification(
+        model, shop!.name!);
 
     if (orderType.isNotEmpty) {
       billOfShops.remove(model);
     }
     _view.onPopContext();
     _view.onLoadDataSucceeded();
+  }
+
+  // Dispose streams khi không sử dụng nữa
+  Future<void> _disposeStreams() async {
+    await _billSubscription?.cancel();
+    await _billsOfShopSubscription?.cancel();
+
+    await _billController?.close();
+    await _billsOfShopController?.close();
+
+    _billSubscription = null;
+    _billsOfShopSubscription = null;
+    _billController = null;
+    _billsOfShopController = null;
+  }
+
+  Future<void> dispose() async {
+    _isDisposed = true;
+    await _disposeStreams();
   }
 }

@@ -24,12 +24,14 @@ class ListVoucher extends StatefulWidget {
   State<ListVoucher> createState() => _ListVoucherState();
 }
 
-class _ListVoucherState extends State<ListVoucher> implements ListVoucherContract {
+class _ListVoucherState extends State<ListVoucher>
+    implements ListVoucherContract {
   ListVoucherPresenter? _presenter;
   bool isShop = false;
   String selectedFilter = 'all';
   List<VoucherModel> _mockVouchers = [];
   List<VoucherModel> _filteredVouchers = [];
+  bool _isFirstLoad = true;
 
   @override
   void initState() {
@@ -42,15 +44,26 @@ class _ListVoucherState extends State<ListVoucher> implements ListVoucherContrac
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    isShop = SessionController.getInstance().isShop();
-    final args = ModalRoute.of(context)!.settings.arguments as ShopArgument;
-    _presenter!.shopModel = args.shop;
+    if (_isFirstLoad) {
+      isShop = SessionController.getInstance().isShop();
+      final args = ModalRoute.of(context)!.settings.arguments as ShopArgument;
+      _presenter!.shopModel = args.shop;
 
-    loadData();
+      loadData();
+      _isFirstLoad = false;
+    }
+  }
+
+  @override
+  void dispose() {
+    _presenter?.dispose();
+    super.dispose();
   }
 
   Future<void> loadData() async {
-    await _presenter?.getData();
+    if (mounted) {
+      await _presenter?.getData();
+    }
   }
 
   void _initMockVouchers() {
@@ -200,8 +213,8 @@ class _ListVoucherState extends State<ListVoucher> implements ListVoucherContrac
             child: StreamBuilder<List<VoucherModel>>(
                 stream: _presenter!.voucherStream,
                 builder: (context, snapshot) {
-                  Widget? result = UtilWidgets.createSnapshotResultWidget(
-                      context, snapshot);
+                  Widget? result =
+                      UtilWidgets.createSnapshotResultWidget(context, snapshot);
                   if (result != null) {
                     return result;
                   }
@@ -449,12 +462,9 @@ class _ListVoucherState extends State<ListVoucher> implements ListVoucherContrac
               voucher: voucher,
               isShop: isShop,
               onTap: () => _presenter!.handleViewVoucher(voucher),
-              onEdit: isShop
-                  ? () => _presenter!.handleEditVoucher(voucher)
-                  : null,
-              onDelete: isShop
-                  ? () => _showDeleteVoucherDialog(voucher)
-                  : null,
+              onEdit:
+                  isShop ? () => _presenter!.handleEditVoucher(voucher) : null,
+              onDelete: isShop ? () => _showDeleteVoucherDialog(voucher) : null,
             ),
           );
         },
@@ -587,7 +597,6 @@ class _ListVoucherState extends State<ListVoucher> implements ListVoucherContrac
                 Navigator.pop(context);
                 // Remove voucher from list
                 _presenter!.handleDeleteVoucher(voucher);
-
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,

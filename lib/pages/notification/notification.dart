@@ -27,6 +27,8 @@ class _NotificationScreenState extends State<NotificationScreen>
   bool isShop = false;
   bool isLoading = true;
 
+  bool _isFirstLoad = true;
+
   @override
   void initState() {
     _presenter = NotificationScreenPresenter(this);
@@ -37,11 +39,22 @@ class _NotificationScreenState extends State<NotificationScreen>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    loadData();
+    if (_isFirstLoad) {
+      loadData();
+      _isFirstLoad = false;
+    }
+  }
+
+  @override
+  void dispose() {
+    _presenter?.dispose();
+    super.dispose();
   }
 
   Future<void> loadData() async {
-    await _presenter?.getData();
+    if (mounted) {
+      await _presenter?.getData();
+    }
   }
 
   @override

@@ -34,6 +34,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   String _userName = "";
   bool _isLoading = true;
   bool isShop = false;
+  bool _isFirstLoad = true;
 
   int awaitConfirm = 0;
   int awaitPickUp = 0;
@@ -372,11 +373,16 @@ class _ProfileScreenState extends State<ProfileScreen>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    loadData();
+    if (_isFirstLoad) {
+      loadData();
+      _isFirstLoad = false;
+    }
   }
 
   Future<void> loadData() async {
-    await _presenter?.getData();
+    if (mounted) {
+      await _presenter?.getData();
+    }
   }
 
   @override

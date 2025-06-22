@@ -34,6 +34,7 @@ class _ListVoucherChoiceState extends State<ListVoucherChoice>
 
   VoucherModel? selectedVoucher;
   List<VoucherModel> vouchers = [];
+  bool _isFirstLoad = true;
 
   @override
   void initState() {
@@ -45,12 +46,23 @@ class _ListVoucherChoiceState extends State<ListVoucherChoice>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    loadData();
+    if (_isFirstLoad) {
+      loadData();
+      _isFirstLoad = false;
+    }
+  }
+
+  @override
+  void dispose() {
+    _presenter?.dispose();
+    super.dispose();
   }
 
   Future<void> loadData() async {
-    _presenter!.shopID = widget.shopId;
-    await _presenter?.getData();
+    if (mounted) {
+      _presenter!.shopID = widget.shopId;
+      await _presenter?.getData();
+    }
   }
 
   bool _isVoucherEligible(VoucherModel voucher) {

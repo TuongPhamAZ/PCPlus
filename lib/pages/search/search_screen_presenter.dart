@@ -2,6 +2,7 @@ import 'package:pcplus/const/item_filter.dart';
 import 'package:pcplus/models/items/item_with_seller.dart';
 import 'package:pcplus/pages/search/search_screen_contract.dart';
 import 'package:pcplus/models/items/item_repo.dart';
+import 'dart:async';
 
 class SearchScreenPresenter {
   final SearchScreenContract _view;
@@ -9,15 +10,24 @@ class SearchScreenPresenter {
 
   final ItemRepository _itemRepo = ItemRepository();
 
-  Stream<List<ItemWithSeller>>? searchItemStream;
+  // StreamController để quản lý lifecycle
+  StreamController<List<ItemWithSeller>>? _searchItemController;
+  StreamSubscription<List<ItemWithSeller>>? _searchItemSubscription;
+
+  // Getter cho stream
+  Stream<List<ItemWithSeller>>? get searchItemStream =>
+      _searchItemController?.stream;
 
   String filterMode = ItemFilter.RELATED;
+  bool _isDisposed = false;
 
   void handleBack() {
     _view.onBack();
   }
 
   Future<void> handleSearch(String input) async {
+    if (_isDisposed) return;
+
     _view.onStartSearching();
 
     if (input.isEmpty) {
@@ -25,7 +35,26 @@ class SearchScreenPresenter {
       return;
     }
 
-    searchItemStream = _itemRepo.getItemsWithSeller(searchQuery: input);
+    // Khởi tạo controller nếu chưa có
+    _searchItemController ??= StreamController<List<ItemWithSeller>>();
+
+    // Cancel subscription cũ nếu có
+    await _searchItemSubscription?.cancel();
+
+    // Lắng nghe stream từ repository
+    _searchItemSubscription =
+        _itemRepo.getItemsWithSeller(searchQuery: input).listen(
+      (data) {
+        if (!_isDisposed && !_searchItemController!.isClosed) {
+          _searchItemController!.add(data);
+        }
+      },
+      onError: (error) {
+        if (!_isDisposed && !_searchItemController!.isClosed) {
+          _searchItemController!.addError(error);
+        }
+      },
+    );
 
     _view.onFinishSearching();
   }
@@ -78,5 +107,20 @@ class SearchScreenPresenter {
     //
     _view.onPopContext();
     _view.onSelectItem(item);
+  }
+
+  Future<void> dispose() async {
+    _isDisposed = true;
+    await _disposeStreams();
+  }
+
+  Future<void> _disposeStreams() async {
+    await _searchItemSubscription?.cancel();
+    _searchItemSubscription = null;
+
+    if (_searchItemController != null && !_searchItemController!.isClosed) {
+      await _searchItemController!.close();
+    }
+    _searchItemController = null;
   }
 }

@@ -46,6 +46,7 @@ class _ImageSearchResultState extends State<ImageSearchResult>
 
   bool isLoading = true;
   String? errorMessage;
+  bool _isFirstLoad = true;
 
   List<String> productIds = [];
   String? searchImageUrl;
@@ -60,14 +61,15 @@ class _ImageSearchResultState extends State<ImageSearchResult>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
-    final args =
-        ModalRoute.of(context)!.settings.arguments as ImageSearchResultArgument;
-    productIds = args.productIds;
-    searchImageUrl = args.searchImageUrl;
-    searchImageFile = args.searchImageFile;
-
-    loadData();
+    if (_isFirstLoad) {
+      final args = ModalRoute.of(context)!.settings.arguments
+          as ImageSearchResultArgument;
+      productIds = args.productIds;
+      searchImageUrl = args.searchImageUrl;
+      searchImageFile = args.searchImageFile;
+      loadData();
+      _isFirstLoad = false;
+    }
   }
 
   Future<void> loadData() async {

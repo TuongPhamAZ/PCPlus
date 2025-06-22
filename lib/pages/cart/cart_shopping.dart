@@ -25,7 +25,8 @@ class CartShoppingScreen extends StatefulWidget {
   State<CartShoppingScreen> createState() => _CartShoppingScreenState();
 }
 
-class _CartShoppingScreenState extends State<CartShoppingScreen> implements CartShoppingScreenContract {
+class _CartShoppingScreenState extends State<CartShoppingScreen>
+    implements CartShoppingScreenContract {
   // final CartSingleton _cartSingleton = CartSingleton.getInstance();
   CartShoppingScreenPresenter? _presenter;
 
@@ -34,6 +35,7 @@ class _CartShoppingScreenState extends State<CartShoppingScreen> implements Cart
   int checkedCount = 0;
   String totalPrice = "";
 
+  bool _isFirstLoad = true;
 
   @override
   void initState() {
@@ -45,11 +47,22 @@ class _CartShoppingScreenState extends State<CartShoppingScreen> implements Cart
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    loadData();
+    if (_isFirstLoad) {
+      loadData();
+      _isFirstLoad = false;
+    }
+  }
+
+  @override
+  void dispose() {
+    _presenter?.dispose();
+    super.dispose();
   }
 
   Future<void> loadData() async {
-    await _presenter?.getData();
+    if (mounted) {
+      await _presenter?.getData();
+    }
   }
 
   void _toggleSelectAll(bool? value) {
@@ -97,11 +110,12 @@ class _CartShoppingScreenState extends State<CartShoppingScreen> implements Cart
         children: [
           Expanded(
             child:
-              // _cartSingleton.inCartItems.isEmpty ?
+                // _cartSingleton.inCartItems.isEmpty ?
                 StreamBuilder<List<ItemInCartWithSeller>>(
                     stream: _presenter!.inCartItemsStream,
                     builder: (context, snapshot) {
-                      Widget? result = UtilWidgets.createSnapshotResultWidget(context, snapshot);
+                      Widget? result = UtilWidgets.createSnapshotResultWidget(
+                          context, snapshot);
                       if (result != null) {
                         return result;
                       }
@@ -110,21 +124,21 @@ class _CartShoppingScreenState extends State<CartShoppingScreen> implements Cart
 
                       _presenter!.inCartItems = itemsWithSeller;
 
-                      String remoteTotalPrice = _presenter!.calculateTotalPrice();
+                      String remoteTotalPrice =
+                          _presenter!.calculateTotalPrice();
                       int remoteAmount = itemsWithSeller.length;
                       int remoteCheckedCount = _presenter!.getCheckedCount();
 
-                      if (soluong != remoteAmount
-                        || totalPrice != remoteTotalPrice
-                        || checkedCount != remoteCheckedCount
-                      ) {
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            setState(() {
-                              soluong = remoteAmount;
-                              totalPrice = remoteTotalPrice;
-                              checkedCount = remoteCheckedCount;
-                            });
+                      if (soluong != remoteAmount ||
+                          totalPrice != remoteTotalPrice ||
+                          checkedCount != remoteCheckedCount) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          setState(() {
+                            soluong = remoteAmount;
+                            totalPrice = remoteTotalPrice;
+                            checkedCount = remoteCheckedCount;
                           });
+                        });
                       }
 
                       if (itemsWithSeller.isEmpty) {
@@ -138,7 +152,8 @@ class _CartShoppingScreenState extends State<CartShoppingScreen> implements Cart
                         scrollDirection: Axis.vertical,
                         itemCount: itemsWithSeller.length,
                         itemBuilder: (context, index) {
-                          ItemInCartWithSeller itemData = itemsWithSeller[index];
+                          ItemInCartWithSeller itemData =
+                              itemsWithSeller[index];
 
                           return CartItem(
                             shopName: itemData.seller.name!,
@@ -147,7 +162,8 @@ class _CartShoppingScreenState extends State<CartShoppingScreen> implements Cart
                             rating: itemData.item.rating!,
                             location: itemData.seller.location!,
                             imageUrl: itemData.item.image!,
-                            onChanged: (value) => _toggleItemChecked(itemData.inCart, value),
+                            onChanged: (value) =>
+                                _toggleItemChecked(itemData.inCart, value),
                             isCheck: itemData.inCart.isSelected!,
                             price: itemData.item.discountPrice!,
                             stock: itemData.item.stock!,
@@ -157,15 +173,14 @@ class _CartShoppingScreenState extends State<CartShoppingScreen> implements Cart
                             onPressed: () => _presenter?.handleItemPressed(
                                 ItemWithSeller(
                                     item: itemData.item,
-                                    seller: itemData.seller
-                                )
-                            ),
-                            onChangeAmount: (value) => _presenter?.handleChangeItemAmount(itemData.inCart, value),
+                                    seller: itemData.seller)),
+                            onChangeAmount: (value) =>
+                                _presenter?.handleChangeItemAmount(
+                                    itemData.inCart, value),
                           );
                         },
                       );
-                    }
-                ),
+                    }),
           ),
           Container(
             height: 60,
@@ -271,8 +286,8 @@ class _CartShoppingScreenState extends State<CartShoppingScreen> implements Cart
   @override
   void onItemPressed(ItemWithSeller item) {
     Navigator.of(context).pushNamed(
-        DetailProduct.routeName,
-        arguments: ItemArgument(data: item),
+      DetailProduct.routeName,
+      arguments: ItemArgument(data: item),
     );
   }
 
