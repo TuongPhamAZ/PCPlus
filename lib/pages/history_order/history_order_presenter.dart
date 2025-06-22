@@ -11,6 +11,7 @@ import 'package:pcplus/models/bills/bill_shop_item_model.dart';
 import 'package:pcplus/models/users/user_repo.dart';
 import 'package:pcplus/services/notification_service.dart';
 import 'package:pcplus/services/pref_service.dart';
+import 'package:rxdart/rxdart.dart';
 import '../../factories/widget_factories/history_order_item_for_shop_factory.dart';
 import '../../models/bills/bill_model.dart';
 import '../../models/bills/bill_of_shop_model.dart';
@@ -67,7 +68,7 @@ class HistoryOrderPresenter {
 
       // Create new controller for shop bills
       _billsOfShopController =
-          StreamController<List<BillOfShopModel>>.broadcast();
+          StreamController<List<BillOfShopModel>>();
 
       // Subscribe to repository stream for real-time updates
       _billsOfShopSubscription = _billOfShopRepo
@@ -83,7 +84,7 @@ class HistoryOrderPresenter {
       });
     } else {
       // Create new controller for user bills
-      _billController = StreamController<List<BillModel>>.broadcast();
+      _billController = StreamController<List<BillModel>>();
 
       // Subscribe to repository stream for real-time updates
       _billSubscription =
