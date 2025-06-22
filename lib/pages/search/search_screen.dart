@@ -23,7 +23,8 @@ class SearchScreen extends StatefulWidget {
   State<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> implements SearchScreenContract {
+class _SearchScreenState extends State<SearchScreen>
+    implements SearchScreenContract {
   SearchScreenPresenter? _presenter;
 
   bool lienQuan = true;
@@ -32,6 +33,7 @@ class _SearchScreenState extends State<SearchScreen> implements SearchScreenCont
   bool giaTang = false;
 
   bool isSearching = false;
+  bool _isFirstLoad = true;
 
   final TextEditingController _searchController = TextEditingController();
 
@@ -47,18 +49,30 @@ class _SearchScreenState extends State<SearchScreen> implements SearchScreenCont
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    final args = ModalRoute.of(context)!.settings.arguments as SearchArgument;
+    if (_isFirstLoad) {
+      final args = ModalRoute.of(context)!.settings.arguments as SearchArgument;
 
-    if (args.query.isEmpty == false) {
-      _searchController.text = args.query;
-      args.query = '';
+      if (args.query.isEmpty == false) {
+        _searchController.text = args.query;
+        args.query = '';
+      }
+
+      loadData();
+      _isFirstLoad = false;
     }
+  }
 
-    loadData();
+  @override
+  void dispose() {
+    _presenter?.dispose();
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> loadData() async {
-    await _presenter?.handleSearch(_searchController.text);
+    if (mounted) {
+      await _presenter?.handleSearch(_searchController.text);
+    }
   }
 
   @override
@@ -99,8 +113,8 @@ class _SearchScreenState extends State<SearchScreen> implements SearchScreenCont
                       controller: _searchController,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
-                          borderSide:
-                              const BorderSide(color: Palette.primaryColor, width: 1),
+                          borderSide: const BorderSide(
+                              color: Palette.primaryColor, width: 1),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         focusedBorder: OutlineInputBorder(
@@ -112,7 +126,8 @@ class _SearchScreenState extends State<SearchScreen> implements SearchScreenCont
                         prefixIcon: InkWell(
                           customBorder: const CircleBorder(),
                           onTap: () {
-                            _presenter?.handleSearch(_searchController.text.trim());
+                            _presenter
+                                ?.handleSearch(_searchController.text.trim());
                           },
                           child: const Icon(
                             FontAwesomeIcons.magnifyingGlass,
@@ -153,7 +168,8 @@ class _SearchScreenState extends State<SearchScreen> implements SearchScreenCont
                       moiNhat = false;
                       giaTang = false;
                       gia = false;
-                      _presenter!.setFilter(lienQuan ? ItemFilter.RELATED : ItemFilter.DEFAULT);
+                      _presenter!.setFilter(
+                          lienQuan ? ItemFilter.RELATED : ItemFilter.DEFAULT);
                     },
                     child: Container(
                       alignment: Alignment.center,
@@ -161,7 +177,9 @@ class _SearchScreenState extends State<SearchScreen> implements SearchScreenCont
                       height: 42,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(
-                          lienQuan ? const Radius.circular(5) : const Radius.circular(0),
+                          lienQuan
+                              ? const Radius.circular(5)
+                              : const Radius.circular(0),
                         ),
                         border: lienQuan
                             ? Border.all(
@@ -197,7 +215,8 @@ class _SearchScreenState extends State<SearchScreen> implements SearchScreenCont
                       moiNhat = true;
                       giaTang = false;
                       gia = false;
-                      _presenter!.setFilter(moiNhat ? ItemFilter.NEWEST : ItemFilter.DEFAULT);
+                      _presenter!.setFilter(
+                          moiNhat ? ItemFilter.NEWEST : ItemFilter.DEFAULT);
                     },
                     child: Container(
                       alignment: Alignment.center,
@@ -205,7 +224,9 @@ class _SearchScreenState extends State<SearchScreen> implements SearchScreenCont
                       height: 42,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(
-                          moiNhat ? const Radius.circular(5) : const Radius.circular(0),
+                          moiNhat
+                              ? const Radius.circular(5)
+                              : const Radius.circular(0),
                         ),
                         border: moiNhat
                             ? Border.all(
@@ -241,8 +262,9 @@ class _SearchScreenState extends State<SearchScreen> implements SearchScreenCont
                       gia = true;
                       lienQuan = false;
                       moiNhat = false;
-                      _presenter!.setFilter(giaTang ? ItemFilter.PRICE_ASCENDING : ItemFilter.PRICE_DESCENDING);
-
+                      _presenter!.setFilter(giaTang
+                          ? ItemFilter.PRICE_ASCENDING
+                          : ItemFilter.PRICE_DESCENDING);
                     },
                     child: Container(
                       alignment: Alignment.center,
@@ -250,7 +272,9 @@ class _SearchScreenState extends State<SearchScreen> implements SearchScreenCont
                       height: 42,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(
-                          gia ? const Radius.circular(5) : const Radius.circular(0),
+                          gia
+                              ? const Radius.circular(5)
+                              : const Radius.circular(0),
                         ),
                         border: gia
                             ? Border.all(
@@ -297,7 +321,8 @@ class _SearchScreenState extends State<SearchScreen> implements SearchScreenCont
               StreamBuilder<List<ItemWithSeller>>(
                   stream: _presenter!.searchItemStream,
                   builder: (context, snapshot) {
-                    Widget? result = UtilWidgets.createSnapshotResultWidget(context, snapshot);
+                    Widget? result = UtilWidgets.createSnapshotResultWidget(
+                        context, snapshot);
                     if (result != null) {
                       return result;
                     }
@@ -321,13 +346,10 @@ class _SearchScreenState extends State<SearchScreen> implements SearchScreenCont
                             itemWithSeller: sortedItems[index],
                             command: SearchItemPressedCommand(
                                 presenter: _presenter!,
-                                item: itemsWithSeller[index]
-                            )
-                        );
+                                item: itemsWithSeller[index]));
                       },
                     );
-                  }
-              ),
+                  }),
             ],
           ),
         ),
@@ -338,7 +360,8 @@ class _SearchScreenState extends State<SearchScreen> implements SearchScreenCont
   // ===========================================================================
 
   Future<void> _startListening() async {
-    bool isAvailable = await SpeechToTextGoogleDialog.getInstance().showGoogleDialog(
+    bool isAvailable =
+        await SpeechToTextGoogleDialog.getInstance().showGoogleDialog(
       onTextReceived: (text) {
         _searchController.text = text.trim();
         _presenter?.handleSearch(text);
@@ -351,7 +374,8 @@ class _SearchScreenState extends State<SearchScreen> implements SearchScreenCont
     }
 
     if (!isAvailable) {
-      UtilWidgets.createSnackBar(context, 'Không thể mở Google Speech Dialog', backgroundColor: Colors.red);
+      UtilWidgets.createSnackBar(context, 'Không thể mở Google Speech Dialog',
+          backgroundColor: Colors.red);
     }
   }
 

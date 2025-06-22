@@ -17,13 +17,18 @@ class EditProfileScreenPresenter {
 
   UserModel? user;
   File? avatarFile;
+  bool _isDisposed = false;
 
   Future<void> getData() async {
+    if (_isDisposed) return;
+
     user = SessionController.getInstance().currentUser;
     _view.onLoadDataSucceeded();
   }
 
   Future<void> handlePickAvatar() async {
+    if (_isDisposed) return;
+
     avatarFile = await _imageStore.pickImage();
     _view.onPickAvatar();
   }
@@ -34,6 +39,8 @@ class EditProfileScreenPresenter {
     required DateTime birthDate,
     required bool isMale,
   }) async {
+    if (_isDisposed) return;
+
     _view.onWaitingProgressBar();
 
     if (fullName.isEmpty || phone.isEmpty) {
@@ -52,5 +59,10 @@ class EditProfileScreenPresenter {
 
     _view.onPopContext();
     _view.onSaveSucceeded();
+  }
+
+  Future<void> dispose() async {
+    _isDisposed = true;
+    // Cleanup any resources if needed in future
   }
 }

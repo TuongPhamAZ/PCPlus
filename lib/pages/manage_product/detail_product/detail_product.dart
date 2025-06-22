@@ -81,17 +81,31 @@ class _DetailProductState extends State<DetailProduct>
     super.initState();
   }
 
+  bool _isFirstLoad = true;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final args = ModalRoute.of(context)!.settings.arguments as ItemArgument;
-    _presenter!.itemWithSeller = args.data;
-    loadData();
+    if (_isFirstLoad) {
+      final args = ModalRoute.of(context)!.settings.arguments as ItemArgument;
+      _presenter!.itemWithSeller = args.data;
+      loadData();
+      _isFirstLoad = false;
+    }
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    _scrollController.dispose();
+    super.dispose();
   }
 
   Future<void> loadData() async {
-    isShop = SessionController.getInstance().isSeller;
-    await _presenter?.getData();
+    if (mounted) {
+      isShop = SessionController.getInstance().isSeller;
+      await _presenter?.getData();
+    }
   }
 
   void _onPageChanged(int index) {
@@ -678,8 +692,7 @@ class _DetailProductState extends State<DetailProduct>
                         // Chỉ hiển thị phần Product's Reviews khi có review
                         if (reviews.isNotEmpty) ...[
                           const Gap(8),
-                          Text("Review sản phẩm",
-                              style: TextDecor.robo18Semi),
+                          Text("Review sản phẩm", style: TextDecor.robo18Semi),
                           Row(
                             children: [
                               RatingBar.builder(

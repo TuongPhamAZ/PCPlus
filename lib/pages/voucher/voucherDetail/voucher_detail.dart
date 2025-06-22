@@ -28,6 +28,7 @@ class _VoucherDetailState extends State<VoucherDetail>
   VoucherModel? _voucher;
   String? _voucherId;
   bool isShop = false;
+  bool _isFirstLoad = true;
 
   @override
   void initState() {
@@ -39,14 +40,23 @@ class _VoucherDetailState extends State<VoucherDetail>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_voucherId == null) {
-      final args =
-          ModalRoute.of(context)?.settings.arguments as VoucherArgument?;
-      if (args != null) {
-        _voucher = args.data;
-        _voucherId = _voucher!.voucherID;
+    if (_isFirstLoad) {
+      if (_voucherId == null) {
+        final args =
+            ModalRoute.of(context)?.settings.arguments as VoucherArgument?;
+        if (args != null) {
+          _voucher = args.data;
+          _voucherId = _voucher!.voucherID;
+        }
       }
+      _isFirstLoad = false;
     }
+  }
+
+  @override
+  void dispose() {
+    _presenter?.dispose();
+    super.dispose();
   }
 
   String _formatCurrency(int amount) {

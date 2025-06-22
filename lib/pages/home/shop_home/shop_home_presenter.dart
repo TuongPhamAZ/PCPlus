@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:pcplus/controller/session_controller.dart';
 import 'package:pcplus/models/items/item_repo.dart';
 import 'package:pcplus/models/shops/shop_repo.dart';
@@ -26,21 +27,25 @@ class ShopHomePresenter {
   String? userId;
   ShopModel? seller;
 
-  // List<ItemModel> itemModels = [];
-  // List<ItemData> itemsData = [];
+  // StreamController để quản lý stream lifecycle
+  StreamController<List<ItemWithSeller>>? _userItemsController;
+  StreamController<List<VoucherModel>>? _voucherController;
 
-  Stream<List<ItemWithSeller>>? userItemsStream;
-  Stream<List<VoucherModel>>? voucherStream;
+  // Stream subscriptions để dispose
+  StreamSubscription<List<ItemWithSeller>>? _userItemsSubscription;
+  StreamSubscription<List<VoucherModel>>? _voucherSubscription;
+
+  Stream<List<ItemWithSeller>>? get userItemsStream =>
+      _userItemsController?.stream;
+  Stream<List<VoucherModel>>? get voucherStream => _voucherController?.stream;
+
+  bool _isDisposed = false;
 
   Future<void> getData() async {
-    // await _shopSingleton.initShopData();
-    // await _shopSingleton.initShopData();
-    // if (_userSingleton.firstEnter) {
-    //
-    //   _userSingleton.firstEnter = false;
-    // } else {
-    //
-    // }
+    if (_isDisposed) return;
+
+    // Dispose existing streams if any
+    await _disposeStreams();
 
     if (_sessionController.isShop()) {
       userId = _sessionController.userID;
@@ -49,8 +54,32 @@ class ShopHomePresenter {
       seller = await _shopRepo.getShopById(userId!);
     }
 
-    userItemsStream = _itemRepo.getItemsWithSellerStreamBySellerID(userId!);
-    voucherStream = _voucherRepo.getShopVouchersStream(seller!.shopID!);
+    // Create new controllers
+    _userItemsController = StreamController<List<ItemWithSeller>>.broadcast();
+    _voucherController = StreamController<List<VoucherModel>>.broadcast();
+
+    // Subscribe to repository streams
+    _userItemsSubscription =
+        _itemRepo.getItemsWithSellerStreamBySellerID(userId!).listen((data) {
+      if (!_isDisposed && !_userItemsController!.isClosed) {
+        _userItemsController!.add(data);
+      }
+    }, onError: (error) {
+      if (!_isDisposed && !_userItemsController!.isClosed) {
+        _userItemsController!.addError(error);
+      }
+    });
+
+    _voucherSubscription =
+        _voucherRepo.getShopVouchersStream(seller!.shopID!).listen((data) {
+      if (!_isDisposed && !_voucherController!.isClosed) {
+        _voucherController!.add(data);
+      }
+    }, onError: (error) {
+      if (!_isDisposed && !_voucherController!.isClosed) {
+        _voucherController!.addError(error);
+      }
+    });
 
     _view.onLoadDataSucceeded();
   }
@@ -120,5 +149,24 @@ class ShopHomePresenter {
 
   void handleViewVoucher(VoucherModel model) {
     _view.onVoucherPressed(model);
+  }
+
+  // Dispose streams khi không sử dụng nữa
+  Future<void> _disposeStreams() async {
+    await _userItemsSubscription?.cancel();
+    await _voucherSubscription?.cancel();
+
+    await _userItemsController?.close();
+    await _voucherController?.close();
+
+    _userItemsSubscription = null;
+    _voucherSubscription = null;
+    _userItemsController = null;
+    _voucherController = null;
+  }
+
+  Future<void> dispose() async {
+    _isDisposed = true;
+    await _disposeStreams();
   }
 }

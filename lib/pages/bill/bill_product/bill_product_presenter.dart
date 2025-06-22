@@ -15,6 +15,7 @@ import 'package:pcplus/pages/bill/bill_product/bill_product_contract.dart';
 import 'package:pcplus/services/pref_service.dart';
 import 'package:pcplus/services/utility.dart';
 import 'package:pcplus/services/zalo_pay_service.dart';
+import 'dart:async';
 
 import '../../../models/in_cart_items/item_in_cart_with_seller.dart';
 import '../../../models/system/param_store_repo.dart';
@@ -41,12 +42,23 @@ class BillProductPresenter {
   String? userId;
   String paymentMethod = 'Cash on delivery'; // Thêm payment method
 
-  Stream<List<ItemInCartWithSeller>>? inCartItemsStream;
+  // StreamController để quản lý lifecycle
+  StreamController<List<ItemInCartWithSeller>>? _inCartItemsController;
+  StreamSubscription<List<ItemInCartWithSeller>>? _inCartItemsSubscription;
+
+  // Getter cho stream
+  Stream<List<ItemInCartWithSeller>>? get inCartItemsStream =>
+      _inCartItemsController?.stream;
+
   List<ItemInCartWithSeller>? onPaymentItems;
   Map<String, BillShopModel>? billShops;
   Map<String, VoucherModel?>? cacheVouchers;
 
+  bool _isDisposed = false;
+
   Future<void> getData() async {
+    if (_isDisposed) return;
+
     if (inCartItemsStream != null) {
       return;
     }
@@ -67,7 +79,24 @@ class BillProductPresenter {
       );
     }
 
-    inCartItemsStream = _inCartItemRepo.getAllItemsInCartStream(userId!);
+    // Khởi tạo controller nếu chưa có
+    _inCartItemsController ??= StreamController<List<ItemInCartWithSeller>>();
+
+    // Lắng nghe stream từ repository
+    _inCartItemsSubscription =
+        _inCartItemRepo.getAllItemsInCartStream(userId!).listen(
+      (data) {
+        if (!_isDisposed && !_inCartItemsController!.isClosed) {
+          _inCartItemsController!.add(data);
+        }
+      },
+      onError: (error) {
+        if (!_isDisposed && !_inCartItemsController!.isClosed) {
+          _inCartItemsController!.addError(error);
+        }
+      },
+    );
+
     _view.onLoadDataSucceeded();
   }
 
@@ -81,10 +110,8 @@ class BillProductPresenter {
     _view.onChangeDelivery();
   }
 
-  Future<void> handleChangeVoucher({
-    required BillShopModel data,
-    required VoucherModel? voucher
-  }) async {
+  Future<void> handleChangeVoucher(
+      {required BillShopModel data, required VoucherModel? voucher}) async {
     data.voucher = voucher;
     cacheVouchers![data.shopID!] = voucher;
     _view.onChangeVoucher();
@@ -209,8 +236,10 @@ class BillProductPresenter {
           shop.shopID!, billOfShopModel);
       // Cập nhật lại voucher
       if (billOfShopModel.voucher != null) {
-        billOfShopModel.voucher!.quantity = billOfShopModel.voucher!.quantity! - 1;
-        await VoucherRepository().updateVoucher(shop.shopID!, billOfShopModel.voucher!);
+        billOfShopModel.voucher!.quantity =
+            billOfShopModel.voucher!.quantity! - 1;
+        await VoucherRepository()
+            .updateVoucher(shop.shopID!, billOfShopModel.voucher!);
       }
     }
     // Xóa item trong giỏ hàng
@@ -338,5 +367,20 @@ class BillProductPresenter {
       _view.onPopContext();
       _view.onShowResultDialog("Lỗi", "Có lỗi xảy ra: $e", false);
     }
+  }
+
+  Future<void> dispose() async {
+    _isDisposed = true;
+    await _disposeStreams();
+  }
+
+  Future<void> _disposeStreams() async {
+    await _inCartItemsSubscription?.cancel();
+    _inCartItemsSubscription = null;
+
+    if (_inCartItemsController != null && !_inCartItemsController!.isClosed) {
+      await _inCartItemsController!.close();
+    }
+    _inCartItemsController = null;
   }
 }

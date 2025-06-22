@@ -33,8 +33,8 @@ class _StatisticState extends State<Statistic> implements StatisticContract {
   String _selectedItemType = "Tất cả"; // Loại sản phẩm mặc định
   final List<String> _months =
       List.generate(12, (index) => "${index + 1}"); // Tháng 1–12
-  final List<String> _years =
-      List.generate(DateTime.now().year - 2020 + 1, (index) => "${2020 + index}"); // Năm 2020–nay
+  final List<String> _years = List.generate(DateTime.now().year - 2020 + 1,
+      (index) => "${2020 + index}"); // Năm 2020–nay
   final List<String> _itemTypes = ["Tất cả", ...ProductTypes.all];
 
   // Dữ liệu bán hàng (tháng và năm trong cùng một cấu trúc)
@@ -53,6 +53,7 @@ class _StatisticState extends State<Statistic> implements StatisticContract {
   Map<String, YearlySaleDataObject> saleDataObjects = {};
   List<int> chartSalesData = [];
   List<String> chartItemsName = [];
+  bool _isFirstLoad = true;
 
   @override
   void initState() {
@@ -63,14 +64,25 @@ class _StatisticState extends State<Statistic> implements StatisticContract {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    DateTime dateTimeNow = DateTime.now();
-    _selectedMonth = dateTimeNow.month.toString();
-    _selectedYear = dateTimeNow.year.toString();
-    loadData();
+    if (_isFirstLoad) {
+      DateTime dateTimeNow = DateTime.now();
+      _selectedMonth = dateTimeNow.month.toString();
+      _selectedYear = dateTimeNow.year.toString();
+      loadData();
+      _isFirstLoad = false;
+    }
+  }
+
+  @override
+  void dispose() {
+    _presenter?.dispose();
+    super.dispose();
   }
 
   Future<void> loadData() async {
-    await _presenter?.getData();
+    if (mounted) {
+      await _presenter?.getData();
+    }
   }
 
   void getSalesData() {
@@ -78,28 +90,31 @@ class _StatisticState extends State<Statistic> implements StatisticContract {
 
     if (saleDataObjects.containsKey(_selectedYear)) {
       if (_selectedStatisticType == "Tháng") {
-        MonthlySaleDataObject? monthlyData = saleDataObjects[_selectedYear]?.monthlyData[_selectedMonth];
+        MonthlySaleDataObject? monthlyData =
+            saleDataObjects[_selectedYear]?.monthlyData[_selectedMonth];
 
         for (String itemID in monthlyData!.items.keys) {
           SaleDataItemObject? itemData = monthlyData.items[itemID];
 
           // filter
-          if (_selectedItemType != "Tất cả" && _selectedItemType != itemData!.itemType) {
+          if (_selectedItemType != "Tất cả" &&
+              _selectedItemType != itemData!.itemType) {
             continue;
           }
 
           data.add(itemData!.amount);
         }
-
       } else {
         // Yearly Mode
-        Map<String, SaleDataItemObject> yearlyItemsData = saleDataObjects[_selectedYear]!.createYearlyData();
+        Map<String, SaleDataItemObject> yearlyItemsData =
+            saleDataObjects[_selectedYear]!.createYearlyData();
 
         for (String itemID in yearlyItemsData.keys) {
           SaleDataItemObject? itemData = yearlyItemsData[itemID];
 
           // filter
-          if (_selectedItemType != "Tất cả" && _selectedItemType != itemData!.itemType) {
+          if (_selectedItemType != "Tất cả" &&
+              _selectedItemType != itemData!.itemType) {
             continue;
           }
 
@@ -116,13 +131,15 @@ class _StatisticState extends State<Statistic> implements StatisticContract {
 
     if (saleDataObjects.containsKey(_selectedYear)) {
       if (_selectedStatisticType == "Tháng") {
-        MonthlySaleDataObject? monthlyData = saleDataObjects[_selectedYear]?.monthlyData[_selectedMonth];
+        MonthlySaleDataObject? monthlyData =
+            saleDataObjects[_selectedYear]?.monthlyData[_selectedMonth];
 
         for (String itemID in monthlyData!.items.keys) {
           SaleDataItemObject? itemData = monthlyData.items[itemID];
 
           // filter
-          if (_selectedItemType != "Tất cả" && _selectedItemType != itemData!.itemType) {
+          if (_selectedItemType != "Tất cả" &&
+              _selectedItemType != itemData!.itemType) {
             continue;
           }
 
@@ -130,13 +147,15 @@ class _StatisticState extends State<Statistic> implements StatisticContract {
         }
       } else {
         // Yearly Mode
-        Map<String, SaleDataItemObject> yearlyItemsData = saleDataObjects[_selectedYear]!.createYearlyData();
+        Map<String, SaleDataItemObject> yearlyItemsData =
+            saleDataObjects[_selectedYear]!.createYearlyData();
 
         for (String itemID in yearlyItemsData.keys) {
           SaleDataItemObject? itemData = yearlyItemsData[itemID];
 
           // filter
-          if (_selectedItemType != "Tất cả" && _selectedItemType != itemData!.itemType) {
+          if (_selectedItemType != "Tất cả" &&
+              _selectedItemType != itemData!.itemType) {
             continue;
           }
 
@@ -301,11 +320,11 @@ class _StatisticState extends State<Statistic> implements StatisticContract {
             const SizedBox(height: 20),
             // Biểu đồ cột
             Expanded(
-
               child: StreamBuilder<List<BillOfShopModel>>(
                   stream: _presenter!.billsStream,
                   builder: (context, snapshot) {
-                    Widget? result = UtilWidgets.createSnapshotResultWidget(context, snapshot);
+                    Widget? result = UtilWidgets.createSnapshotResultWidget(
+                        context, snapshot);
                     if (result != null) {
                       return result;
                     }
@@ -324,7 +343,8 @@ class _StatisticState extends State<Statistic> implements StatisticContract {
                     }
 
                     for (String year in _years) {
-                      saleDataObjects[year] = YearlySaleDataObject.fromBillsOfShop(year, bills);
+                      saleDataObjects[year] =
+                          YearlySaleDataObject.fromBillsOfShop(year, bills);
                     }
 
                     getSalesData();
@@ -335,25 +355,25 @@ class _StatisticState extends State<Statistic> implements StatisticContract {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Thống kê doanh thu
-                        Text(
-                            "Tổng quan:",
-                            style: TextDecor.robo18Bold.copyWith(color: Colors.black)
-                        ),
+                        Text("Tổng quan:",
+                            style: TextDecor.robo18Bold
+                                .copyWith(color: Colors.black)),
                         const SizedBox(height: 8),
                         Wrap(
                           direction: Axis.vertical,
                           spacing: 8,
                           children: [
                             Text("Số đơn hàng: ${_getOrderCount()}"),
-                            Text("Doanh thu: ${Utility.formatCurrency(_getPayout())}"),
-                            Text("Phí giao dịch (${TaxRate.totalFeePercent}): ${Utility.formatCurrency(_getTotalFee())}"),
+                            Text(
+                                "Doanh thu: ${Utility.formatCurrency(_getPayout())}"),
+                            Text(
+                                "Phí giao dịch (${TaxRate.totalFeePercent}): ${Utility.formatCurrency(_getTotalFee())}"),
                           ],
                         ),
                         const SizedBox(height: 16),
-                        Text(
-                            "Biểu đồ",
-                            style: TextDecor.robo18Bold.copyWith(color: Colors.black)
-                        ),
+                        Text("Biểu đồ",
+                            style: TextDecor.robo18Bold
+                                .copyWith(color: Colors.black)),
                         const SizedBox(height: 8),
                         Expanded(
                           child: BarChart(
@@ -363,17 +383,18 @@ class _StatisticState extends State<Statistic> implements StatisticContract {
                                   .entries
                                   .map(
                                     (entry) => BarChartGroupData(
-                                  x: entry.key,
-                                  barRods: [
-                                    BarChartRodData(
-                                      toY: entry.value.toDouble(),
-                                      color: Colors.blue,
-                                      width: 20,
-                                      borderRadius: BorderRadius.circular(4),
+                                      x: entry.key,
+                                      barRods: [
+                                        BarChartRodData(
+                                          toY: entry.value.toDouble(),
+                                          color: Colors.blue,
+                                          width: 20,
+                                          borderRadius:
+                                              BorderRadius.circular(4),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                              )
+                                  )
                                   .toList(),
                               borderData: FlBorderData(show: false),
                               gridData: const FlGridData(show: true),
@@ -388,22 +409,21 @@ class _StatisticState extends State<Statistic> implements StatisticContract {
                               .asMap()
                               .entries
                               .map((entry) => Card(
-                            color: Colors.blue[100],
-                            child: Padding(
-                                padding: const EdgeInsets.all(4),
-                                child: Text(
-                                  "(${entry.key}) ${entry.value}: ${chartSalesData[entry.key]} sản phẩm",
-                                  softWrap: true,
-                                  overflow: TextOverflow.visible,
-                                ),
-                            ),
-                          ))
+                                    color: Colors.blue[100],
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(4),
+                                      child: Text(
+                                        "(${entry.key}) ${entry.value}: ${chartSalesData[entry.key]} sản phẩm",
+                                        softWrap: true,
+                                        overflow: TextOverflow.visible,
+                                      ),
+                                    ),
+                                  ))
                               .toList(),
                         ),
                       ],
                     );
-                  }
-              ),
+                  }),
             )
           ],
         ),

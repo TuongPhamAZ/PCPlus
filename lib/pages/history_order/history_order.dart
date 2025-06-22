@@ -24,6 +24,8 @@ class _HistoryOrderState extends State<HistoryOrder>
   List<Widget> orders = [];
   bool isLoading = true;
 
+  bool _isFirstLoad = true;
+
   @override
   void initState() {
     _presenter = HistoryOrderPresenter(this, orderType: widget.orderType);
@@ -33,11 +35,22 @@ class _HistoryOrderState extends State<HistoryOrder>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    loadData();
+    if (_isFirstLoad) {
+      loadData();
+      _isFirstLoad = false;
+    }
+  }
+
+  @override
+  void dispose() {
+    _presenter?.dispose();
+    super.dispose();
   }
 
   Future<void> loadData() async {
-    await _presenter?.getData();
+    if (mounted) {
+      await _presenter?.getData();
+    }
   }
 
   @override
@@ -94,8 +107,10 @@ class _HistoryOrderState extends State<HistoryOrder>
                       itemBuilder: (context, index) {
                         final order = orders[index];
                         return KeyedSubtree(
-                          key: ValueKey("$index${order.status!}"), // <-- ép Flutter hiểu phần tử này là khác
-                          child: _presenter!.createHistoryOrderItemForShop(order)!,
+                          key: ValueKey(
+                              "$index${order.status!}"), // <-- ép Flutter hiểu phần tử này là khác
+                          child:
+                              _presenter!.createHistoryOrderItemForShop(order)!,
                         );
                       },
                     );
