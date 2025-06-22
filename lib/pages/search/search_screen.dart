@@ -340,7 +340,7 @@ class _SearchScreenState extends State<SearchScreen>
                       padding: EdgeInsets.zero,
                       physics: const NeverScrollableScrollPhysics(),
                       scrollDirection: Axis.vertical,
-                      itemCount: sortedItems.length,
+                      itemCount: sortedItems.length >= 15 ? 15 : sortedItems.length,
                       itemBuilder: (context, index) {
                         return SuggestItemFactory.create(
                             itemWithSeller: sortedItems[index],
