@@ -66,7 +66,9 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
     _presenter = ShopHomePresenter(this);
     // _initMockVouchers();
     super.initState();
-    SessionController.getInstance().changeUserCallback.add(balanceChangeHandler);
+    SessionController.getInstance()
+        .changeUserCallback
+        .add(balanceChangeHandler);
   }
 
   // void _initMockVouchers() {
@@ -110,6 +112,8 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
   //   ];
   // }
 
+  bool _isFirstLoad = true;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -124,14 +128,20 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
       balance = 0;
     }
 
-    loadData();
+    if (_isFirstLoad) {
+      loadData();
+      _isFirstLoad = false;
+    }
   }
 
   Future<void> loadData() async {
+    if (!mounted) return;
+
     if (isShop) {
       // chờ lấy thông tin user
       while (SessionController.getInstance().currentUser == null) {
         await Future.delayed(const Duration(milliseconds: 10));
+        if (!mounted) return;
       }
       balance = SessionController.getInstance().currentUser!.money!;
     }
@@ -140,8 +150,11 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
 
   @override
   void dispose() {
+    _presenter?.dispose();
+    SessionController.getInstance()
+        .changeUserCallback
+        .remove(balanceChangeHandler);
     super.dispose();
-    SessionController.getInstance().changeUserCallback.remove(balanceChangeHandler);
   }
 
   @override
@@ -429,7 +442,8 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
                       final itemsWithSeller = snapshot.data ?? [];
 
                       if (itemsWithSeller.isEmpty) {
-                        return const Center(child: Text('Không có sản phẩm nào'));
+                        return const Center(
+                            child: Text('Không có sản phẩm nào'));
                       }
 
                       return ListView.builder(

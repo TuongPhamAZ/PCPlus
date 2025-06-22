@@ -45,6 +45,7 @@ class _BillProductState extends State<BillProduct>
   );
 
   String? _productCost = "0";
+  bool _isFirstLoad = true;
 
   final ValueNotifier<String> shippingCost = ValueNotifier<String>("-");
   final ValueNotifier<String> totalCost = ValueNotifier<String>("-");
@@ -59,11 +60,25 @@ class _BillProductState extends State<BillProduct>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    loadData();
+    if (_isFirstLoad) {
+      loadData();
+      _isFirstLoad = false;
+    }
+  }
+
+  @override
+  void dispose() {
+    _presenter?.dispose();
+    shippingCost.dispose();
+    totalCost.dispose();
+    voucherReduce.dispose();
+    super.dispose();
   }
 
   Future<void> loadData() async {
-    await _presenter?.getData();
+    if (mounted) {
+      await _presenter?.getData();
+    }
   }
 
   void updateShippingFee(String value) {
@@ -306,7 +321,8 @@ class _BillProductState extends State<BillProduct>
                               data: data, deliveryMethod: method, cost: price);
                         },
                         onVoucherChanged: (voucher) {
-                          _presenter?.handleChangeVoucher(data: data, voucher: voucher);
+                          _presenter?.handleChangeVoucher(
+                              data: data, voucher: voucher);
                         },
                       );
                     },
@@ -389,7 +405,8 @@ class _BillProductState extends State<BillProduct>
                               children: [
                                 Text('Giá sản phẩm:', style: TextDecor.robo16),
                                 const Gap(5),
-                                Text('Phí vận chuyển:', style: TextDecor.robo16),
+                                Text('Phí vận chuyển:',
+                                    style: TextDecor.robo16),
                                 if (voucherReduce.value.isNotEmpty)
                                   const Gap(5),
                                 if (voucherReduce.value.isNotEmpty)

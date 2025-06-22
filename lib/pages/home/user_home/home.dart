@@ -57,15 +57,23 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    if (isFirstLoad) {
+      loadData();
+      isFirstLoad = false;
+    }
+  }
 
-    if (init) return;
-    init = true;
-
-    loadData();
+  @override
+  void dispose() {
+    _presenter?.dispose();
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> loadData() async {
-    await _presenter?.getData();
+    if (mounted) {
+      await _presenter?.getData();
+    }
   }
 
   @override
@@ -212,7 +220,8 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
                             final itemsWithSeller = snapshot.data ?? [];
 
                             if (itemsWithSeller.isEmpty) {
-                              return const Center(child: Text('Không có dữ liệu'));
+                              return const Center(
+                                  child: Text('Không có dữ liệu'));
                             }
 
                             return ListView.builder(
@@ -246,7 +255,8 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
                           final itemsWithSeller = snapshot.data ?? [];
 
                           if (itemsWithSeller.isEmpty) {
-                            return const Center(child: Text('Không có dữ liệu'));
+                            return const Center(
+                                child: Text('Không có dữ liệu'));
                           }
 
                           return ListView.builder(

@@ -21,7 +21,8 @@ class EditProfileScreen extends StatefulWidget {
   State<EditProfileScreen> createState() => _EditProfileScreenState();
 }
 
-class _EditProfileScreenState extends State<EditProfileScreen> implements EditProfileScreenContract {
+class _EditProfileScreenState extends State<EditProfileScreen>
+    implements EditProfileScreenContract {
   EditProfileScreenPresenter? _presenter;
 
   String _userName = "";
@@ -30,6 +31,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> implements EditPr
   bool _isMale = true;
   DateTime? _birthDate;
   bool isLoading = true;
+  bool _isFirstLoad = true;
 
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
@@ -44,11 +46,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> implements EditPr
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    loadData();
+    if (_isFirstLoad) {
+      loadData();
+      _isFirstLoad = false;
+    }
+  }
+
+  @override
+  void dispose() {
+    _presenter?.dispose();
+    _fullNameController.dispose();
+    _phoneController.dispose();
+    _birthDateController.dispose();
+    super.dispose();
   }
 
   Future<void> loadData() async {
-    await _presenter?.getData();
+    if (mounted) {
+      await _presenter?.getData();
+    }
   }
 
   @override
@@ -62,212 +78,210 @@ class _EditProfileScreenState extends State<EditProfileScreen> implements EditPr
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        child: isLoading ? UtilWidgets.getLoadingWidget() : Container(
-          padding: const EdgeInsets.all(40),
-          child: Column(
-            children: [
-              Container(
-                alignment: Alignment.center,
-                child: GestureDetector(
-                  onTap: () async {
-                    await _presenter!.handlePickAvatar();
-                  },
-                  child: Container(
-                    height: 132,
-                    width: 132,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: getAvatarImage(),
-                    ),
-                  ),
-                ),
-              ),
-              const Gap(10),
-              Container(
-                alignment: Alignment.center,
-                child: Text(
-                  _userName,
-                  style: TextDecor.profileName,
-                ),
-              ),
-              Container(
-                alignment: Alignment.center,
-                child: Text(
-                  _email,
-                  style: TextDecor.robo16Medi
-                ),
-              ),
-              const Gap(20),
-              BackgroundContainer(
-                child: TextField(
-                  onTapOutside: (event) {
-                    FocusScope.of(context).unfocus();
-                  },
-                  style: TextDecor.robo16Medi,
-                  keyboardType: TextInputType.text,
-                  controller: _fullNameController,
-                  decoration: InputDecoration(
-                    label: Text(
-                      'Họ và tên',
-                      style: TextDecor.profileHintText,
-                    ),
-                    hintStyle: TextDecor.profileHintText,
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.all(0),
-                  ),
-                ),
-              ),
-              BackgroundContainer(
-                child: TextField(
-                  onTapOutside: (event) {
-                    FocusScope.of(context).unfocus();
-                  },
-                  style: TextDecor.robo16Medi,
-                  keyboardType: TextInputType.number,
-                  controller: _phoneController,
-                  decoration: InputDecoration(
-                    label: Text(
-                      'Số điện thoại',
-                      style: TextDecor.profileHintText,
-                    ),
-                    hintStyle: TextDecor.profileHintText,
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.all(0),
-                  ),
-                ),
-              ),
-              BackgroundContainer(
+        child: isLoading
+            ? UtilWidgets.getLoadingWidget()
+            : Container(
+                padding: const EdgeInsets.all(40),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Giới tính',
-                      style: TextDecor.profileHintText.copyWith(
-                        fontSize: 13,
+                    Container(
+                      alignment: Alignment.center,
+                      child: GestureDetector(
+                        onTap: () async {
+                          await _presenter!.handlePickAvatar();
+                        },
+                        child: Container(
+                          height: 132,
+                          width: 132,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: getAvatarImage(),
+                          ),
+                        ),
                       ),
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Checkbox(
-                              activeColor: Palette.main1,
-                              side: const BorderSide(
-                                width: 0.5,
-                              ),
-                              value: _isMale,
-                              onChanged: (value) {
-                                setState(() {
-                                  _isMale = value!;
-                                });
-                              },
-                            ),
-                            Text(
-                              'Nam',
-                              style: TextDecor.robo16Medi,
-                            ),
-                          ],
+                    const Gap(10),
+                    Container(
+                      alignment: Alignment.center,
+                      child: Text(
+                        _userName,
+                        style: TextDecor.profileName,
+                      ),
+                    ),
+                    Container(
+                      alignment: Alignment.center,
+                      child: Text(_email, style: TextDecor.robo16Medi),
+                    ),
+                    const Gap(20),
+                    BackgroundContainer(
+                      child: TextField(
+                        onTapOutside: (event) {
+                          FocusScope.of(context).unfocus();
+                        },
+                        style: TextDecor.robo16Medi,
+                        keyboardType: TextInputType.text,
+                        controller: _fullNameController,
+                        decoration: InputDecoration(
+                          label: Text(
+                            'Họ và tên',
+                            style: TextDecor.profileHintText,
+                          ),
+                          hintStyle: TextDecor.profileHintText,
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.all(0),
                         ),
-                        Row(
-                          children: [
-                            Checkbox(
-                              activeColor: Palette.main1,
-                              side: const BorderSide(
-                                width: 0.5,
-                              ),
-                              value: !_isMale,
-                              onChanged: (value) {
-                                setState(() {
-                                  _isMale = !value!;
-                                });
-                              },
-                            ),
-                            Text('Nữ', style: TextDecor.robo16Medi),
-                            const Gap(15),
-                          ],
+                      ),
+                    ),
+                    BackgroundContainer(
+                      child: TextField(
+                        onTapOutside: (event) {
+                          FocusScope.of(context).unfocus();
+                        },
+                        style: TextDecor.robo16Medi,
+                        keyboardType: TextInputType.number,
+                        controller: _phoneController,
+                        decoration: InputDecoration(
+                          label: Text(
+                            'Số điện thoại',
+                            style: TextDecor.profileHintText,
+                          ),
+                          hintStyle: TextDecor.profileHintText,
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.all(0),
                         ),
-                      ],
+                      ),
+                    ),
+                    BackgroundContainer(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Giới tính',
+                            style: TextDecor.profileHintText.copyWith(
+                              fontSize: 13,
+                            ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Checkbox(
+                                    activeColor: Palette.main1,
+                                    side: const BorderSide(
+                                      width: 0.5,
+                                    ),
+                                    value: _isMale,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _isMale = value!;
+                                      });
+                                    },
+                                  ),
+                                  Text(
+                                    'Nam',
+                                    style: TextDecor.robo16Medi,
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Checkbox(
+                                    activeColor: Palette.main1,
+                                    side: const BorderSide(
+                                      width: 0.5,
+                                    ),
+                                    value: !_isMale,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _isMale = !value!;
+                                      });
+                                    },
+                                  ),
+                                  Text('Nữ', style: TextDecor.robo16Medi),
+                                  const Gap(15),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    BackgroundContainer(
+                      child: TextField(
+                        controller: _birthDateController,
+                        onTapOutside: (event) {
+                          FocusScope.of(context).unfocus();
+                        },
+                        style: TextDecor.robo16Medi,
+                        keyboardType: TextInputType.datetime,
+                        decoration: InputDecoration(
+                          suffixIcon: IconButton(
+                            onPressed: () async {
+                              final DateTime? picked = await showDatePicker(
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime(1900),
+                                lastDate: DateTime.now(),
+                              );
+                              if (picked != null && picked != _birthDate) {
+                                setState(() {
+                                  _birthDate = picked;
+                                  _birthDateController.text =
+                                      '${picked.day}/${picked.month}/${picked.year}';
+                                });
+                              }
+                            },
+                            icon: const Icon(FontAwesomeIcons.calendarDays),
+                            color: Palette.hintText,
+                          ),
+                          label: Text(
+                            'Ngày sinh',
+                            style: TextDecor.profileHintText,
+                          ),
+                          hintStyle: TextDecor.profileHintText,
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.all(0),
+                        ),
+                      ),
+                    ),
+                    const Gap(15),
+                    AcceptButton(
+                      onPressed: () async {
+                        await _presenter?.handleSave(
+                            fullName: _fullNameController.text.trim(),
+                            phone: _phoneController.text,
+                            birthDate: _birthDate!,
+                            isMale: _isMale);
+                      },
+                      name: 'Lưu',
+                    ),
+                    const Gap(10),
+                    CancelButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    const Gap(20),
+                    Text(
+                      'Bạn có muốn thay đổi mật khẩu?',
+                      style: TextDecor.profileIntroText,
+                    ),
+                    InkWell(
+                      onTap: () {
+                        Navigator.of(context).pushNamed(
+                          ChangePasswordScreen.routeName,
+                          arguments: UserArgument(user: _presenter!.user!),
+                        );
+                      },
+                      child: Text(
+                        'Đổi mật khẩu',
+                        style: TextDecor.profileTextButton,
+                      ),
                     ),
                   ],
                 ),
               ),
-              BackgroundContainer(
-                child: TextField(
-                  controller: _birthDateController,
-                  onTapOutside: (event) {
-                    FocusScope.of(context).unfocus();
-                  },
-                  style: TextDecor.robo16Medi,
-                  keyboardType: TextInputType.datetime,
-                  decoration: InputDecoration(
-                    suffixIcon: IconButton(
-                      onPressed: () async {
-                        final DateTime? picked = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime(1900),
-                          lastDate: DateTime.now(),
-                        );
-                        if (picked != null && picked != _birthDate) {
-                          setState(() {
-                            _birthDate = picked;
-                            _birthDateController.text =
-                                '${picked.day}/${picked.month}/${picked.year}';
-                          });
-                        }
-                      },
-                      icon: const Icon(FontAwesomeIcons.calendarDays),
-                      color: Palette.hintText,
-                    ),
-                    label: Text(
-                      'Ngày sinh',
-                      style: TextDecor.profileHintText,
-                    ),
-                    hintStyle: TextDecor.profileHintText,
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.all(0),
-                  ),
-                ),
-              ),
-              const Gap(15),
-              AcceptButton(
-                onPressed: () async {
-                  await _presenter?.handleSave(
-                      fullName: _fullNameController.text.trim(),
-                      phone: _phoneController.text,
-                      birthDate: _birthDate!,
-                      isMale: _isMale
-                  );
-                },
-                name: 'Lưu',
-              ),
-              const Gap(10),
-              CancelButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-              const Gap(20),
-              Text(
-                'Bạn có muốn thay đổi mật khẩu?',
-                style: TextDecor.profileIntroText,
-              ),
-              InkWell(
-                onTap: () {
-                  Navigator.of(context).pushNamed(
-                    ChangePasswordScreen.routeName,
-                    arguments: UserArgument(user: _presenter!.user!),
-                  );
-                },
-                child: Text(
-                  'Đổi mật khẩu',
-                  style: TextDecor.profileTextButton,
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -303,7 +317,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> implements EditPr
       _fullNameController.text = _presenter!.user!.name!;
       _isMale = _presenter!.user!.gender! == 'male';
       _phoneController.text = _presenter!.user!.phone!;
-      _birthDateController.text = '${_birthDate!.day}/${_birthDate!.month}/${_birthDate!.year}';
+      _birthDateController.text =
+          '${_birthDate!.day}/${_birthDate!.month}/${_birthDate!.year}';
       isLoading = false;
     });
   }

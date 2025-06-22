@@ -40,7 +40,11 @@ class ProfileScreenPresenter {
   StreamSubscription<List<BillOfShopModel>>? _billOfShopSubscription;
   StreamSubscription<List<AwaitRatingModel>>? _awaitRatingSubscription;
 
+  bool _isDisposed = false;
+
   Future<void> getData() async {
+    if (_isDisposed) return;
+
     user = await PrefService.loadUserData();
 
     bool isShop = SessionController.getInstance().isShop();
@@ -50,17 +54,24 @@ class ProfileScreenPresenter {
       billOfShopStream =
           _billOfShopRepository.getAllBillsOfShopFromShopStream(user!.userID!);
       _billOfShopSubscription = billOfShopStream?.listen((bills) {
-        calculateOrderTypeForShop(bills);
+        if (!_isDisposed) {
+          calculateOrderTypeForShop(bills);
+        }
       });
     } else {
       // Nếu là user, sử dụng BillRepository
       billStream = _billRepository.getAllBillsFromUserStream(user!.userID!);
       _billSubscription = billStream?.listen((bills) {
-        calculateOrderTypeForUser(bills);
+        if (!_isDisposed) {
+          calculateOrderTypeForUser(bills);
+        }
       });
-      awaitRatingStream = _awaitRatingRepository.getAllAwaitRatingStream(user!.userID!);
+      awaitRatingStream =
+          _awaitRatingRepository.getAllAwaitRatingStream(user!.userID!);
       _awaitRatingSubscription = awaitRatingStream?.listen((awaitRatings) {
-        calculateAwaitRatingForUser(awaitRatings);
+        if (!_isDisposed) {
+          calculateAwaitRatingForUser(awaitRatings);
+        }
       });
     }
 
@@ -103,12 +114,12 @@ class ProfileScreenPresenter {
     _view.onUpdateOrdersCount();
   }
 
-  Future<void> calculateAwaitRatingForUser(List<AwaitRatingModel> ratings) async {
+  Future<void> calculateAwaitRatingForUser(
+      List<AwaitRatingModel> ratings) async {
     awaitRating = ratings.length;
 
     // Debug output để kiểm tra
-    print(
-        'Profile Orders Await Rating: $awaitRating');
+    print('Profile Orders Await Rating: $awaitRating');
 
     _view.onUpdateOrdersCount();
   }
@@ -158,10 +169,20 @@ class ProfileScreenPresenter {
     }
   }
 
-  void dispose() {
-    _billSubscription?.cancel();
-    _billOfShopSubscription?.cancel();
-    _awaitRatingSubscription?.cancel();
+  Future<void> dispose() async {
+    _isDisposed = true;
+    await _disposeStreams();
+  }
+
+  Future<void> _disposeStreams() async {
+    await _billSubscription?.cancel();
+    _billSubscription = null;
+
+    await _billOfShopSubscription?.cancel();
+    _billOfShopSubscription = null;
+
+    await _awaitRatingSubscription?.cancel();
+    _awaitRatingSubscription = null;
   }
 
   Future<void> signOut() async {
