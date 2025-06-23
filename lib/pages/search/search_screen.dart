@@ -13,6 +13,7 @@ import 'package:speech_to_text_google_dialog/speech_to_text_google_dialog.dart';
 import '../../component/search_argument.dart';
 import '../../models/items/item_with_seller.dart';
 import '../manage_product/detail_product/detail_product.dart';
+import '../widgets/paginated_list_view.dart';
 import '../widgets/util_widgets.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -39,6 +40,8 @@ class _SearchScreenState extends State<SearchScreen>
 
   List<ItemWithSeller> sortedItems = [];
 
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     _presenter = SearchScreenPresenter(this);
@@ -64,6 +67,7 @@ class _SearchScreenState extends State<SearchScreen>
 
   @override
   void dispose() {
+    _scrollController.dispose();
     _presenter?.dispose();
     _searchController.dispose();
     super.dispose();
@@ -75,6 +79,16 @@ class _SearchScreenState extends State<SearchScreen>
     }
   }
 
+  void _goToTop() {
+    // scroll to top
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -82,6 +96,7 @@ class _SearchScreenState extends State<SearchScreen>
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 45),
         child: SingleChildScrollView(
+          controller: _scrollController,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -335,20 +350,35 @@ class _SearchScreenState extends State<SearchScreen>
                       return const Center(child: Text('Không có dữ liệu'));
                     }
 
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      padding: EdgeInsets.zero,
-                      physics: const NeverScrollableScrollPhysics(),
-                      scrollDirection: Axis.vertical,
-                      itemCount: sortedItems.length >= 15 ? 15 : sortedItems.length,
-                      itemBuilder: (context, index) {
-                        return SuggestItemFactory.create(
-                            itemWithSeller: sortedItems[index],
-                            command: SearchItemPressedCommand(
-                                presenter: _presenter!,
-                                item: itemsWithSeller[index]));
+                    return PaginatedListView<ItemWithSeller>(
+                      items: sortedItems,
+                      itemsPerPage: 10,
+                      onPageChanged: (value) {
+                        _goToTop();
+                      },
+                      itemBuilder: (context, item) {
+                          return SuggestItemFactory.create(
+                              itemWithSeller: item,
+                              command: SearchItemPressedCommand(
+                                  presenter: _presenter!,
+                                  item: item));
                       },
                     );
+
+                    // return ListView.builder(
+                    //   shrinkWrap: true,
+                    //   padding: EdgeInsets.zero,
+                    //   physics: const NeverScrollableScrollPhysics(),
+                    //   scrollDirection: Axis.vertical,
+                    //   itemCount: sortedItems.length >= 15 ? 15 : sortedItems.length,
+                    //   itemBuilder: (context, index) {
+                    //     return SuggestItemFactory.create(
+                    //         itemWithSeller: sortedItems[index],
+                    //         command: SearchItemPressedCommand(
+                    //             presenter: _presenter!,
+                    //             item: itemsWithSeller[index]));
+                    //   },
+                    // );
                   }),
             ],
           ),

@@ -10,6 +10,7 @@ import 'package:pcplus/pages/notification/confirm.dart';
 
 import '../widgets/bottom/bottom_bar_custom.dart';
 import '../widgets/bottom/shop_bottom_bar.dart';
+import '../widgets/paginated_list_view.dart';
 import '../widgets/util_widgets.dart';
 
 class NotificationScreen extends StatefulWidget {
@@ -29,6 +30,8 @@ class _NotificationScreenState extends State<NotificationScreen>
 
   bool _isFirstLoad = true;
 
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     _presenter = NotificationScreenPresenter(this);
@@ -47,6 +50,7 @@ class _NotificationScreenState extends State<NotificationScreen>
 
   @override
   void dispose() {
+    _scrollController.dispose();
     _presenter?.dispose();
     super.dispose();
   }
@@ -55,6 +59,15 @@ class _NotificationScreenState extends State<NotificationScreen>
     if (mounted) {
       await _presenter?.getData();
     }
+  }
+
+  void _goToTop() {
+    // scroll to top
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
   }
 
   @override
@@ -127,23 +140,48 @@ class _NotificationScreenState extends State<NotificationScreen>
                 );
               }
 
-              return ListView.builder(
-                itemCount: notifications.length,
-                itemBuilder: (context, index) {
-                  NotificationModel model = notifications[index];
-                  return ConfirmNoti(
-                    title: model.title!,
-                    image: model.productImage!,
-                    date: model.date!,
-                    content: model.content!,
-                    isView: model.isRead!,
-                    onPressed: NotificationPressedCommand(
-                      presenter: _presenter!,
-                      model: model,
-                    ),
-                  );
-                },
+              return SingleChildScrollView(
+                controller: _scrollController,
+                child: PaginatedListView<NotificationModel>(
+                  items: notifications,
+                  itemsPerPage: 20,
+                  onPageChanged: (value) {
+                    _goToTop();
+                  },
+                  itemBuilder: (context, item) {
+                    NotificationModel model = item;
+                    return ConfirmNoti(
+                      title: model.title!,
+                      image: model.productImage!,
+                      date: model.date!,
+                      content: model.content!,
+                      isView: model.isRead!,
+                      onPressed: NotificationPressedCommand(
+                        presenter: _presenter!,
+                        model: model,
+                      ),
+                    );
+                  },
+                ),
               );
+
+              // return ListView.builder(
+              //   itemCount: notifications.length,
+              //   itemBuilder: (context, index) {
+              //     NotificationModel model = notifications[index];
+              //     return ConfirmNoti(
+              //       title: model.title!,
+              //       image: model.productImage!,
+              //       date: model.date!,
+              //       content: model.content!,
+              //       isView: model.isRead!,
+              //       onPressed: NotificationPressedCommand(
+              //         presenter: _presenter!,
+              //         model: model,
+              //       ),
+              //     );
+              //   },
+              // );
             }),
       ),
       bottomNavigationBar: isShop
