@@ -11,7 +11,8 @@ import 'package:pcplus/themes/text_decor.dart';
 import '../../component/item_argument.dart';
 import '../../models/items/item_with_seller.dart';
 import '../manage_product/detail_product/detail_product.dart';
-import '../widgets/util_widgets.dart';
+import '../widgets/paginated_list_view.dart';
+// import '../widgets/util_widgets.dart';
 import 'image_search_result_contract.dart';
 import 'image_search_result_presenter.dart';
 
@@ -52,6 +53,8 @@ class _ImageSearchResultState extends State<ImageSearchResult>
   String? searchImageUrl;
   File? searchImageFile;
 
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     _presenter = ImageSearchResultPresenter(this);
@@ -78,6 +81,21 @@ class _ImageSearchResultState extends State<ImageSearchResult>
       errorMessage = null;
     });
     await _presenter?.loadProductsByIds(productIds);
+  }
+
+  void _goToTop() {
+    // scroll to top
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -257,21 +275,37 @@ class _ImageSearchResultState extends State<ImageSearchResult>
                           .copyWith(color: Colors.green[700]),
                     ),
                     const Gap(16),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      padding: EdgeInsets.zero,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: _presenter!.filteredItems.length > 15 ? 15 : _presenter!.filteredItems.length,
-                      itemBuilder: (context, index) {
+                    PaginatedListView<ItemWithSeller>(
+                      items: _presenter!.filteredItems,
+                      itemsPerPage: 10,
+                      onPageChanged: (value) {
+                      _goToTop();
+                      },
+                      itemBuilder: (context, item) {
                         return SuggestItemFactory.create(
-                          itemWithSeller: _presenter!.filteredItems[index],
+                          itemWithSeller: item,
                           command: ImageSearchItemPressedCommand(
                             presenter: _presenter!,
-                            item: _presenter!.filteredItems[index],
+                            item: item,
                           ),
                         );
                       },
                     ),
+                    // ListView.builder(
+                    //   shrinkWrap: true,
+                    //   padding: EdgeInsets.zero,
+                    //   physics: const NeverScrollableScrollPhysics(),
+                    //   itemCount: _presenter!.filteredItems.length > 15 ? 15 : _presenter!.filteredItems.length,
+                    //   itemBuilder: (context, index) {
+                    //     return SuggestItemFactory.create(
+                    //       itemWithSeller: _presenter!.filteredItems[index],
+                    //       command: ImageSearchItemPressedCommand(
+                    //         presenter: _presenter!,
+                    //         item: _presenter!.filteredItems[index],
+                    //       ),
+                    //     );
+                    //   },
+                    // ),
                   ],
                 ),
             ],

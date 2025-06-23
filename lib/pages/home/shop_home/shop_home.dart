@@ -27,6 +27,7 @@ import '../../../models/shops/shop_model.dart';
 import '../../../models/users/user_model.dart';
 import '../../manage_product/edit_product/edit_product.dart';
 import '../../widgets/bottom/shop_bottom_bar.dart';
+import '../../widgets/paginated_list_view.dart';
 import '../../widgets/util_widgets.dart';
 import '../user_home/home.dart';
 
@@ -59,6 +60,8 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
   // List<VoucherModel> _mockVouchers = [];
 
   final ValueNotifier<int> _voucherCount = ValueNotifier<int>(0);
+
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -150,11 +153,21 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
 
   @override
   void dispose() {
+    _scrollController.dispose();
     _presenter?.dispose();
     SessionController.getInstance()
         .changeUserCallback
         .remove(balanceChangeHandler);
     super.dispose();
+  }
+
+  void _goToTop() {
+    // scroll to top
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
   }
 
   @override
@@ -184,6 +197,7 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
           ),
         ),
         child: SingleChildScrollView(
+          controller: _scrollController,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -427,47 +441,70 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
 
               Text('Danh mục sản phẩm', style: TextDecor.robo18Bold),
               const Gap(10),
-              SizedBox(
-                height: 585,
-                width: size.width,
-                child: StreamBuilder<List<ItemWithSeller>>(
-                    stream: _presenter!.userItemsStream,
-                    builder: (context, snapshot) {
-                      Widget? result = UtilWidgets.createSnapshotResultWidget(
-                          context, snapshot);
-                      if (result != null) {
-                        return result;
-                      }
+              // SizedBox(
+              //   height: 585,
+              //   width: size.width,
+              //   child:
+              // ),
+              StreamBuilder<List<ItemWithSeller>>(
+                  stream: _presenter!.userItemsStream,
+                  builder: (context, snapshot) {
+                    Widget? result = UtilWidgets.createSnapshotResultWidget(
+                        context, snapshot);
+                    if (result != null) {
+                      return result;
+                    }
 
-                      final itemsWithSeller = snapshot.data ?? [];
+                    final itemsWithSeller = snapshot.data ?? [];
 
-                      if (itemsWithSeller.isEmpty) {
-                        return const Center(
-                            child: Text('Không có sản phẩm nào'));
-                      }
+                    if (itemsWithSeller.isEmpty) {
+                      return const Center(
+                          child: Text('Không có sản phẩm nào'));
+                    }
 
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        padding: EdgeInsets.zero,
-                        scrollDirection: Axis.vertical,
-                        itemCount: itemsWithSeller.length,
-                        itemBuilder: (context, index) {
-                          return ShopItemFactory.create(
-                              data: itemsWithSeller[index],
-                              editCommand: ShopHomeItemEditCommand(
-                                  presenter: _presenter!,
-                                  item: itemsWithSeller[index]),
-                              deleteCommand: ShopHomeItemDeleteCommand(
-                                  presenter: _presenter!,
-                                  item: itemsWithSeller[index]),
-                              pressedCommand: ShopHomeItemPressedCommand(
-                                  presenter: _presenter!,
-                                  item: itemsWithSeller[index]),
-                              isShop: isShop);
-                        },
-                      );
-                    }),
-              ),
+                    return PaginatedListView<ItemWithSeller>(
+                      items: itemsWithSeller,
+                      itemsPerPage: 10,
+                      onPageChanged: (value) {
+                        _goToTop();
+                      },
+                      itemBuilder: (context, item) {
+                        return ShopItemFactory.create(
+                            data: item,
+                            editCommand: ShopHomeItemEditCommand(
+                                presenter: _presenter!,
+                                item: item),
+                            deleteCommand: ShopHomeItemDeleteCommand(
+                                presenter: _presenter!,
+                                item: item),
+                            pressedCommand: ShopHomeItemPressedCommand(
+                                presenter: _presenter!,
+                                item: item),
+                            isShop: isShop);
+                      },
+                    );
+
+                    // return ListView.builder(
+                    //   shrinkWrap: true,
+                    //   padding: EdgeInsets.zero,
+                    //   scrollDirection: Axis.vertical,
+                    //   itemCount: itemsWithSeller.length,
+                    //   itemBuilder: (context, index) {
+                    //     return ShopItemFactory.create(
+                    //         data: itemsWithSeller[index],
+                    //         editCommand: ShopHomeItemEditCommand(
+                    //             presenter: _presenter!,
+                    //             item: itemsWithSeller[index]),
+                    //         deleteCommand: ShopHomeItemDeleteCommand(
+                    //             presenter: _presenter!,
+                    //             item: itemsWithSeller[index]),
+                    //         pressedCommand: ShopHomeItemPressedCommand(
+                    //             presenter: _presenter!,
+                    //             item: itemsWithSeller[index]),
+                    //         isShop: isShop);
+                    //   },
+                    // );
+                  }),
             ],
           ),
         ),

@@ -107,7 +107,7 @@ class _RatingScreenState extends State<RatingScreen>
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               decoration: BoxDecoration(
                 // ignore: deprecated_member_use
-                color: Colors.grey.withOpacity(0.5),
+                color: Colors.grey.withOpacity(0.0),
               ),
               child: SingleChildScrollView(
                 child: StreamBuilder<List<AwaitRatingModel>>(
