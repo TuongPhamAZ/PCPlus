@@ -36,44 +36,37 @@ class SuggestItem extends StatelessWidget {
       onTap: command?.execute ?? () {},
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(16),
-        height: 165,
+        padding: const EdgeInsets.all(12),
+        height: 140,
         width: size.width * 0.425,
         decoration: BoxDecoration(
-          color: Palette.backgroundColor.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(10),
+          color: Palette.backgroundColor.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: Colors.grey,
+            color: Colors.grey.withOpacity(0.3),
+            width: 0.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.2),
-              spreadRadius: 1,
-              blurRadius: 2,
-              offset: const Offset(4, 3),
+              color: Colors.grey.withOpacity(0.1),
+              spreadRadius: 0.5,
+              blurRadius: 1,
+              offset: const Offset(2, 2),
             ),
           ],
         ),
         child: Row(
           children: [
             ClipRRect(
-              borderRadius: const BorderRadius.all(Radius.circular(10)),
-              child: Image.network(
-                imagePath,
-                width: 130,
-                height: 140,
-                fit: BoxFit.cover,
-                errorBuilder: (BuildContext context, Object exception,
-                    StackTrace? stackTrace) {
-                  return Container(
-                    height: 105,
-                  );
-                },
+              borderRadius: const BorderRadius.all(Radius.circular(8)),
+              child: _LazyNetworkImage(
+                imageUrl: imagePath,
+                width: 100,
+                height: 120,
               ),
             ),
-            const Gap(16),
-            SizedBox(
-              width: size.width * 0.425,
+            const Gap(12),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -81,29 +74,38 @@ class SuggestItem extends StatelessWidget {
                   Text(
                     itemName,
                     maxLines: 2,
-                    textAlign: TextAlign.justify,
-                    style: TextDecor.robo16Medi,
+                    overflow: TextOverflow.ellipsis,
+                    style:
+                        TextDecor.robo15.copyWith(fontWeight: FontWeight.bold),
                   ),
                   Text(
                     description,
-                    textAlign: TextAlign.justify,
-                    maxLines: 2,
-                    style: TextDecor.robo12.copyWith(
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextDecor.robo11.copyWith(
                       color: Colors.grey,
                     ),
                   ),
                   Row(
                     children: [
-                      const Icon(Icons.star, size: 18, color: Colors.amber),
+                      const Icon(Icons.star, size: 14, color: Colors.amber),
                       Text(
                         Utility.formatRatingValue(rating),
-                        style: TextDecor.robo14,
+                        style: TextDecor.robo12.copyWith(
+                          color: Colors.black,
+                        ),
                       ),
-                      Expanded(child: Container()),
-                      const Icon(Icons.location_on, size: 18, color: Colors.black),
-                      Text(
-                        location,
-                        style: TextDecor.robo14,
+                      const Spacer(),
+                      const Icon(Icons.location_on,
+                          size: 14, color: Colors.black),
+                      Flexible(
+                        child: Text(
+                          location,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextDecor.robo12.copyWith(
+                            color: Colors.black,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -111,16 +113,21 @@ class SuggestItem extends StatelessWidget {
                     children: [
                       const Icon(
                         FontAwesomeIcons.sackDollar,
-                        size: 14,
+                        size: 12,
                         color: Colors.red,
                       ),
-                      Text(
-                        Utility.formatCurrency(price),
-                        style: TextDecor.robo16Medi.copyWith(
-                          color: Colors.red,
+                      const Gap(4),
+                      Flexible(
+                        child: Text(
+                          Utility.formatCurrency(price),
+                          overflow: TextOverflow.ellipsis,
+                          style: TextDecor.robo14.copyWith(
+                            color: Colors.red,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
-                      Expanded(child: Container()),
+                      const Spacer(),
                       Text(
                         "Đã bán: ${Utility.formatSoldCount(sold)}",
                         style: TextDecor.robo11,
@@ -131,6 +138,99 @@ class SuggestItem extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LazyNetworkImage extends StatefulWidget {
+  final String imageUrl;
+  final double width;
+  final double height;
+
+  const _LazyNetworkImage({
+    required this.imageUrl,
+    required this.width,
+    required this.height,
+  });
+
+  @override
+  State<_LazyNetworkImage> createState() => _LazyNetworkImageState();
+}
+
+class _LazyNetworkImageState extends State<_LazyNetworkImage> {
+  bool _isVisible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() => _isVisible = true);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_isVisible) {
+      return Container(
+        width: widget.width,
+        height: widget.height,
+        color: Colors.grey[200],
+        child: const Center(
+          child: Icon(Icons.image, color: Colors.grey),
+        ),
+      );
+    }
+
+    return Image.network(
+      widget.imageUrl,
+      width: widget.width,
+      height: widget.height,
+      fit: BoxFit.cover,
+      alignment: Alignment.center,
+      cacheWidth: widget.width.isFinite ? (widget.width * 2).round() : null,
+      cacheHeight: widget.height.isFinite ? (widget.height * 2).round() : null,
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return Container(
+          width: widget.width,
+          height: widget.height,
+          color: Colors.grey[100],
+          child: Center(
+            child: SizedBox(
+              width: 30,
+              height: 30,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.5,
+                valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                    : null,
+              ),
+            ),
+          ),
+        );
+      },
+      errorBuilder: (context, error, stackTrace) => Container(
+        width: widget.width,
+        height: widget.height,
+        color: Colors.grey[200],
+        child: const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.broken_image, color: Colors.grey, size: 24),
+              SizedBox(height: 4),
+              Text(
+                'Lỗi tải ảnh',
+                style: TextStyle(color: Colors.grey, fontSize: 10),
+              ),
+            ],
+          ),
         ),
       ),
     );

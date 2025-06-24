@@ -20,7 +20,7 @@ class _DeliveryChoiceState extends State<DeliveryChoice> {
   @override
   void initState() {
     super.initState();
-    method = widget.initialMethod; // Gán giá trị ban đầu
+    method = widget.initialMethod;
   }
 
   @override

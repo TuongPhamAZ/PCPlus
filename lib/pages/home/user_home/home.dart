@@ -25,6 +25,7 @@ import '../../../component/search_argument.dart';
 import '../../widgets/bottom/bottom_bar_custom.dart';
 import '../../widgets/util_widgets.dart';
 import 'home_presenter.dart';
+import 'dart:developer' as developer;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -52,17 +53,21 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
   @override
   void initState() {
     _presenter = HomePresenter(this);
+    developer.log('initState');
+    loadData();
     super.initState();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (isFirstLoad) {
-      loadData();
-      isFirstLoad = false;
-    }
-  }
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   developer.log('didChangeDependencies bên ngoài');
+  //   if (isFirstLoad) {
+  //     // loadData();
+  //     developer.log('didChangeDependencies bên trong');
+  //     isFirstLoad = false;
+  //   }
+  // }
 
   @override
   void dispose() {
@@ -98,8 +103,8 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
                           FocusScope.of(context).unfocus();
                         },
                         onChanged: (value) {},
-                        onSubmitted: (value) {
-                          _presenter!
+                        onSubmitted: (value) async {
+                          await _presenter!
                               .handleSearch(_searchController.text.trim());
                         },
                         controller: _searchController,
@@ -117,8 +122,8 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
                           contentPadding: const EdgeInsets.only(top: 4),
                           prefixIcon: InkWell(
                             customBorder: const CircleBorder(),
-                            onTap: () {
-                              _presenter!
+                            onTap: () async {
+                              await _presenter!
                                   .handleSearch(_searchController.text.trim());
                             },
                             child: const Icon(
@@ -298,8 +303,8 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
   Future<void> _startListening() async {
     bool isAvailable =
         await SpeechToTextGoogleDialog.getInstance().showGoogleDialog(
-      onTextReceived: (text) {
-        _presenter?.handleSearch(text);
+      onTextReceived: (text) async {
+        await _presenter?.handleSearch(text);
       },
       locale: 'vi-VN',
     );
@@ -557,11 +562,18 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
   }
 
   @override
-  void onSearch(String text) {
-    Navigator.of(context).pushNamed(
+  Future<void> onSearch(String text) async {
+    // ✅ Navigate đến search screen và đợi kết quả
+    final result = await Navigator.of(context).pushNamed(
       SearchScreen.routeName,
       arguments: SearchArgument(query: text.trim()),
     );
+
+    // ✅ Khi quay về từ search screen, clear text trong ô tìm kiếm
+    if (mounted) {
+      _searchController.clear();
+      FocusScope.of(context).unfocus(); // Ẩn keyboard nếu đang hiển thị
+    }
   }
 
   @override

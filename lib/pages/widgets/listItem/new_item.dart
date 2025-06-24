@@ -56,17 +56,10 @@ class NewItem extends StatelessWidget {
                 topLeft: Radius.circular(10),
                 topRight: Radius.circular(10),
               ),
-              child: Image.network(
-                imagePath,
+              child: _LazyNetworkImage(
+                imageUrl: imagePath,
                 width: double.infinity,
                 height: 165,
-                fit: BoxFit.cover,
-                errorBuilder: (BuildContext context, Object exception,
-                    StackTrace? stackTrace) {
-                  return Container(
-                    height: 105,
-                  );
-                },
               ),
             ),
             Container(
@@ -132,6 +125,101 @@ class NewItem extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LazyNetworkImage extends StatefulWidget {
+  final String imageUrl;
+  final double? width;
+  final double height;
+
+  const _LazyNetworkImage({
+    required this.imageUrl,
+    this.width,
+    required this.height,
+  });
+
+  @override
+  State<_LazyNetworkImage> createState() => _LazyNetworkImageState();
+}
+
+class _LazyNetworkImageState extends State<_LazyNetworkImage> {
+  bool _isVisible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() => _isVisible = true);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_isVisible) {
+      return Container(
+        width: widget.width,
+        height: widget.height,
+        color: Colors.grey[200],
+        child: const Center(
+          child: Icon(Icons.image, color: Colors.grey, size: 32),
+        ),
+      );
+    }
+
+    return Image.network(
+      widget.imageUrl,
+      width: widget.width,
+      height: widget.height,
+      fit: BoxFit.cover,
+      alignment: Alignment.center,
+      cacheWidth: widget.width != null && widget.width!.isFinite
+          ? (widget.width! * 2).round()
+          : null,
+      cacheHeight: (widget.height * 2).round(),
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return Container(
+          width: widget.width,
+          height: widget.height,
+          color: Colors.grey[100],
+          child: Center(
+            child: SizedBox(
+              width: 40,
+              height: 40,
+              child: CircularProgressIndicator(
+                strokeWidth: 3,
+                valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                    : null,
+              ),
+            ),
+          ),
+        );
+      },
+      errorBuilder: (context, error, stackTrace) => Container(
+        width: widget.width,
+        height: widget.height,
+        color: Colors.grey[200],
+        child: const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.broken_image, color: Colors.grey, size: 32),
+              SizedBox(height: 8),
+              Text(
+                'Không thể tải ảnh',
+                style: TextStyle(color: Colors.grey, fontSize: 12),
+              ),
+            ],
+          ),
         ),
       ),
     );

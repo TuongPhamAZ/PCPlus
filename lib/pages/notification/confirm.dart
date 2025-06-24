@@ -40,70 +40,72 @@ class _ConfirmNotiState extends State<ConfirmNoti> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    return InkWell(
-      onTap: () {
-        setState(() {
-          if (!isViewed) {
-            widget.onPressed.execute();
-            isViewed = true;
-          }
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: isViewed ? Colors.white : Palette.backgroundColor,
-          borderRadius: BorderRadius.circular(10),
-          border: const Border(
-            bottom: BorderSide(
-              color: Colors.grey,
-              width: 1,
-            ),
-            top: BorderSide(
-              color: Colors.grey,
-              width: 1,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 16),
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            if (!isViewed) {
+              widget.onPressed.execute();
+              isViewed = true;
+            }
+          });
+        },
+        child: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: isViewed ? Colors.white : Palette.backgroundColor,
+            borderRadius: BorderRadius.circular(10),
+            border: const Border(
+              bottom: BorderSide(
+                color: Colors.grey,
+                width: 1,
+              ),
+              top: BorderSide(
+                color: Colors.grey,
+                width: 1,
+              ),
             ),
           ),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 50,
-              height: 60,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                image: DecorationImage(
-                  image: NetworkImage(widget.image),
-                  fit: BoxFit.cover,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 50,
+                height: 60,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  image: DecorationImage(
+                    image: NetworkImage(widget.image),
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
-            ),
-            const Gap(10),
-            SizedBox(
-              width: size.width - 80,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.title,
-                    style: TextDecor.robo15Medi,
-                  ),
-                  const Gap(8),
-                  Text(
-                    widget.content,
-                    style: TextDecor.robo15,
-                  ),
-                  const Gap(8),
-                  Text(
-                    Utility.formatDetailDateFromDateTime(widget.date),
-                    style: TextDecor.robo14.copyWith(color: Colors.grey),
-                  ),
-                  
-                ],
+              const Gap(10),
+              SizedBox(
+                width: size.width - 120,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.title,
+                      style: TextDecor.robo15Medi,
+                    ),
+                    const Gap(8),
+                    Text(
+                      widget.content,
+                      style: TextDecor.robo15,
+                    ),
+                    const Gap(8),
+                    Text(
+                      Utility.formatDetailDateFromDateTime(widget.date),
+                      style: TextDecor.robo14.copyWith(color: Colors.grey),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
