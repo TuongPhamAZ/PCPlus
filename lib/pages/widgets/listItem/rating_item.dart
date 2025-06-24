@@ -32,7 +32,7 @@ class RatingItem extends StatefulWidget {
 
 class _RatingItemState extends State<RatingItem> {
   final TextEditingController _commentController = TextEditingController();
-  double? _rating = 3;
+  double? _rating = 5;
 
   @override
   Widget build(BuildContext context) {

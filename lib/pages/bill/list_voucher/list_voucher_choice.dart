@@ -34,22 +34,14 @@ class _ListVoucherChoiceState extends State<ListVoucherChoice>
 
   VoucherModel? selectedVoucher;
   List<VoucherModel> vouchers = [];
-  bool _isFirstLoad = true;
 
   @override
   void initState() {
     _presenter = ListVoucherChoicePresenter(this);
     super.initState();
     selectedVoucher = widget.currentSelectedVoucher;
-  }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_isFirstLoad) {
-      loadData();
-      _isFirstLoad = false;
-    }
+    loadData();
   }
 
   @override
@@ -130,7 +122,7 @@ class _ListVoucherChoiceState extends State<ListVoucherChoice>
             ),
             child: Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.info_outline,
                   color: Palette.primaryColor,
                   size: 20,
@@ -182,16 +174,20 @@ class _ListVoucherChoiceState extends State<ListVoucherChoice>
                 value: null,
                 groupValue: selectedVoucher,
                 onChanged: (value) {
-                  setState(() {
-                    selectedVoucher = null;
-                  });
+                  if (mounted) {
+                    setState(() {
+                      selectedVoucher = null;
+                    });
+                  }
                 },
                 activeColor: Palette.primaryColor,
               ),
               onTap: () {
-                setState(() {
-                  selectedVoucher = null;
-                });
+                if (mounted) {
+                  setState(() {
+                    selectedVoucher = null;
+                  });
+                }
               },
             ),
           ),
@@ -217,24 +213,19 @@ class _ListVoucherChoiceState extends State<ListVoucherChoice>
                       return const Center(child: Text('Không có voucher nào'));
                     }
 
-                    vouchers = voucherData;
+                    // ✅ FIX: Chỉ update vouchers khi thực sự thay đổi
+                    if (vouchers.length != voucherData.length ||
+                        !_voucherListEquals(vouchers, voucherData)) {
+                      vouchers = List<VoucherModel>.from(voucherData);
 
-                    // Tìm lại voucher đã chọn trong danh sách mới dựa trên ID
-                    if (selectedVoucher != null) {
-                      final matchingVoucher = vouchers.firstWhere(
-                        (v) => v.voucherID == selectedVoucher!.voucherID,
-                        orElse: () => VoucherModel(
-                            voucherID: '',
-                            name: '',
-                            description: '',
-                            condition: 0,
-                            endDate: DateTime.now(),
-                            discount: 0,
-                            quantity: 0),
-                      );
-                      if (matchingVoucher.voucherID!.isNotEmpty) {
-                        selectedVoucher = matchingVoucher;
-                      }
+                      // ✅ FIX: Tách logic xử lý ra method riêng
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (mounted) {
+                          setState(() {
+                            _updateSelectedVoucherIfNeeded(voucherData);
+                          });
+                        }
+                      });
                     }
 
                     return _createListVoucher();
@@ -310,9 +301,11 @@ class _ListVoucherChoiceState extends State<ListVoucherChoice>
                     isShop: false,
                     onTap: isEligible
                         ? () {
-                            setState(() {
-                              selectedVoucher = isSelected ? null : voucher;
-                            });
+                            if (mounted) {
+                              setState(() {
+                                selectedVoucher = isSelected ? null : voucher;
+                              });
+                            }
                           }
                         : null,
                   ),
@@ -325,9 +318,11 @@ class _ListVoucherChoiceState extends State<ListVoucherChoice>
                       groupValue: selectedVoucher,
                       onChanged: isEligible
                           ? (value) {
-                              setState(() {
-                                selectedVoucher = value;
-                              });
+                              if (mounted) {
+                                setState(() {
+                                  selectedVoucher = value;
+                                });
+                              }
                             }
                           : null,
                       activeColor: Palette.primaryColor,
@@ -388,4 +383,36 @@ class _ListVoucherChoiceState extends State<ListVoucherChoice>
 
   @override
   void onWaitingProgressBar() {}
+
+  // ✅ Helper method để process voucher selection, tránh logic nặng trong StreamBuilder
+  void _updateSelectedVoucherIfNeeded(List<VoucherModel> voucherData) {
+    if (selectedVoucher != null) {
+      final matchingVoucher = voucherData.firstWhere(
+        (v) => v.voucherID == selectedVoucher!.voucherID,
+        orElse: () => VoucherModel(
+            voucherID: '',
+            name: '',
+            description: '',
+            condition: 0,
+            endDate: DateTime.now(),
+            discount: 0,
+            quantity: 0),
+      );
+      if (matchingVoucher.voucherID!.isNotEmpty) {
+        selectedVoucher = matchingVoucher;
+      } else {
+        // Voucher không còn tồn tại, clear selection
+        selectedVoucher = null;
+      }
+    }
+  }
+
+  // ✅ Helper method để so sánh list voucher
+  bool _voucherListEquals(List<VoucherModel> list1, List<VoucherModel> list2) {
+    if (list1.length != list2.length) return false;
+    for (int i = 0; i < list1.length; i++) {
+      if (list1[i].voucherID != list2[i].voucherID) return false;
+    }
+    return true;
+  }
 }

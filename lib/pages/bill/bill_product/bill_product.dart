@@ -45,7 +45,6 @@ class _BillProductState extends State<BillProduct>
   );
 
   String? _productCost = "0";
-  bool _isFirstLoad = true;
 
   final ValueNotifier<String> shippingCost = ValueNotifier<String>("-");
   final ValueNotifier<String> totalCost = ValueNotifier<String>("-");
@@ -55,15 +54,7 @@ class _BillProductState extends State<BillProduct>
   void initState() {
     _presenter = BillProductPresenter(this);
     super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_isFirstLoad) {
-      loadData();
-      _isFirstLoad = false;
-    }
+    loadData();
   }
 
   @override
@@ -91,6 +82,73 @@ class _BillProductState extends State<BillProduct>
 
   void updateTotalCost(String value) {
     totalCost.value = value;
+  }
+
+  // ✅ Helper method để process data, tránh logic trong StreamBuilder
+  void _processBillShopsData(List<ItemInCartWithSeller> itemsWithSeller) {
+    _presenter!.onPaymentItems = itemsWithSeller
+        .where((test) => test.inCart.isSelected == true)
+        .toList();
+
+    Map<String, BillShopModel> billShops = _presenter!.billShops!;
+    billShops.clear();
+
+    // Bỏ item vô BillShopModel
+    for (ItemInCartWithSeller data in itemsWithSeller) {
+      if (data.inCart.isSelected == false) {
+        continue;
+      }
+
+      String shopId = data.seller.shopID!;
+      BillShopModel? billShop;
+
+      if (billShops.containsKey(shopId)) {
+        billShop = billShops[shopId];
+      } else {
+        billShop = BillShopModel(
+          shopID: shopId,
+          shopName: data.seller.name,
+          buyItems: [],
+          status: OrderStatus.PENDING_CONFIRMATION,
+          voucher: null,
+        );
+
+        if (_presenter!.cacheVouchers!.containsKey(shopId)) {
+          billShop.voucher = _presenter!.cacheVouchers![shopId];
+        }
+
+        billShops[shopId] = billShop;
+      }
+
+      BillShopItemModel newItem = BillShopItemModel(
+        itemID: data.item.itemID,
+        name: data.item.name,
+        itemType: data.item.itemType,
+        sellerID: shopId,
+        addDate: data.item.addDate,
+        price: data.item.discountPrice,
+        color: data.inCart.color,
+        amount: data.inCart.amount,
+        totalCost: data.item.price! * data.inCart.amount!,
+        image: data.item.image,
+        detail: data.item.detail,
+        description: data.item.description,
+      );
+
+      billShop?.buyItems!.add(newItem);
+    }
+
+    // ✅ Update product cost nếu thay đổi
+    String remoteProductCost = _presenter!.getProductCost();
+    if (_productCost != remoteProductCost) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() {
+            _productCost = remoteProductCost;
+          });
+        }
+      });
+    }
   }
 
   @override
@@ -134,11 +192,13 @@ class _BillProductState extends State<BillProduct>
 
                 // Nếu có địa chỉ mới, cập nhật lại thông tin
                 if (updatedAddress != null) {
-                  setState(() {
-                    address = updatedAddress.first;
-                    _presenter!.handleChangeLocation(address);
-                    isFirst = false;
-                  });
+                  if (mounted) {
+                    setState(() {
+                      address = updatedAddress.first;
+                      _presenter!.handleChangeLocation(address);
+                      isFirst = false;
+                    });
+                  }
                 }
               },
               child: Padding(
@@ -236,66 +296,8 @@ class _BillProductState extends State<BillProduct>
 
                   final itemsWithSeller = snapshot.data ?? [];
 
-                  _presenter!.onPaymentItems = itemsWithSeller
-                      .where((test) => test.inCart.isSelected == true)
-                      .toList();
-                  Map<String, BillShopModel> billShops = _presenter!.billShops!;
-                  billShops.clear();
-
-                  // Bỏ item vô BillShopModel
-                  for (ItemInCartWithSeller data in itemsWithSeller) {
-                    if (data.inCart.isSelected == false) {
-                      continue;
-                    }
-
-                    String shopId = data.seller.shopID!;
-                    BillShopModel? billShop;
-
-                    if (billShops.containsKey(shopId)) {
-                      billShop = billShops[shopId];
-                    } else {
-                      billShop = BillShopModel(
-                        shopID: shopId,
-                        shopName: data.seller.name,
-                        buyItems: [],
-                        status: OrderStatus.PENDING_CONFIRMATION,
-                        voucher: null,
-                      );
-
-                      if (_presenter!.cacheVouchers!.containsKey(shopId)) {
-                        billShop.voucher = _presenter!.cacheVouchers![shopId];
-                      }
-
-                      billShops[shopId] = billShop;
-                    }
-
-                    BillShopItemModel newItem = BillShopItemModel(
-                      itemID: data.item.itemID,
-                      name: data.item.name,
-                      itemType: data.item.itemType,
-                      sellerID: shopId,
-                      addDate: data.item.addDate,
-                      price: data.item.discountPrice,
-                      color: data.inCart.color,
-                      amount: data.inCart.amount,
-                      totalCost: data.item.price! * data.inCart.amount!,
-                      image: data.item.image,
-                      detail: data.item.detail,
-                      description: data.item.description,
-                    );
-
-                    billShop?.buyItems!.add(newItem);
-                  }
-
-                  String remoteProductCost = _presenter!.getProductCost();
-
-                  if (_productCost != remoteProductCost) {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      setState(() {
-                        _productCost = remoteProductCost;
-                      });
-                    });
-                  }
+                  // ✅ FIX: Tách logic ra method riêng để tránh infinite rebuild
+                  _processBillShopsData(itemsWithSeller);
 
                   if (_presenter!.onPaymentItems!.isEmpty) {
                     return const Center(child: Text('Không có gì ở đây'));
@@ -308,7 +310,8 @@ class _BillProductState extends State<BillProduct>
                     scrollDirection: Axis.vertical,
                     itemCount: _presenter!.billShops!.length,
                     itemBuilder: (context, index) {
-                      BillShopModel data = billShops.values.elementAt(index);
+                      BillShopModel data =
+                          _presenter!.billShops!.values.elementAt(index);
 
                       return PaymentProductItem(
                         shopName: data.shopName!,
@@ -348,9 +351,11 @@ class _BillProductState extends State<BillProduct>
                         ),
                       );
                       if (selectedPaymentMethod != null) {
-                        setState(() {
-                          paymentMethod = selectedPaymentMethod;
-                        });
+                        if (mounted) {
+                          setState(() {
+                            paymentMethod = selectedPaymentMethod;
+                          });
+                        }
                         _presenter
                             ?.handlePaymentMethodChanged(selectedPaymentMethod);
                       }

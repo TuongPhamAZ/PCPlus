@@ -21,21 +21,20 @@ class ShopItem extends StatelessWidget {
   final ICommand? pressedCommand;
   final bool isShop;
 
-  const ShopItem({
-    super.key,
-    required this.itemName,
-    required this.imagePath,
-    required this.description,
-    required this.quantity,
-    required this.location,
-    required this.rating,
-    required this.price,
-    required this.sold,
-    this.deleteCommand,
-    this.editCommand,
-    this.pressedCommand,
-    required this.isShop
-  });
+  const ShopItem(
+      {super.key,
+      required this.itemName,
+      required this.imagePath,
+      required this.description,
+      required this.quantity,
+      required this.location,
+      required this.rating,
+      required this.price,
+      required this.sold,
+      this.deleteCommand,
+      this.editCommand,
+      this.pressedCommand,
+      required this.isShop});
 
   @override
   Widget build(BuildContext context) {
@@ -68,18 +67,10 @@ class ShopItem extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: const BorderRadius.all(Radius.circular(10)),
-              child: Image.network(
-                imagePath,
+              child: _LazyNetworkImage(
+                imageUrl: imagePath,
                 width: 130,
                 height: 140,
-                fit: BoxFit.cover,
-                errorBuilder: (BuildContext context, Object exception,
-                    StackTrace? stackTrace) {
-                  return const SizedBox(
-                    height: 130,
-                    width: 140,
-                  );
-                },
               ),
             ),
             const Gap(6),
@@ -220,6 +211,100 @@ class ShopItem extends StatelessWidget {
                 ),
               ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+// ✅ LAZY IMAGE WIDGET cho ShopItem
+class _LazyNetworkImage extends StatefulWidget {
+  final String imageUrl;
+  final double width;
+  final double height;
+
+  const _LazyNetworkImage({
+    required this.imageUrl,
+    required this.width,
+    required this.height,
+  });
+
+  @override
+  State<_LazyNetworkImage> createState() => _LazyNetworkImageState();
+}
+
+class _LazyNetworkImageState extends State<_LazyNetworkImage> {
+  bool _isVisible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() => _isVisible = true);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_isVisible) {
+      return Container(
+        width: widget.width,
+        height: widget.height,
+        color: Colors.grey[200],
+        child: const Center(
+          child: Icon(Icons.image, color: Colors.grey, size: 28),
+        ),
+      );
+    }
+
+    return Image.network(
+      widget.imageUrl,
+      width: widget.width,
+      height: widget.height,
+      fit: BoxFit.cover,
+      alignment: Alignment.center,
+      cacheWidth: widget.width.isFinite ? (widget.width * 2).round() : null,
+      cacheHeight: widget.height.isFinite ? (widget.height * 2).round() : null,
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return Container(
+          width: widget.width,
+          height: widget.height,
+          color: Colors.grey[100],
+          child: Center(
+            child: SizedBox(
+              width: 35,
+              height: 35,
+              child: CircularProgressIndicator(
+                strokeWidth: 3,
+                valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                    : null,
+              ),
+            ),
+          ),
+        );
+      },
+      errorBuilder: (context, error, stackTrace) => Container(
+        width: widget.width,
+        height: widget.height,
+        color: Colors.grey[200],
+        child: const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.broken_image, color: Colors.grey, size: 28),
+              SizedBox(height: 6),
+              Text(
+                'Lỗi tải ảnh',
+                style: TextStyle(color: Colors.grey, fontSize: 11),
+              ),
+            ],
+          ),
         ),
       ),
     );

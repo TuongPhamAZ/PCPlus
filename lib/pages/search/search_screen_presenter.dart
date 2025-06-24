@@ -35,28 +35,41 @@ class SearchScreenPresenter {
       return;
     }
 
-    // Khởi tạo controller nếu chưa có
-    _searchItemController ??= StreamController<List<ItemWithSeller>>();
+    try {
+      // ✅ FIX: Dispose stream cũ hoàn toàn trước khi tạo mới
+      await _disposeStreams();
 
-    // Cancel subscription cũ nếu có
-    await _searchItemSubscription?.cancel();
+      // ✅ FIX: Tạo controller mới cho mỗi lần search
+      _searchItemController =
+          StreamController<List<ItemWithSeller>>.broadcast();
 
-    // Lắng nghe stream từ repository
-    _searchItemSubscription =
-        _itemRepo.getItemsWithSeller(searchQuery: input).listen(
-      (data) {
-        if (!_isDisposed && !_searchItemController!.isClosed) {
-          _searchItemController!.add(data);
-        }
-      },
-      onError: (error) {
-        if (!_isDisposed && !_searchItemController!.isClosed) {
-          _searchItemController!.addError(error);
-        }
-      },
-    );
+      // ✅ FIX: Tạo subscription mới với controller mới
+      _searchItemSubscription =
+          _itemRepo.getItemsWithSeller(searchQuery: input).listen(
+        (data) {
+          if (!_isDisposed &&
+              _searchItemController != null &&
+              !_searchItemController!.isClosed) {
+            final limitedData = data.take(100).toList();
+            _searchItemController!.add(limitedData);
+          }
+        },
+        onError: (error) {
+          if (!_isDisposed &&
+              _searchItemController != null &&
+              !_searchItemController!.isClosed) {
+            _searchItemController!.addError(error);
+          }
+        },
+      );
 
-    _view.onFinishSearching();
+      _view.onFinishSearching();
+    } catch (e) {
+      // ✅ Error handling để tránh crash
+      if (!_isDisposed) {
+        _view.onFinishSearching();
+      }
+    }
   }
 
   void setFilter(String filterMode) {
