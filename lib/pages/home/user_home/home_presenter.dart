@@ -47,15 +47,12 @@ class HomePresenter {
   Future<void> getData() async {
     if (_isDisposed) return;
 
-    // Dispose existing streams if any
     await _disposeStreams();
 
-    // Create new controllers
     _newestItemController = StreamController<List<ItemWithSeller>>.broadcast();
     _recommendedItemController =
         StreamController<List<ItemWithSeller>>.broadcast();
 
-    // Subscribe to repository streams
     _newestItemSubscription = _itemRepo
         .getNewestItemsWithSellerStream(MAX_NEWEST_ITEMS)
         .listen((data) {
@@ -94,15 +91,14 @@ class HomePresenter {
     _view.onItemPressed(item);
   }
 
-  void handleSearch(String input) {
+  Future<void> handleSearch(String input) async {
     if (input == "") {
       return;
     }
 
-    _view.onSearch(input);
+    await _view.onSearch(input);
   }
 
-  // Dispose streams khi không sử dụng nữa
   Future<void> _disposeStreams() async {
     await _newestItemSubscription?.cancel();
     await _recommendedItemSubscription?.cancel();

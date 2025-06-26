@@ -30,11 +30,14 @@ class BottomBarCustom extends StatelessWidget {
           if (value == 0) {
             NavService.pushNamedAndReplaceUntil(context, HomeScreen.routeName);
           } else if (value == 1) {
-            NavService.pushNamedAndReplaceUntil(context, CartShoppingScreen.routeName);
+            NavService.pushNamedAndReplaceUntil(
+                context, CartShoppingScreen.routeName);
           } else if (value == 2) {
-            NavService.pushNamedAndReplaceUntil(context, NotificationScreen.routeName);
+            NavService.pushNamedAndReplaceUntil(
+                context, NotificationScreen.routeName);
           } else if (value == 3) {
-            NavService.pushNamedAndReplaceUntil(context, ProfileScreen.routeName);
+            NavService.pushNamedAndReplaceUntil(
+                context, ProfileScreen.routeName);
           } else {}
         },
         selectedItemColor: Palette.primaryColor,

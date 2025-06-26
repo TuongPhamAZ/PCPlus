@@ -13,20 +13,23 @@ class ChatDetailScreen extends StatefulWidget {
   final ConversationModel conversation;
   final ConversationModel? otherConversation;
 
-  const ChatDetailScreen({super.key, required this.conversation, required this.otherConversation});
+  const ChatDetailScreen(
+      {super.key, required this.conversation, required this.otherConversation});
   static const String routeName = 'chat_detail_screen';
 
   @override
   State<ChatDetailScreen> createState() => _ChatDetailScreenState();
 }
 
-class _ChatDetailScreenState extends State<ChatDetailScreen> implements ChatDetailContract {
+class _ChatDetailScreenState extends State<ChatDetailScreen>
+    implements ChatDetailContract {
   ChatDetailPresenter? _presenter;
 
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   List<MessageModel> messages = [];
-  final String currentUserId = SessionController.getInstance().userID!; // ID của user hiện tại
+  final String currentUserId =
+      SessionController.getInstance().userID!; // ID của user hiện tại
 
   bool firstEnter = true;
 
@@ -60,7 +63,6 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> implements ChatDeta
     firstEnter = false;
     await _presenter?.getData();
   }
-
 
   void _loadMockMessages() {
     // Mock data cho tin nhắn
@@ -344,7 +346,8 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> implements ChatDeta
             child: StreamBuilder<List<MessageModel>>(
               stream: _presenter!.messageStream,
               builder: (context, snapshot) {
-                Widget? result = UtilWidgets.createSnapshotResultWidget(context, snapshot);
+                Widget? result =
+                    UtilWidgets.createSnapshotResultWidget(context, snapshot);
                 if (result != null) {
                   return result;
                 }
@@ -358,7 +361,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> implements ChatDeta
                 }
 
                 if (firstEnter || messages.last.from == currentUserId) {
-                    onSendMessageSuccess();
+                  onSendMessageSuccess();
                 }
 
                 if (_presenter!.conversationModel!.unreadCount > 0) {
@@ -388,6 +391,9 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> implements ChatDeta
                       ),
                       child: TextField(
                         controller: _messageController,
+                        onTapOutside: (event) {
+                          FocusScope.of(context).unfocus();
+                        },
                         decoration: InputDecoration(
                           hintText: 'Nhập tin nhắn...',
                           hintStyle: TextDecor.robo14.copyWith(
@@ -401,7 +407,8 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> implements ChatDeta
                         ),
                         maxLines: null,
                         textInputAction: TextInputAction.send,
-                        onSubmitted: (_) => _presenter!.sendMessage(_messageController.text),
+                        onSubmitted: (_) =>
+                            _presenter!.sendMessage(_messageController.text),
                       ),
                     ),
                   ),
@@ -417,9 +424,8 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> implements ChatDeta
                         color: Colors.white,
                         size: 20,
                       ),
-                      onPressed: () => {
-                        _presenter!.sendMessage(_messageController.text)
-                      },
+                      onPressed: () =>
+                          {_presenter!.sendMessage(_messageController.text)},
                     ),
                   ),
                 ],
@@ -430,7 +436,6 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> implements ChatDeta
       ),
     );
   }
-
 
   Widget _buildMessageList() {
     return ListView.builder(
@@ -447,8 +452,8 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> implements ChatDeta
           showDateSeparator = true;
         } else {
           final previousMessage = messages[index - 1];
-          final currentDate = DateTime(
-              message.time.year, message.time.month, message.time.day);
+          final currentDate =
+              DateTime(message.time.year, message.time.month, message.time.day);
           final previousDate = DateTime(previousMessage.time.year,
               previousMessage.time.month, previousMessage.time.day);
           showDateSeparator = !currentDate.isAtSameDay(previousDate);

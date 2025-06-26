@@ -122,7 +122,7 @@ class _CartItemState extends State<CartItem> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.store_rounded,
                         color: Palette.primaryColor,
                         size: 14,
@@ -144,7 +144,7 @@ class _CartItemState extends State<CartItem> {
                   borderRadius: BorderRadius.circular(16),
                   child: Container(
                     padding: const EdgeInsets.all(6),
-                    child: Icon(
+                    child: const Icon(
                       Icons.delete_outline_rounded,
                       color: Palette.billOrange,
                       size: 20,
@@ -157,18 +157,14 @@ class _CartItemState extends State<CartItem> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Transform.scale(
-                  scale: 1.1,
-                  child: Checkbox(
-                    value: widget.isCheck,
-                    onChanged: buyable ? widget.onChanged : (value) {},
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(3),
-                    ),
-                    activeColor: Palette.primaryColor,
+                Checkbox(
+                  value: widget.isCheck,
+                  onChanged: buyable ? widget.onChanged : (value) {},
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(3),
                   ),
+                  activeColor: Palette.primaryColor,
                 ),
-                const Gap(6),
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
@@ -182,27 +178,10 @@ class _CartItemState extends State<CartItem> {
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      widget.imageUrl,
+                    child: _LazyNetworkImage(
+                      imageUrl: widget.imageUrl,
                       width: 85,
-                      height: 85,
-                      fit: BoxFit.cover,
-                      errorBuilder: (BuildContext context, Object exception,
-                          StackTrace? stackTrace) {
-                        return Container(
-                          width: 85,
-                          height: 85,
-                          decoration: BoxDecoration(
-                            color: Palette.greyBackground.withOpacity(0.3),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Icon(
-                            Icons.image_not_supported_rounded,
-                            color: Palette.hintText,
-                            size: 30,
-                          ),
-                        );
-                      },
+                      height: 100,
                     ),
                   ),
                 ),
@@ -242,15 +221,6 @@ class _CartItemState extends State<CartItem> {
                             ),
                         ],
                       ),
-                      Text(
-                        widget.description,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextDecor.robo12.copyWith(
-                          color: Palette.hintText,
-                          height: 1.2,
-                        ),
-                      ),
                       if (widget.color != null) ...[
                         Row(
                           children: [
@@ -285,7 +255,7 @@ class _CartItemState extends State<CartItem> {
                           ),
                           const Gap(8),
                           const Icon(Icons.location_on_rounded,
-                              size: 16, color: Palette.star),
+                              size: 16, color: Colors.black),
                           const Gap(2),
                           Expanded(
                             child: Text(
@@ -400,6 +370,108 @@ class _CartItemState extends State<CartItem> {
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LazyNetworkImage extends StatefulWidget {
+  final String imageUrl;
+  final double width;
+  final double height;
+
+  const _LazyNetworkImage({
+    required this.imageUrl,
+    required this.width,
+    required this.height,
+  });
+
+  @override
+  State<_LazyNetworkImage> createState() => _LazyNetworkImageState();
+}
+
+class _LazyNetworkImageState extends State<_LazyNetworkImage> {
+  bool _isVisible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() => _isVisible = true);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_isVisible) {
+      return Container(
+        width: widget.width,
+        height: widget.height,
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: const Center(
+          child: Icon(Icons.image, color: Colors.grey, size: 24),
+        ),
+      );
+    }
+
+    return Image.network(
+      widget.imageUrl,
+      width: widget.width,
+      height: widget.height,
+      fit: BoxFit.cover,
+      alignment: Alignment.center,
+      cacheWidth: widget.width.isFinite ? (widget.width * 2).round() : null,
+      cacheHeight: widget.height.isFinite ? (widget.height * 2).round() : null,
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return Container(
+          width: widget.width,
+          height: widget.height,
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Center(
+            child: SizedBox(
+              width: 28,
+              height: 28,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.5,
+                valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                    : null,
+              ),
+            ),
+          ),
+        );
+      },
+      errorBuilder: (context, error, stackTrace) => Container(
+        width: widget.width,
+        height: widget.height,
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.broken_image, color: Colors.grey, size: 24),
+              SizedBox(height: 4),
+              Text(
+                'Lỗi ảnh',
+                style: TextStyle(color: Colors.grey, fontSize: 10),
+              ),
+            ],
+          ),
         ),
       ),
     );

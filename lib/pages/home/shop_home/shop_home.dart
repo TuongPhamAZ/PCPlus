@@ -52,70 +52,27 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
   String shopPhone = "";
   String location = "";
 
-  // Balance related variables
-  int balance = 0; // Mock balance
-  bool isBalanceVisible = false; // State to show/hide balance
-
-  // Mock voucher data
-  // List<VoucherModel> _mockVouchers = [];
+  int balance = 0;
+  bool isBalanceVisible = false;
 
   final ValueNotifier<int> _voucherCount = ValueNotifier<int>(0);
 
   final ScrollController _scrollController = ScrollController();
 
+  bool _isFirstLoad = true;
+
   @override
   void initState() {
+    _presenter = ShopHomePresenter(this);
+
+    // ✅ Logic không cần context - move vào initState()
     isShop = SessionController.getInstance().isShop();
     _presenter = ShopHomePresenter(this);
-    // _initMockVouchers();
     super.initState();
     SessionController.getInstance()
         .changeUserCallback
         .add(balanceChangeHandler);
   }
-
-  // void _initMockVouchers() {
-  //   _mockVouchers = [
-  //     VoucherModel(
-  //       voucherID: "1",
-  //       name: "Giảm 50k",
-  //       description: "Voucher giảm 50,000đ cho đơn hàng từ 200,000đ",
-  //       condition: 200000,
-  //       endDate: DateTime.now().add(const Duration(days: 30)),
-  //       discount: 50000,
-  //       quantity: 100,
-  //     ),
-  //     VoucherModel(
-  //       voucherID: "2",
-  //       name: "Giảm 20%",
-  //       description: "Voucher giảm 20% tối đa 100,000đ",
-  //       condition: 500000,
-  //       endDate: DateTime.now().add(const Duration(days: 15)),
-  //       discount: 100000,
-  //       quantity: 50,
-  //     ),
-  //     VoucherModel(
-  //       voucherID: "3",
-  //       name: "Freeship",
-  //       description: "Miễn phí vận chuyển cho đơn từ 100,000đ",
-  //       condition: 100000,
-  //       endDate: DateTime.now().add(const Duration(days: 7)),
-  //       discount: 30000,
-  //       quantity: 0, // Out of stock
-  //     ),
-  //     VoucherModel(
-  //       voucherID: "4",
-  //       name: "Black Friday",
-  //       description: "Giảm 300,000đ cho đơn hàng trên 1 triệu",
-  //       condition: 1000000,
-  //       endDate: DateTime.now().subtract(const Duration(days: 1)), // Expired
-  //       discount: 300000,
-  //       quantity: 25,
-  //     ),
-  //   ];
-  // }
-
-  bool _isFirstLoad = true;
 
   @override
   void didChangeDependencies() {
@@ -141,7 +98,6 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
     if (!mounted) return;
 
     if (isShop) {
-      // chờ lấy thông tin user
       while (SessionController.getInstance().currentUser == null) {
         await Future.delayed(const Duration(milliseconds: 10));
         if (!mounted) return;
@@ -458,8 +414,7 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
                     final itemsWithSeller = snapshot.data ?? [];
 
                     if (itemsWithSeller.isEmpty) {
-                      return const Center(
-                          child: Text('Không có sản phẩm nào'));
+                      return const Center(child: Text('Không có sản phẩm nào'));
                     }
 
                     return PaginatedListView<ItemWithSeller>(
@@ -472,38 +427,14 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
                         return ShopItemFactory.create(
                             data: item,
                             editCommand: ShopHomeItemEditCommand(
-                                presenter: _presenter!,
-                                item: item),
+                                presenter: _presenter!, item: item),
                             deleteCommand: ShopHomeItemDeleteCommand(
-                                presenter: _presenter!,
-                                item: item),
+                                presenter: _presenter!, item: item),
                             pressedCommand: ShopHomeItemPressedCommand(
-                                presenter: _presenter!,
-                                item: item),
+                                presenter: _presenter!, item: item),
                             isShop: isShop);
                       },
                     );
-
-                    // return ListView.builder(
-                    //   shrinkWrap: true,
-                    //   padding: EdgeInsets.zero,
-                    //   scrollDirection: Axis.vertical,
-                    //   itemCount: itemsWithSeller.length,
-                    //   itemBuilder: (context, index) {
-                    //     return ShopItemFactory.create(
-                    //         data: itemsWithSeller[index],
-                    //         editCommand: ShopHomeItemEditCommand(
-                    //             presenter: _presenter!,
-                    //             item: itemsWithSeller[index]),
-                    //         deleteCommand: ShopHomeItemDeleteCommand(
-                    //             presenter: _presenter!,
-                    //             item: itemsWithSeller[index]),
-                    //         pressedCommand: ShopHomeItemPressedCommand(
-                    //             presenter: _presenter!,
-                    //             item: itemsWithSeller[index]),
-                    //         isShop: isShop);
-                    //   },
-                    // );
                   }),
             ],
           ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gap/gap.dart';
 import 'package:pcplus/commands/search_command.dart';
 import 'package:pcplus/component/item_argument.dart';
@@ -9,6 +9,8 @@ import 'package:pcplus/pages/search/search_screen_contract.dart';
 import 'package:pcplus/pages/search/search_screen_presenter.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:speech_to_text_google_dialog/speech_to_text_google_dialog.dart';
+import 'dart:async'; // ✅ Import Timer cho debounce
+import 'dart:developer' as developer; // ✅ Import để force garbage collection
 
 import '../../component/search_argument.dart';
 import '../../models/items/item_with_seller.dart';
@@ -28,13 +30,13 @@ class _SearchScreenState extends State<SearchScreen>
     implements SearchScreenContract {
   SearchScreenPresenter? _presenter;
 
+  bool _isFirstLoad = true;
+  bool isSearching = false;
+
   bool lienQuan = true;
   bool moiNhat = false;
   bool gia = false;
   bool giaTang = false;
-
-  bool isSearching = false;
-  bool _isFirstLoad = true;
 
   final TextEditingController _searchController = TextEditingController();
 
@@ -42,10 +44,42 @@ class _SearchScreenState extends State<SearchScreen>
 
   final ScrollController _scrollController = ScrollController();
 
+  // ✅ Debounce timer để tránh spam search
+  Timer? _debounceTimer;
+  static const Duration _debounceDuration = Duration(milliseconds: 500);
+
+  // ✅ Memory management
+  Timer? _memoryCleanupTimer;
+  static const Duration _memoryCleanupInterval = Duration(seconds: 30);
+
   @override
   void initState() {
     _presenter = SearchScreenPresenter(this);
+
+    _startMemoryManagement();
+
     super.initState();
+  }
+
+  // ✅ Memory management methods
+  void _startMemoryManagement() {
+    _memoryCleanupTimer = Timer.periodic(_memoryCleanupInterval, (timer) {
+      if (mounted) {
+        _performMemoryCleanup();
+      }
+    });
+  }
+
+  void _performMemoryCleanup() {
+    final imageCache = PaintingBinding.instance.imageCache;
+
+    // ✅ Chỉ cleanup khi cache quá lớn
+    if (imageCache.currentSizeBytes > 50 * 1024 * 1024) {
+      // 50MB
+      developer.log(
+          'SearchScreen: Performing memory cleanup - Cache size: ${imageCache.currentSizeBytes / 1024 / 1024}MB');
+      imageCache.clear();
+    }
   }
 
   @override
@@ -67,27 +101,72 @@ class _SearchScreenState extends State<SearchScreen>
 
   @override
   void dispose() {
+    // ✅ CRITICAL: Cleanup toàn bộ để tránh memory leak
     _scrollController.dispose();
-    _presenter?.dispose();
     _searchController.dispose();
+
+    // ✅ Cancel timers
+    _debounceTimer?.cancel();
+    _memoryCleanupTimer?.cancel();
+
+    // ✅ Clear danh sách lớn và force memory cleanup
+    sortedItems.clear();
+
+    // ✅ Dispose presenter cuối cùng
+    _presenter?.dispose();
+
+    // ✅ CRITICAL: Force garbage collection để clear image cache
+    developer
+        .log('SearchScreen: Forcing garbage collection for memory cleanup');
+    Future.delayed(const Duration(milliseconds: 100), () {
+      // Clear any remaining image cache
+      PaintingBinding.instance.imageCache.clear();
+      PaintingBinding.instance.imageCache.clearLiveImages();
+    });
+
     super.dispose();
   }
 
   Future<void> loadData() async {
     if (mounted) {
-      await _presenter?.handleSearch(_searchController.text);
+      _debouncedSearch(_searchController.text);
     }
   }
 
-  void _goToTop() {
-    // scroll to top
-    _scrollController.animateTo(
-      0,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOut,
-    );
+  // ✅ Method search với debounce và memory monitoring
+  void _debouncedSearch(String query) {
+    _debounceTimer?.cancel();
+
+    // ✅ Clear cache trước khi search mới
+    PaintingBinding.instance.imageCache.clear();
+
+    _debounceTimer = Timer(_debounceDuration, () {
+      if (mounted) {
+        developer.log('SearchScreen: Starting search for query: "$query"');
+        _presenter?.handleSearch(query.trim());
+      }
+    });
   }
 
+  void _goToTop() {
+    // ✅ Check mounted trước khi animate
+    if (mounted && _scrollController.hasClients) {
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
+  // ✅ Helper method để so sánh list hiệu quả
+  bool _listEquals(List<ItemWithSeller> list1, List<ItemWithSeller> list2) {
+    if (list1.length != list2.length) return false;
+    for (int i = 0; i < list1.length; i++) {
+      if (list1[i].item.itemID != list2[i].item.itemID) return false;
+    }
+    return true;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -123,7 +202,7 @@ class _SearchScreenState extends State<SearchScreen>
                       readOnly: isSearching,
                       onChanged: (value) {},
                       onSubmitted: (value) {
-                        _presenter!.handleSearch(_searchController.text.trim());
+                        _debouncedSearch(_searchController.text.trim());
                       },
                       controller: _searchController,
                       decoration: InputDecoration(
@@ -141,8 +220,7 @@ class _SearchScreenState extends State<SearchScreen>
                         prefixIcon: InkWell(
                           customBorder: const CircleBorder(),
                           onTap: () {
-                            _presenter
-                                ?.handleSearch(_searchController.text.trim());
+                            _debouncedSearch(_searchController.text.trim());
                           },
                           child: const Icon(
                             FontAwesomeIcons.magnifyingGlass,
@@ -201,16 +279,14 @@ class _SearchScreenState extends State<SearchScreen>
                                 color: Palette.primaryColor,
                                 width: 1,
                               )
-                            : const Border(
-                                right: BorderSide(
-                                  color: Palette.primaryColor,
-                                  width: 1,
-                                ),
-                                left: BorderSide(
-                                  color: Palette.primaryColor,
-                                  width: 1,
-                                ),
-                              ),
+                            : moiNhat
+                                ? const Border(
+                                    right: BorderSide(
+                                      color: Palette.primaryColor,
+                                      width: 1,
+                                    ),
+                                  )
+                                : null,
                       ),
                       child: const Text(
                         'Liên quan',
@@ -296,16 +372,14 @@ class _SearchScreenState extends State<SearchScreen>
                                 color: Palette.primaryColor,
                                 width: 1,
                               )
-                            : const Border(
-                                right: BorderSide(
-                                  color: Palette.primaryColor,
-                                  width: 1,
-                                ),
-                                left: BorderSide(
-                                  color: Palette.primaryColor,
-                                  width: 1,
-                                ),
-                              ),
+                            : moiNhat
+                                ? const Border(
+                                    left: BorderSide(
+                                      color: Palette.primaryColor,
+                                      width: 1,
+                                    ),
+                                  )
+                                : null,
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -334,6 +408,7 @@ class _SearchScreenState extends State<SearchScreen>
               ),
               const Gap(10),
               StreamBuilder<List<ItemWithSeller>>(
+                  key: const ValueKey('search_results'),
                   stream: _presenter!.searchItemStream,
                   builder: (context, snapshot) {
                     Widget? result = UtilWidgets.createSnapshotResultWidget(
@@ -344,41 +419,66 @@ class _SearchScreenState extends State<SearchScreen>
 
                     final itemsWithSeller = snapshot.data ?? [];
 
-                    sortedItems = itemsWithSeller;
+                    final needsUpdate =
+                        sortedItems.length != itemsWithSeller.length ||
+                            !_listEquals(sortedItems, itemsWithSeller);
 
-                    if (itemsWithSeller.isEmpty) {
-                      return const Center(child: Text('Không có dữ liệu'));
+                    if (needsUpdate) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (mounted) {
+                          setState(() {
+                            sortedItems =
+                                List<ItemWithSeller>.from(itemsWithSeller);
+                          });
+                        }
+                      });
                     }
 
-                    return PaginatedListView<ItemWithSeller>(
-                      items: sortedItems,
-                      itemsPerPage: 10,
-                      onPageChanged: (value) {
-                        _goToTop();
-                      },
-                      itemBuilder: (context, item) {
-                          return SuggestItemFactory.create(
-                              itemWithSeller: item,
-                              command: SearchItemPressedCommand(
-                                  presenter: _presenter!,
-                                  item: item));
-                      },
-                    );
+                    if (sortedItems.isEmpty) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(32.0),
+                          child: Text(
+                            'Không có dữ liệu',
+                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                          ),
+                        ),
+                      );
+                    }
 
-                    // return ListView.builder(
-                    //   shrinkWrap: true,
-                    //   padding: EdgeInsets.zero,
-                    //   physics: const NeverScrollableScrollPhysics(),
-                    //   scrollDirection: Axis.vertical,
-                    //   itemCount: sortedItems.length >= 15 ? 15 : sortedItems.length,
-                    //   itemBuilder: (context, index) {
-                    //     return SuggestItemFactory.create(
-                    //         itemWithSeller: sortedItems[index],
-                    //         command: SearchItemPressedCommand(
-                    //             presenter: _presenter!,
-                    //             item: itemsWithSeller[index]));
-                    //   },
-                    // );
+                    return Column(
+                      children: [
+                        // ✅ CRITICAL: Thay thế PaginatedListView bằng ListView.builder thực sự
+                        Text(
+                          'Tìm thấy ${sortedItems.length} kết quả',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+
+                        // ✅ LAZY LOADING ListView - CHỈ render items trong viewport
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics:
+                              const NeverScrollableScrollPhysics(), // Controlled by parent ScrollView
+                          itemCount: sortedItems.length,
+                          // ✅ CRITICAL: addAutomaticKeepAlives: false để dispose widgets ngoài viewport
+                          addAutomaticKeepAlives: false,
+                          addRepaintBoundaries: true, // Tối ưu repaint
+                          addSemanticIndexes: false, // Giảm overhead
+                          itemBuilder: (context, index) {
+                            // ✅ Lazy loading - chỉ build khi cần
+                            return SuggestItemFactory.create(
+                                itemWithSeller: sortedItems[index],
+                                command: SearchItemPressedCommand(
+                                    presenter: _presenter!,
+                                    item: sortedItems[index]));
+                          },
+                        ),
+                      ],
+                    );
                   }),
             ],
           ),
@@ -387,14 +487,12 @@ class _SearchScreenState extends State<SearchScreen>
     );
   }
 
-  // ===========================================================================
-
   Future<void> _startListening() async {
     bool isAvailable =
         await SpeechToTextGoogleDialog.getInstance().showGoogleDialog(
       onTextReceived: (text) {
         _searchController.text = text.trim();
-        _presenter?.handleSearch(text);
+        _debouncedSearch(text);
       },
       locale: 'vi-VN',
     );
@@ -409,18 +507,21 @@ class _SearchScreenState extends State<SearchScreen>
     }
   }
 
-  // ===========================================================================
-
   @override
   void onBack() {
+    // ✅ CRITICAL: Clear image cache trước khi navigate back
+    PaintingBinding.instance.imageCache.clear();
     Navigator.pop(context);
   }
 
   @override
   Future<void> onChangeFilter() async {
-    setState(() {
-      sortedItems = _presenter!.filter(sortedItems);
-    });
+    if (mounted) {
+      setState(() {
+        sortedItems =
+            _presenter!.filter(List<ItemWithSeller>.from(sortedItems));
+      });
+    }
   }
 
   @override

@@ -35,22 +35,12 @@ class _CartShoppingScreenState extends State<CartShoppingScreen>
   int checkedCount = 0;
   String totalPrice = "";
 
-  bool _isFirstLoad = true;
-
   @override
   void initState() {
     _presenter = CartShoppingScreenPresenter(this);
-    // soluong = _cartSingleton.inCartItems.length;
     super.initState();
-  }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_isFirstLoad) {
-      loadData();
-      _isFirstLoad = false;
-    }
+    loadData();
   }
 
   @override
@@ -65,12 +55,38 @@ class _CartShoppingScreenState extends State<CartShoppingScreen>
     }
   }
 
+  // ✅ Helper method để process cart data, tránh logic nặng trong StreamBuilder
+  void _processCartData(List<ItemInCartWithSeller> itemsWithSeller) {
+    _presenter!.inCartItems = itemsWithSeller;
+
+    String remoteTotalPrice = _presenter!.calculateTotalPrice();
+    int remoteAmount = itemsWithSeller.length;
+    int remoteCheckedCount = _presenter!.getCheckedCount();
+
+    // ✅ Chỉ update khi thực sự thay đổi
+    if (soluong != remoteAmount ||
+        totalPrice != remoteTotalPrice ||
+        checkedCount != remoteCheckedCount) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() {
+            soluong = remoteAmount;
+            totalPrice = remoteTotalPrice;
+            checkedCount = remoteCheckedCount;
+          });
+        }
+      });
+    }
+  }
+
   void _toggleSelectAll(bool? value) {
     _presenter?.handleSelectAll(value ?? false);
-    setState(() {
-      _selectAll = value ?? false;
-      totalPrice = _presenter!.calculateTotalPrice();
-    });
+    if (mounted) {
+      setState(() {
+        _selectAll = value ?? false;
+        totalPrice = _presenter!.calculateTotalPrice();
+      });
+    }
   }
 
   void _toggleItemChecked(InCartItemModel model, bool? value) {
@@ -122,24 +138,8 @@ class _CartShoppingScreenState extends State<CartShoppingScreen>
 
                       final itemsWithSeller = snapshot.data ?? [];
 
-                      _presenter!.inCartItems = itemsWithSeller;
-
-                      String remoteTotalPrice =
-                          _presenter!.calculateTotalPrice();
-                      int remoteAmount = itemsWithSeller.length;
-                      int remoteCheckedCount = _presenter!.getCheckedCount();
-
-                      if (soluong != remoteAmount ||
-                          totalPrice != remoteTotalPrice ||
-                          checkedCount != remoteCheckedCount) {
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          setState(() {
-                            soluong = remoteAmount;
-                            totalPrice = remoteTotalPrice;
-                            checkedCount = remoteCheckedCount;
-                          });
-                        });
-                      }
+                      // ✅ FIX: Tách logic ra method riêng để tránh infinite rebuild
+                      _processCartData(itemsWithSeller);
 
                       if (itemsWithSeller.isEmpty) {
                         return const Center(child: Text('Không có gì ở đây'));
@@ -245,9 +245,11 @@ class _CartShoppingScreenState extends State<CartShoppingScreen>
 
   @override
   void onDeleteItem() {
-    setState(() {
-      totalPrice = _presenter!.calculateTotalPrice();
-    });
+    if (mounted) {
+      setState(() {
+        totalPrice = _presenter!.calculateTotalPrice();
+      });
+    }
   }
 
   @override
@@ -262,25 +264,31 @@ class _CartShoppingScreenState extends State<CartShoppingScreen>
 
   @override
   void onSelectItem() {
-    setState(() {
-      totalPrice = _presenter!.calculateTotalPrice();
-      // _selectAll = _cartSingleton.inCartItems.every((element) => element.isCheck);
-    });
+    if (mounted) {
+      setState(() {
+        totalPrice = _presenter!.calculateTotalPrice();
+        // _selectAll = _cartSingleton.inCartItems.every((element) => element.isCheck);
+      });
+    }
   }
 
   @override
   void onSelectAll() {
-    setState(() {
-      totalPrice = _presenter!.calculateTotalPrice();
-    });
+    if (mounted) {
+      setState(() {
+        totalPrice = _presenter!.calculateTotalPrice();
+      });
+    }
   }
 
   @override
   void onLoadDataSucceeded() {
-    setState(() {
-      // totalPrice = _presenter!.calculateTotalPrice();
-      // totalPrice = "0";
-    });
+    if (mounted) {
+      setState(() {
+        // totalPrice = _presenter!.calculateTotalPrice();
+        // totalPrice = "0";
+      });
+    }
   }
 
   @override
@@ -298,8 +306,10 @@ class _CartShoppingScreenState extends State<CartShoppingScreen>
 
   @override
   void onChangeItemAmount() {
-    setState(() {
-      totalPrice = _presenter!.calculateTotalPrice();
-    });
+    if (mounted) {
+      setState(() {
+        totalPrice = _presenter!.calculateTotalPrice();
+      });
+    }
   }
 }
