@@ -52,7 +52,7 @@ class EditProfileScreenPresenter {
     user!.name = fullName;
     user!.phone = phone;
     user!.dateOfBirth = birthDate;
-    user!.gender = isMale ? "Male" : "Female";
+    user!.gender = isMale ? "male" : "female";
 
     await _userRepo.updateUser(user!);
     await PrefService.saveUserData(userData: user!);

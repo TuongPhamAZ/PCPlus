@@ -160,7 +160,7 @@ class TestTool {
   }
 
   Future<void> createSampleItems() async {
-    final String jsonString = await rootBundle.loadString('lib/sample/test_samples/items_v2.json');
+    final String jsonString = await rootBundle.loadString('lib/sample/test_samples/items_v4.json');
     final List<dynamic> jsonList = jsonDecode(jsonString);
     final List<ItemModel> items = jsonList.map((raw) => ItemModel.fromJson("", raw)).toList();
 
@@ -278,5 +278,6 @@ class TestTool {
         }
       }
     }
+    debugPrint('Done!');
   }
 }
