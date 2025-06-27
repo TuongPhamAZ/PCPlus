@@ -161,11 +161,10 @@ class _SearchScreenState extends State<SearchScreen>
 
   // ✅ Helper method để so sánh list hiệu quả
   bool _listEquals(List<ItemWithSeller> list1, List<ItemWithSeller> list2) {
-    if (list1.length != list2.length) return false;
-    for (int i = 0; i < list1.length; i++) {
-      if (list1[i].item.itemID != list2[i].item.itemID) return false;
-    }
-    return true;
+    final idList1 = list1.map((e) => e.item.itemID).toSet();
+    final idList2 = list2.map((e) => e.item.itemID).toSet();
+
+    return idList1.length == idList2.length && idList1.containsAll(idList2);
   }
 
   @override
@@ -519,7 +518,7 @@ class _SearchScreenState extends State<SearchScreen>
     if (mounted) {
       setState(() {
         sortedItems =
-            _presenter!.filter(List<ItemWithSeller>.from(sortedItems));
+            _presenter!.filter(List<ItemWithSeller>.from(sortedItems), _searchController.text.trim());
       });
     }
   }
