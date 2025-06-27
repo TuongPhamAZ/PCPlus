@@ -426,8 +426,8 @@ class _SearchScreenState extends State<SearchScreen>
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         if (mounted) {
                           setState(() {
-                            sortedItems =
-                                List<ItemWithSeller>.from(itemsWithSeller);
+                            sortedItems = _presenter!.filter(List<ItemWithSeller>.from(itemsWithSeller), _searchController.text.trim());
+
                           });
                         }
                       });
