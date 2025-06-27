@@ -14,10 +14,6 @@ class SearchScreenPresenter {
   StreamController<List<ItemWithSeller>>? _searchItemController;
   StreamSubscription<List<ItemWithSeller>>? _searchItemSubscription;
 
-  // ✅ Thêm controller cho exact matching
-  StreamController<List<ItemWithSeller>>? _exactMatchController;
-  StreamSubscription<List<ItemWithSeller>>? _exactMatchSubscription;
-
   // ✅ Lưu danh sách fuzzy search ban đầu
   List<ItemWithSeller> _fuzzySearchResults = [];
 
@@ -27,6 +23,32 @@ class SearchScreenPresenter {
 
   // ✅ Getter để UI có thể lấy fuzzy search results để sort
   List<ItemWithSeller> get fuzzySearchResults => List.from(_fuzzySearchResults);
+
+  // ✅ Method để apply exact matching lên fuzzy search results
+  List<ItemWithSeller> _applyExactMatching(
+      List<ItemWithSeller> items, String searchQuery) {
+    if (searchQuery.isEmpty) return items;
+
+    final searchLower = searchQuery.toLowerCase();
+    return items.where((itemWithSeller) {
+      // Kiểm tra tên sản phẩm
+      if (itemWithSeller.item.name!.toLowerCase().contains(searchLower)) {
+        return true;
+      }
+
+      // Kiểm tra loại sản phẩm
+      if (itemWithSeller.item.itemType!.toLowerCase().contains(searchLower)) {
+        return true;
+      }
+
+      // Kiểm tra tên shop
+      if (itemWithSeller.seller.name!.toLowerCase().contains(searchLower)) {
+        return true;
+      }
+
+      return false;
+    }).toList();
+  }
 
   String filterMode = ItemFilter.DEFAULT;
   bool _isDisposed = false;
@@ -54,8 +76,6 @@ class SearchScreenPresenter {
       // ✅ FIX: Tạo controller mới cho mỗi lần search
       _searchItemController =
           StreamController<List<ItemWithSeller>>.broadcast();
-      _exactMatchController =
-          StreamController<List<ItemWithSeller>>.broadcast();
 
       // ✅ Luôn bắt đầu với fuzzy search để lưu danh sách gốc
       _searchItemSubscription =
@@ -67,11 +87,15 @@ class SearchScreenPresenter {
             final limitedData = data.take(100).toList();
             _fuzzySearchResults = limitedData; // ✅ Lưu danh sách fuzzy search
 
-            // ✅ CHỈ emit khi filter mode là DEFAULT hoặc chưa có filter nào được set
+            // ✅ CHỈ emit khi filter mode là DEFAULT
             if (filterMode == ItemFilter.DEFAULT) {
               _searchItemController!.add(limitedData);
+            } else if (filterMode == ItemFilter.RELATED) {
+              // ✅ Nếu đang ở mode RELATED, apply exact matching ngay
+              final exactMatchResults = _applyExactMatching(limitedData, input);
+              _searchItemController!.add(exactMatchResults);
             }
-            // ✅ Nếu filter khác DEFAULT, chờ user chọn filter mới emit
+            // ✅ Các filter khác sẽ được xử lý khi user trigger onChangeFilter
           }
         },
         onError: (error) {
@@ -82,29 +106,6 @@ class SearchScreenPresenter {
           }
         },
       );
-
-      // ✅ Nếu filter là RELATED, cũng tạo exact match stream
-      if (filterMode == ItemFilter.RELATED) {
-        _exactMatchSubscription =
-            _itemRepo.getItemsWithSellerExactMatch(searchQuery: input).listen(
-          (data) {
-            if (!_isDisposed &&
-                _searchItemController != null &&
-                !_searchItemController!.isClosed) {
-              final limitedData = data.take(100).toList();
-              _searchItemController!
-                  .add(limitedData); // ✅ Emit exact match results
-            }
-          },
-          onError: (error) {
-            if (!_isDisposed &&
-                _searchItemController != null &&
-                !_searchItemController!.isClosed) {
-              _searchItemController!.addError(error);
-            }
-          },
-        );
-      }
 
       _view.onFinishSearching();
     } catch (e) {
@@ -118,54 +119,21 @@ class SearchScreenPresenter {
   void setFilter(String filterMode) {
     this.filterMode = filterMode;
 
-    // ✅ Nếu chọn "Liên quan" và có search query, trigger exact matching
-    if (filterMode == ItemFilter.RELATED && _currentSearchQuery.isNotEmpty) {
-      _startExactMatching();
+    // ✅ Nếu chọn "Liên quan", apply exact matching lên fuzzy search results
+    if (filterMode == ItemFilter.RELATED &&
+        _currentSearchQuery.isNotEmpty &&
+        _fuzzySearchResults.isNotEmpty) {
+      // ✅ Apply exact matching lên fuzzy search results
+      final exactMatchResults =
+          _applyExactMatching(_fuzzySearchResults, _currentSearchQuery);
+
+      // ✅ Emit kết quả exact matching
+      if (_searchItemController != null && !_searchItemController!.isClosed) {
+        _searchItemController!.add(exactMatchResults);
+      }
     } else {
       // ✅ Với các filter khác, KHÔNG emit data, chỉ báo UI sort
-      // ✅ Cancel exact match subscription để không bị conflict
-      _exactMatchSubscription?.cancel();
-      _exactMatchSubscription = null;
-
-      // ✅ CHỈ thông báo cho UI sort, KHÔNG emit data mới
       _view.onChangeFilter();
-    }
-  }
-
-  // ✅ Method riêng để bắt đầu exact matching
-  Future<void> _startExactMatching() async {
-    if (_isDisposed || _currentSearchQuery.isEmpty) return;
-
-    try {
-      // Dispose exact match subscription cũ nếu có
-      await _exactMatchSubscription?.cancel();
-
-      // ✅ Emit empty list trước để clear UI
-      if (_searchItemController != null && !_searchItemController!.isClosed) {
-        _searchItemController!.add([]);
-      }
-
-      _exactMatchSubscription = _itemRepo
-          .getItemsWithSellerExactMatch(searchQuery: _currentSearchQuery)
-          .listen(
-        (data) {
-          if (!_isDisposed &&
-              _searchItemController != null &&
-              !_searchItemController!.isClosed) {
-            final limitedData = data.take(100).toList();
-            _searchItemController!.add(limitedData);
-          }
-        },
-        onError: (error) {
-          if (!_isDisposed &&
-              _searchItemController != null &&
-              !_searchItemController!.isClosed) {
-            _searchItemController!.addError(error);
-          }
-        },
-      );
-    } catch (e) {
-      // Error handling
     }
   }
 
@@ -229,13 +197,5 @@ class SearchScreenPresenter {
       await _searchItemController!.close();
     }
     _searchItemController = null;
-
-    await _exactMatchSubscription?.cancel();
-    _exactMatchSubscription = null;
-
-    if (_exactMatchController != null && !_exactMatchController!.isClosed) {
-      await _exactMatchController!.close();
-    }
-    _exactMatchController = null;
   }
 }
