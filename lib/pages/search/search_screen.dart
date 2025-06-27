@@ -33,7 +33,8 @@ class _SearchScreenState extends State<SearchScreen>
   bool _isFirstLoad = true;
   bool isSearching = false;
 
-  bool lienQuan = true;
+  // ✅ Thay đổi: Mặc định tất cả bộ lọc đều là false
+  bool lienQuan = false;
   bool moiNhat = false;
   bool gia = false;
   bool giaTang = false;
@@ -94,7 +95,10 @@ class _SearchScreenState extends State<SearchScreen>
         args.query = '';
       }
 
+      // ✅ Đầu tiên loadData để có fuzzy search results
       loadData();
+      // ✅ Sau đó set filter DEFAULT (nhưng không emit gì vì chưa có data)
+      _presenter!.setFilter(ItemFilter.DEFAULT);
       _isFirstLoad = false;
     }
   }
@@ -142,6 +146,17 @@ class _SearchScreenState extends State<SearchScreen>
 
     _debounceTimer = Timer(_debounceDuration, () {
       if (mounted) {
+        // ✅ Reset tất cả filter khi search mới
+        setState(() {
+          lienQuan = false;
+          moiNhat = false;
+          gia = false;
+          giaTang = false;
+        });
+
+        // ✅ Reset filter mode về DEFAULT
+        _presenter?.setFilter(ItemFilter.DEFAULT);
+
         developer.log('SearchScreen: Starting search for query: "$query"');
         _presenter?.handleSearch(query.trim());
       }
@@ -257,10 +272,12 @@ class _SearchScreenState extends State<SearchScreen>
                       if (isSearching) {
                         return;
                       }
-                      lienQuan = true;
-                      moiNhat = false;
-                      giaTang = false;
-                      gia = false;
+                      setState(() {
+                        lienQuan = true;
+                        moiNhat = false;
+                        giaTang = false;
+                        gia = false;
+                      });
                       _presenter!.setFilter(
                           lienQuan ? ItemFilter.RELATED : ItemFilter.DEFAULT);
                     },
@@ -302,10 +319,12 @@ class _SearchScreenState extends State<SearchScreen>
                       if (isSearching) {
                         return;
                       }
-                      lienQuan = false;
-                      moiNhat = true;
-                      giaTang = false;
-                      gia = false;
+                      setState(() {
+                        lienQuan = false;
+                        moiNhat = true;
+                        giaTang = false;
+                        gia = false;
+                      });
                       _presenter!.setFilter(
                           moiNhat ? ItemFilter.NEWEST : ItemFilter.DEFAULT);
                     },
@@ -349,10 +368,12 @@ class _SearchScreenState extends State<SearchScreen>
                       if (isSearching) {
                         return;
                       }
-                      giaTang = !giaTang;
-                      gia = true;
-                      lienQuan = false;
-                      moiNhat = false;
+                      setState(() {
+                        giaTang = !giaTang;
+                        gia = true;
+                        lienQuan = false;
+                        moiNhat = false;
+                      });
                       _presenter!.setFilter(giaTang
                           ? ItemFilter.PRICE_ASCENDING
                           : ItemFilter.PRICE_DESCENDING);
@@ -419,11 +440,25 @@ class _SearchScreenState extends State<SearchScreen>
 
                     final itemsWithSeller = snapshot.data ?? [];
 
+                    // ✅ Chỉ update sortedItems khi:
+                    // 1. Chưa có filter nào active và có data
+                    // 2. Hoặc filter là "Liên quan" (exact matching) - bất kể empty hay không
+                    final hasNonRelatedFilter = moiNhat || gia;
                     final needsUpdate =
                         sortedItems.length != itemsWithSeller.length ||
                             !_listEquals(sortedItems, itemsWithSeller);
 
-                    if (needsUpdate) {
+                    // ✅ Cho phép update khi:
+                    // - Filter "Liên quan" active: update bất kể empty hay không
+                    // - Không có filter nào active: chỉ update khi có data
+                    final shouldUpdate = needsUpdate &&
+                        ((lienQuan) || // Exact matching - luôn update
+                            (!hasNonRelatedFilter &&
+                                itemsWithSeller
+                                    .isNotEmpty) // Default - chỉ khi có data
+                        );
+
+                    if (shouldUpdate) {
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         if (mounted) {
                           setState(() {
@@ -434,7 +469,11 @@ class _SearchScreenState extends State<SearchScreen>
                       });
                     }
 
-                    if (sortedItems.isEmpty) {
+                    // ✅ Sử dụng sortedItems thay vì itemsWithSeller để hiển thị
+                    final displayItems =
+                        sortedItems.isNotEmpty ? sortedItems : itemsWithSeller;
+
+                    if (displayItems.isEmpty) {
                       return const Center(
                         child: Padding(
                           padding: EdgeInsets.all(32.0),
@@ -450,7 +489,7 @@ class _SearchScreenState extends State<SearchScreen>
                       children: [
                         // ✅ CRITICAL: Thay thế PaginatedListView bằng ListView.builder thực sự
                         Text(
-                          'Tìm thấy ${sortedItems.length} kết quả',
+                          'Tìm thấy ${displayItems.length} kết quả',
                           style: const TextStyle(
                             fontSize: 14,
                             color: Colors.grey,
@@ -463,7 +502,7 @@ class _SearchScreenState extends State<SearchScreen>
                           shrinkWrap: true,
                           physics:
                               const NeverScrollableScrollPhysics(), // Controlled by parent ScrollView
-                          itemCount: sortedItems.length,
+                          itemCount: displayItems.length,
                           // ✅ CRITICAL: addAutomaticKeepAlives: false để dispose widgets ngoài viewport
                           addAutomaticKeepAlives: false,
                           addRepaintBoundaries: true, // Tối ưu repaint
@@ -471,10 +510,10 @@ class _SearchScreenState extends State<SearchScreen>
                           itemBuilder: (context, index) {
                             // ✅ Lazy loading - chỉ build khi cần
                             return SuggestItemFactory.create(
-                                itemWithSeller: sortedItems[index],
+                                itemWithSeller: displayItems[index],
                                 command: SearchItemPressedCommand(
                                     presenter: _presenter!,
-                                    item: sortedItems[index]));
+                                    item: displayItems[index]));
                           },
                         ),
                       ],
@@ -518,8 +557,16 @@ class _SearchScreenState extends State<SearchScreen>
   Future<void> onChangeFilter() async {
     if (mounted) {
       setState(() {
-        sortedItems =
-            _presenter!.filter(List<ItemWithSeller>.from(sortedItems));
+        // ✅ KHÔNG apply filter nếu đang ở mode "Liên quan" (exact matching)
+        if (lienQuan) {
+          return; // Exit early, không làm gì cả
+        }
+
+        // ✅ Lấy fuzzy search results từ presenter và apply filter
+        final fuzzyResults = _presenter!.fuzzySearchResults;
+        if (fuzzyResults.isNotEmpty) {
+          sortedItems = _presenter!.filter(fuzzyResults);
+        }
       });
     }
   }
