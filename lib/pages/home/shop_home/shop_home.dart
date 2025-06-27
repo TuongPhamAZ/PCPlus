@@ -27,7 +27,6 @@ import '../../../models/shops/shop_model.dart';
 import '../../../models/users/user_model.dart';
 import '../../manage_product/edit_product/edit_product.dart';
 import '../../widgets/bottom/shop_bottom_bar.dart';
-import '../../widgets/paginated_list_view.dart';
 import '../../widgets/util_widgets.dart';
 import '../user_home/home.dart';
 
@@ -56,6 +55,7 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
   bool isBalanceVisible = false;
 
   final ValueNotifier<int> _voucherCount = ValueNotifier<int>(0);
+  int _productCount = 0;
 
   final ScrollController _scrollController = ScrollController();
 
@@ -395,7 +395,8 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
               ),
               const Gap(24),
 
-              Text('Danh mục sản phẩm', style: TextDecor.robo18Bold),
+              Text('Danh mục sản phẩm ($_productCount sản phẩm)',
+                  style: TextDecor.robo18Bold),
               const Gap(10),
               // SizedBox(
               //   height: 585,
@@ -413,27 +414,46 @@ class _ShopHomeState extends State<ShopHome> implements ShopHomeContract {
 
                     final itemsWithSeller = snapshot.data ?? [];
 
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted && _productCount != itemsWithSeller.length) {
+                        setState(() {
+                          _productCount = itemsWithSeller.length;
+                        });
+                      }
+                    });
+
                     if (itemsWithSeller.isEmpty) {
                       return const Center(child: Text('Không có sản phẩm nào'));
                     }
 
-                    return PaginatedListView<ItemWithSeller>(
-                      items: itemsWithSeller,
-                      itemsPerPage: 10,
-                      onPageChanged: (value) {
-                        _goToTop();
-                      },
-                      itemBuilder: (context, item) {
-                        return ShopItemFactory.create(
-                            data: item,
-                            editCommand: ShopHomeItemEditCommand(
-                                presenter: _presenter!, item: item),
-                            deleteCommand: ShopHomeItemDeleteCommand(
-                                presenter: _presenter!, item: item),
-                            pressedCommand: ShopHomeItemPressedCommand(
-                                presenter: _presenter!, item: item),
-                            isShop: isShop);
-                      },
+                    return Column(
+                      children: [
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics:
+                              const NeverScrollableScrollPhysics(), // Controlled by parent ScrollView
+                          itemCount: itemsWithSeller.length,
+                          // ✅ CRITICAL: addAutomaticKeepAlives: false để dispose widgets ngoài viewport
+                          addAutomaticKeepAlives: false,
+                          addRepaintBoundaries: true, // Tối ưu repaint
+                          addSemanticIndexes: false, // Giảm overhead
+                          itemBuilder: (context, index) {
+                            // ✅ Lazy loading - chỉ build khi cần
+                            return ShopItemFactory.create(
+                                data: itemsWithSeller[index],
+                                editCommand: ShopHomeItemEditCommand(
+                                    presenter: _presenter!,
+                                    item: itemsWithSeller[index]),
+                                deleteCommand: ShopHomeItemDeleteCommand(
+                                    presenter: _presenter!,
+                                    item: itemsWithSeller[index]),
+                                pressedCommand: ShopHomeItemPressedCommand(
+                                    presenter: _presenter!,
+                                    item: itemsWithSeller[index]),
+                                isShop: isShop);
+                          },
+                        ),
+                      ],
                     );
                   }),
             ],
