@@ -19,11 +19,11 @@ class PaginatedListView<T> extends StatefulWidget {
 }
 
 class _PaginatedListViewState<T> extends State<PaginatedListView<T>> {
+  late final ScrollController _scrollController;
   int _currentPage = 0;
 
-  int get totalPages => widget.items.isEmpty
-      ? 1
-      : (widget.items.length / widget.itemsPerPage).ceil();
+  int get totalPages =>
+      widget.items.isEmpty ? 1 : (widget.items.length / widget.itemsPerPage).ceil();
 
   List<T> get _currentItems {
     final total = widget.items.length;
@@ -40,11 +40,71 @@ class _PaginatedListViewState<T> extends State<PaginatedListView<T>> {
     return widget.items.sublist(start, end);
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   void _goToPage(int page) {
     if (page >= 0 && page < totalPages) {
       setState(() => _currentPage = page);
       widget.onPageChanged?.call(page);
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
     }
+  }
+
+  void _showPageInputDialog(BuildContext context) {
+    final TextEditingController _inputController =
+    TextEditingController(text: (_currentPage + 1).toString());
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Nhập số trang'),
+          content: TextField(
+            controller: _inputController,
+            keyboardType: TextInputType.number,
+            autofocus: true,
+            decoration: InputDecoration(
+              hintText: 'Từ 1 đến $totalPages',
+              border: const OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Hủy'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final input = int.tryParse(_inputController.text);
+                if (input == null || input < 1 || input > totalPages) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Vui lòng nhập số từ 1 đến $totalPages')),
+                  );
+                  return;
+                }
+                Navigator.pop(context);
+                _goToPage(input - 1);
+              },
+              child: const Text('Đi đến'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -59,18 +119,16 @@ class _PaginatedListViewState<T> extends State<PaginatedListView<T>> {
       return const SizedBox();
     }
 
-    final currentItems = _currentItems;
-
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         ListView.builder(
+          controller: _scrollController,
+          itemCount: _currentItems.length,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: currentItems.length,
-          itemBuilder: (context, index) {
-            return widget.itemBuilder(context, currentItems[index]);
-          },
+          itemBuilder: (context, index) =>
+              widget.itemBuilder(context, _currentItems[index]),
         ),
         const SizedBox(height: 12),
         if (totalPages > 1) _buildPaginationControls(context),
@@ -79,129 +137,115 @@ class _PaginatedListViewState<T> extends State<PaginatedListView<T>> {
   }
 
   Widget _buildPaginationControls(BuildContext context) {
-    const double spacing = 16; // Khoảng cách giữa các số
-    const double minTouchTarget =
-        44; // Vùng touch tối thiểu theo Material Design
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const double buttonWidth = 44;
+        const double spacing = 4;
+        const double arrowButtonsWidth = buttonWidth * 4 + spacing * 6;
 
-    List<Widget> pageButtons = [];
+        final double availableWidth = constraints.maxWidth - arrowButtonsWidth;
+        final int rawButtons = (availableWidth / (buttonWidth + spacing)).floor();
+        final int maxPageButtons = rawButtons.clamp(1, totalPages);
 
-    Widget addPageNumber(int page) {
-      final isActive = page == _currentPage;
-      return GestureDetector(
-        onTap: () => _goToPage(page),
-        child: Container(
-          constraints: const BoxConstraints(
-              minWidth: minTouchTarget, minHeight: minTouchTarget),
-          alignment: Alignment.center,
-          child: Text(
-            '${page + 1}',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-              color: isActive ? Colors.blue : Colors.black87,
+        List<Widget> pageButtons = [];
+
+        void addPageButton(int page) {
+          final isActive = page == _currentPage;
+          pageButtons.add(
+            SizedBox(
+              height: 36,
+              width: buttonWidth,
+              child: OutlinedButton(
+                onPressed: () => _goToPage(page),
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: isActive ? Colors.blue : null,
+                  foregroundColor: isActive ? Colors.white : null,
+                  padding: EdgeInsets.zero,
+                ),
+                child: Text('${page + 1}'),
+              ),
             ),
-          ),
-        ),
-      );
-    }
+          );
+        }
 
-    // Logic hiển thị tối đa 3 số
-    if (totalPages <= 3) {
-      // Nếu có ≤ 3 trang: hiển thị tất cả
-      for (int i = 0; i < totalPages; i++) {
-        pageButtons.add(addPageNumber(i));
-      }
-    } else {
-      // Nếu có > 3 trang: hiển thị theo pattern
-      if (_currentPage <= 1) {
-        // Ở đầu: 1 2 ... last
-        pageButtons.add(addPageNumber(0));
-        pageButtons.add(addPageNumber(1));
-        pageButtons.add(_buildEllipsis());
-        pageButtons.add(addPageNumber(totalPages - 1));
-      } else if (_currentPage >= totalPages - 2) {
-        // Ở cuối: 1 ... (last-1) last
-        pageButtons.add(addPageNumber(0));
-        pageButtons.add(_buildEllipsis());
-        pageButtons.add(addPageNumber(totalPages - 2));
-        pageButtons.add(addPageNumber(totalPages - 1));
-      } else {
-        // Ở giữa: 1 ... current ... last
-        pageButtons.add(addPageNumber(0));
-        pageButtons.add(_buildEllipsis());
-        pageButtons.add(addPageNumber(_currentPage));
-        pageButtons.add(_buildEllipsis());
-        pageButtons.add(addPageNumber(totalPages - 1));
-      }
-    }
+        int start = 0;
+        int end = totalPages - 1;
 
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        if (totalPages > maxPageButtons) {
+          start = (_currentPage - (maxPageButtons ~/ 2))
+              .clamp(0, totalPages - maxPageButtons);
+          end = (start + maxPageButtons - 1).clamp(0, totalPages - 1);
+        }
+
+        if (start > 0) {
+          addPageButton(0);
+          if (start > 1) pageButtons.add(_buildEllipsis());
+        }
+
+        for (int i = start; i <= end; i++) {
+          addPageButton(i);
+        }
+
+        if (end < totalPages - 1) {
+          if (end < totalPages - 2) pageButtons.add(_buildEllipsis());
+          addPageButton(totalPages - 1);
+        }
+
+        return Column(
           children: [
-            // Nút về đầu
-            _buildArrowButton(Icons.first_page, () => _goToPage(0),
-                enabled: _currentPage > 0),
-            const SizedBox(width: 8),
-
-            // Nút về trước
-            _buildArrowButton(
-                Icons.chevron_left, () => _goToPage(_currentPage - 1),
-                enabled: _currentPage > 0),
-            const SizedBox(width: 16),
-
-            // Các số trang
             Wrap(
-              spacing: spacing,
               alignment: WrapAlignment.center,
-              children: pageButtons,
+              spacing: spacing,
+              runSpacing: spacing,
+              children: [
+                _buildIconButton(Icons.first_page, () => _goToPage(0),
+                    enabled: _currentPage > 0),
+                _buildIconButton(Icons.chevron_left, () => _goToPage(_currentPage - 1),
+                    enabled: _currentPage > 0),
+                ...pageButtons,
+                _buildIconButton(Icons.chevron_right, () => _goToPage(_currentPage + 1),
+                    enabled: _currentPage < totalPages - 1),
+                _buildIconButton(Icons.last_page, () => _goToPage(totalPages - 1),
+                    enabled: _currentPage < totalPages - 1),
+              ],
             ),
-
-            const SizedBox(width: 16),
-
-            // Nút tiếp theo
-            _buildArrowButton(
-                Icons.chevron_right, () => _goToPage(_currentPage + 1),
-                enabled: _currentPage < totalPages - 1),
-            const SizedBox(width: 8),
-
-            // Nút về cuối
-            _buildArrowButton(Icons.last_page, () => _goToPage(totalPages - 1),
-                enabled: _currentPage < totalPages - 1),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text("Trang: "),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.edit, size: 18),
+                  label: const Text("Nhập số"),
+                  onPressed: () => _showPageInputDialog(context),
+                ),
+              ],
+            ),
           ],
-        ),
-        const SizedBox(height: 12),
-      ],
+        );
+      },
     );
   }
 
-  Widget _buildArrowButton(IconData icon, VoidCallback onPressed,
+  Widget _buildIconButton(IconData icon, VoidCallback onPressed,
       {bool enabled = true}) {
     return SizedBox(
       height: 36,
-      width: 36,
+      width: 44,
       child: IconButton(
-        icon: Icon(icon, size: 20),
+        icon: Icon(icon),
         onPressed: enabled ? onPressed : null,
         padding: EdgeInsets.zero,
-        iconSize: 20,
-        color: enabled ? Colors.black87 : Colors.grey,
       ),
     );
   }
 
   Widget _buildEllipsis() {
     return Container(
-      constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+      height: 36,
+      width: 24,
       alignment: Alignment.center,
-      child: const Text(
-        '...',
-        style: TextStyle(
-          fontSize: 16,
-          color: Colors.grey,
-        ),
-      ),
+      child: const Text('...', style: TextStyle(fontSize: 16)),
     );
   }
 }
