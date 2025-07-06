@@ -35,6 +35,7 @@ import 'package:pcplus/pages/voucher/voucherDetail/voucher_detail.dart';
 import 'package:pcplus/pages/conversations/conversations.dart';
 import 'package:pcplus/pages/chat_detail/chat_detail.dart';
 import 'package:pcplus/pages/image_search_result/image_search_result.dart';
+import 'package:pcplus/pages/image_crop/image_crop_screen.dart';
 import 'package:pcplus/sample/comment.dart';
 import 'package:pcplus/sample/voice_search.dart';
 

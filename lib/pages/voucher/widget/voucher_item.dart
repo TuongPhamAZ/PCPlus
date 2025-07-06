@@ -32,9 +32,16 @@ class VoucherItem extends StatelessWidget {
     return DateFormat('dd/MM/yyyy').format(date);
   }
 
+  String _formatStartDate(DateTime date) {
+    return DateFormat('dd/MM/yyyy HH:mm').format(date);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final isExpired = voucher.endDate!.isBefore(DateTime.now());
+    final now = DateTime.now();
+    final isExpired = voucher.endDate!.isBefore(now);
+    final isNotStarted =
+        voucher.startDate != null && voucher.startDate!.isAfter(now);
     final isOutOfStock = voucher.quantity! <= 0;
 
     return Container(
@@ -64,10 +71,15 @@ class VoucherItem extends StatelessWidget {
                     gradient: LinearGradient(
                       colors: isExpired || isOutOfStock
                           ? [Colors.grey.shade300, Colors.grey.shade400]
-                          : [
-                              Palette.primaryColor.withOpacity(0.8),
-                              Palette.main1.withOpacity(0.9),
-                            ],
+                          : isNotStarted
+                              ? [
+                                  Colors.orange.shade400.withOpacity(0.8),
+                                  Colors.orange.shade600.withOpacity(0.9)
+                                ]
+                              : [
+                                  Palette.primaryColor.withOpacity(0.8),
+                                  Palette.main1.withOpacity(0.9),
+                                ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -172,9 +184,11 @@ class VoucherItem extends StatelessWidget {
                                 ),
                                 const Spacer(),
 
-                                // Expiry date
+                                // Date info
                                 Text(
-                                  'HSD: ${_formatDate(voucher.endDate!)}',
+                                  isNotStarted
+                                      ? 'Hiệu lực: ${_formatStartDate(voucher.startDate!)}'
+                                      : 'HSD: ${_formatDate(voucher.endDate!)}',
                                   style: TextDecor.robo11.copyWith(
                                     color: Colors.white.withOpacity(0.9),
                                   ),

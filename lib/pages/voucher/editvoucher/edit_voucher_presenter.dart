@@ -17,6 +17,7 @@ class EditVoucherPresenter {
     required String name,
     required String description,
     required int condition,
+    required DateTime startDate,
     required DateTime endDate,
     required int discount,
     required int quantity,
@@ -55,20 +56,28 @@ class EditVoucherPresenter {
         return;
       }
 
-      if (endDate.isBefore(DateTime.now())) {
+      if (startDate.isBefore(DateTime.now())) {
         contract.onPopContext();
-        contract.onEditFailed("Ngày kết thúc phải sau ngày hiện tại");
+        contract.onEditFailed("Thời gian bắt đầu phải sau thời gian hiện tại");
+        return;
+      }
+
+      if (endDate.isBefore(startDate)) {
+        contract.onPopContext();
+        contract.onEditFailed("Ngày kết thúc phải sau thời gian bắt đầu");
         return;
       }
 
       // Mock update - replace with actual API call
       voucher.name = name;
       voucher.description = description;
+      voucher.startDate = startDate;
       voucher.endDate = endDate;
       voucher.discount = discount;
       voucher.condition = condition;
       voucher.quantity = quantity;
-      await _voucherRepo.updateVoucher(SessionController.getInstance().userID!, voucher);
+      await _voucherRepo.updateVoucher(
+          SessionController.getInstance().userID!, voucher);
 
       contract.onPopContext();
       contract.onEditSucceeded();

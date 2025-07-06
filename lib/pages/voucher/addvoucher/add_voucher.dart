@@ -30,8 +30,10 @@ class _AddVoucherState extends State<AddVoucher> implements AddVoucherContract {
   final TextEditingController _conditionController = TextEditingController();
   final TextEditingController _discountController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
+  final TextEditingController _startDateController = TextEditingController();
   final TextEditingController _endDateController = TextEditingController();
 
+  DateTime? _selectedStartDate;
   DateTime? _selectedEndDate;
 
   @override
@@ -47,8 +49,78 @@ class _AddVoucherState extends State<AddVoucher> implements AddVoucherContract {
     _conditionController.dispose();
     _discountController.dispose();
     _quantityController.dispose();
+    _startDateController.dispose();
     _endDateController.dispose();
     super.dispose();
+  }
+
+  // Hàm chọn ngày và giờ bắt đầu
+  Future<void> _selectStartDate() async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: _selectedStartDate ?? DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Palette.primaryColor,
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: Palette.primaryColor,
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedDate != null) {
+      // Sau khi chọn ngày, chọn giờ
+      final TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime:
+            TimeOfDay.fromDateTime(_selectedStartDate ?? DateTime.now()),
+        builder: (context, child) {
+          return Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: const ColorScheme.light(
+                primary: Palette.primaryColor,
+                onPrimary: Colors.white,
+                onSurface: Colors.black,
+              ),
+              textButtonTheme: TextButtonThemeData(
+                style: TextButton.styleFrom(
+                  foregroundColor: Palette.primaryColor,
+                ),
+              ),
+            ),
+            child: child!,
+          );
+        },
+      );
+
+      if (pickedTime != null) {
+        final DateTime selectedDateTime = DateTime(
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
+
+        setState(() {
+          _selectedStartDate = selectedDateTime;
+          _startDateController.text =
+              DateFormat('dd/MM/yyyy HH:mm').format(selectedDateTime);
+        });
+      }
+    }
   }
 
   // Hàm chọn ngày kết thúc
@@ -57,7 +129,7 @@ class _AddVoucherState extends State<AddVoucher> implements AddVoucherContract {
       context: context,
       initialDate:
           _selectedEndDate ?? DateTime.now().add(const Duration(days: 30)),
-      firstDate: DateTime.now(),
+      firstDate: _selectedStartDate ?? DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
       builder: (context, child) {
         return Theme(
@@ -194,6 +266,8 @@ class _AddVoucherState extends State<AddVoucher> implements AddVoucherContract {
                 _buildDiscountField(),
                 const Gap(20),
                 _buildQuantityField(),
+                const Gap(20),
+                _buildStartDateField(),
                 const Gap(20),
                 _buildEndDateField(),
                 const Gap(40),
@@ -382,6 +456,47 @@ class _AddVoucherState extends State<AddVoucher> implements AddVoucherContract {
     );
   }
 
+  Widget _buildStartDateField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Thời gian bắt đầu",
+          style: TextDecor.robo16Medi.copyWith(
+            color: Colors.black87,
+          ),
+        ),
+        const Gap(4),
+        Text(
+          "Chọn ngày và giờ bắt đầu hiệu lực",
+          style: TextDecor.robo14.copyWith(
+            color: Colors.grey[600],
+          ),
+        ),
+        const Gap(8),
+        CustomTextField(
+          labelText: "Chọn thời gian bắt đầu",
+          controller: _startDateController,
+          readOnly: true,
+          onTap: _selectStartDate,
+          suffixIcon: IconButton(
+            icon: const Icon(
+              Icons.access_time,
+              color: Palette.primaryColor,
+            ),
+            onPressed: _selectStartDate,
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Vui lòng chọn thời gian bắt đầu';
+            }
+            return null;
+          },
+        ),
+      ],
+    );
+  }
+
   Widget _buildEndDateField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -442,6 +557,7 @@ class _AddVoucherState extends State<AddVoucher> implements AddVoucherContract {
               name: _nameController.text.trim(),
               description: _descriptionController.text.trim(),
               condition: _parseFormattedNumber(_conditionController.text),
+              startDate: _selectedStartDate!,
               endDate: _selectedEndDate!,
               discount: _parseFormattedNumber(_discountController.text),
               quantity: int.parse(_quantityController.text.trim()),
@@ -487,7 +603,9 @@ class _AddVoucherState extends State<AddVoucher> implements AddVoucherContract {
       _conditionController.clear();
       _discountController.clear();
       _quantityController.clear();
+      _startDateController.clear();
       _endDateController.clear();
+      _selectedStartDate = null;
       _selectedEndDate = null;
     });
   }

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:pcplus/component/voucher_argument.dart';
@@ -29,8 +28,6 @@ class _ListVoucherState extends State<ListVoucher>
   ListVoucherPresenter? _presenter;
   bool isShop = false;
   String selectedFilter = 'all';
-  List<VoucherModel> _mockVouchers = [];
-  List<VoucherModel> _filteredVouchers = [];
   bool _isFirstLoad = true;
 
   @override
@@ -66,97 +63,41 @@ class _ListVoucherState extends State<ListVoucher>
     }
   }
 
-  void _initMockVouchers() {
-    _mockVouchers = [
-      VoucherModel(
-        voucherID: "1",
-        name: "Giảm 50k",
-        description: "Voucher giảm 50,000đ cho đơn hàng từ 200,000đ",
-        condition: 200000,
-        endDate: DateTime.now().add(const Duration(days: 30)),
-        discount: 50000,
-        quantity: 100,
-      ),
-      VoucherModel(
-        voucherID: "2",
-        name: "Giảm 20%",
-        description: "Voucher giảm 20% tối đa 100,000đ",
-        condition: 500000,
-        endDate: DateTime.now().add(const Duration(days: 15)),
-        discount: 100000,
-        quantity: 50,
-      ),
-      VoucherModel(
-        voucherID: "3",
-        name: "Freeship",
-        description: "Miễn phí vận chuyển cho đơn từ 100,000đ",
-        condition: 100000,
-        endDate: DateTime.now().add(const Duration(days: 7)),
-        discount: 30000,
-        quantity: 0, // Out of stock
-      ),
-      VoucherModel(
-        voucherID: "4",
-        name: "Black Friday",
-        description: "Giảm 300,000đ cho đơn hàng trên 1 triệu",
-        condition: 1000000,
-        endDate: DateTime.now().subtract(const Duration(days: 1)), // Expired
-        discount: 300000,
-        quantity: 25,
-      ),
-      VoucherModel(
-        voucherID: "5",
-        name: "Sinh nhật shop",
-        description: "Voucher sinh nhật giảm 100,000đ",
-        condition: 300000,
-        endDate: DateTime.now().add(const Duration(days: 60)),
-        discount: 100000,
-        quantity: 200,
-      ),
-      VoucherModel(
-        voucherID: "6",
-        name: "Mùa hè sôi động",
-        description: "Voucher mùa hè giảm 15% tối đa 75,000đ",
-        condition: 150000,
-        endDate: DateTime.now().add(const Duration(days: 45)),
-        discount: 75000,
-        quantity: 80,
-      ),
-    ];
-  }
-
-  void _applyFilter() {
-    setState(() {
-      if (!isShop) {
-        // Người dùng thường chỉ thấy voucher còn hoạt động
-        _filteredVouchers = _mockVouchers.where((voucher) {
-          return voucher.endDate!.isAfter(DateTime.now()) &&
-              voucher.quantity! > 0;
-        }).toList();
-      } else {
-        // Shop owner có thể filter theo lựa chọn
-        switch (selectedFilter) {
-          case 'active':
-            _filteredVouchers = _mockVouchers.where((voucher) {
-              return voucher.endDate!.isAfter(DateTime.now()) &&
-                  voucher.quantity! > 0;
-            }).toList();
-            break;
-          case 'expired':
-            _filteredVouchers = _mockVouchers.where((voucher) {
-              return voucher.endDate!.isBefore(DateTime.now());
-            }).toList();
-            break;
-          case 'out_of_stock':
-            _filteredVouchers = _mockVouchers.where((voucher) {
-              return voucher.quantity! <= 0;
-            }).toList();
-            break;
-          default:
-            _filteredVouchers = List.from(_mockVouchers);
-        }
+  List<VoucherModel> _getFilteredVouchers(List<VoucherModel> vouchers) {
+    if (!isShop) {
+      // Người dùng thường thấy voucher còn hoạt động và voucher chưa bắt đầu (để biết thời gian săn sale)
+      final now = DateTime.now();
+      return vouchers.where((voucher) {
+        final isNotExpired = voucher.endDate!.isAfter(now);
+        final hasQuantity = voucher.quantity! > 0;
+        return isNotExpired &&
+            hasQuantity; // Bao gồm cả voucher chưa bắt đầu và đang hoạt động
+      }).toList();
+    } else {
+      // Shop owner có thể filter theo lựa chọn
+      switch (selectedFilter) {
+        case 'active':
+          return vouchers.where((voucher) {
+            return voucher.isValid();
+          }).toList();
+        case 'pending':
+          return vouchers.where((voucher) {
+            return voucher.startDate != null &&
+                voucher.startDate!.isAfter(DateTime.now()) &&
+                voucher.quantity! > 0;
+          }).toList();
+        case 'expired':
+          return vouchers.where((voucher) {
+            return voucher.endDate!.isBefore(DateTime.now());
+          }).toList();
+        case 'out_of_stock':
+          return vouchers.where((voucher) {
+            return voucher.quantity! <= 0;
+          }).toList();
+        default:
+          return List.from(vouchers);
       }
-    });
+    }
   }
 
   @override
@@ -205,8 +146,7 @@ class _ListVoucherState extends State<ListVoucher>
           // Filter section (chỉ hiển thị cho shop)
           if (isShop) _buildFilterSection(),
 
-          // Statistics section (chỉ hiển thị cho shop)
-          if (isShop) _buildStatisticsSection(),
+          // Content will be built in StreamBuilder below
 
           // Voucher list
           Expanded(
@@ -225,37 +165,43 @@ class _ListVoucherState extends State<ListVoucher>
                     return _buildEmptyState();
                   }
 
-                  // Gán mock chỉ khi data thay đổi
-                  if (!listEquals(_mockVouchers, vouchers)) {
-                    _mockVouchers = vouchers;
+                  // Get filtered vouchers
+                  final filteredVouchers = _getFilteredVouchers(vouchers);
 
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      _applyFilter();
-                    });
-                  }
+                  return Column(
+                    children: [
+                      // Statistics section (chỉ hiển thị cho shop)
+                      if (isShop) _buildStatisticsSection(vouchers),
 
-                  return Container(
-                    margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                    child: ListView.builder(
-                      itemCount: _filteredVouchers.length,
-                      itemBuilder: (context, index) {
-                        final voucher = _filteredVouchers[index];
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 16),
-                          child: VoucherItem(
-                            voucher: voucher,
-                            isShop: isShop,
-                            onTap: () => _presenter!.handleViewVoucher(voucher),
-                            onEdit: isShop
-                                ? () => _presenter!.handleEditVoucher(voucher)
-                                : null,
-                            onDelete: isShop
-                                ? () => _showDeleteVoucherDialog(voucher)
-                                : null,
+                      // Voucher list
+                      Expanded(
+                        child: Container(
+                          margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                          child: ListView.builder(
+                            itemCount: filteredVouchers.length,
+                            itemBuilder: (context, index) {
+                              final voucher = filteredVouchers[index];
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 16),
+                                child: VoucherItem(
+                                  voucher: voucher,
+                                  isShop: isShop,
+                                  onTap: () =>
+                                      _presenter!.handleViewVoucher(voucher),
+                                  onEdit: isShop
+                                      ? () =>
+                                          _presenter!.handleEditVoucher(voucher)
+                                      : null,
+                                  onDelete: isShop
+                                      ? () => _showDeleteVoucherDialog(voucher)
+                                      : null,
+                                ),
+                              );
+                            },
                           ),
-                        );
-                      },
-                    ),
+                        ),
+                      ),
+                    ],
                   );
                 }),
           ),
@@ -294,6 +240,7 @@ class _ListVoucherState extends State<ListVoucher>
             children: [
               _buildFilterChip('all', 'Tất cả'),
               _buildFilterChip('active', 'Đang hoạt động'),
+              _buildFilterChip('pending', 'Chưa bắt đầu'),
               _buildFilterChip('expired', 'Hết hạn'),
               _buildFilterChip('out_of_stock', 'Hết lượt'),
             ],
@@ -310,10 +257,11 @@ class _ListVoucherState extends State<ListVoucher>
         setState(() {
           selectedFilter = value;
         });
-        _applyFilter();
+        // Filter will be applied in StreamBuilder
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        margin: const EdgeInsets.only(bottom: 10),
         decoration: BoxDecoration(
           color: isSelected ? Palette.primaryColor : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(20),
@@ -332,14 +280,18 @@ class _ListVoucherState extends State<ListVoucher>
     );
   }
 
-  Widget _buildStatisticsSection() {
-    final totalVouchers = _mockVouchers.length;
-    final activeVouchers = _mockVouchers
-        .where((v) => v.endDate!.isAfter(DateTime.now()) && v.quantity! > 0)
+  Widget _buildStatisticsSection(List<VoucherModel> vouchers) {
+    final totalVouchers = vouchers.length;
+    final activeVouchers = vouchers.where((v) => v.isValid()).length;
+    final pendingVouchers = vouchers
+        .where((v) =>
+            v.startDate != null &&
+            v.startDate!.isAfter(DateTime.now()) &&
+            v.quantity! > 0)
         .length;
     final expiredVouchers =
-        _mockVouchers.where((v) => v.endDate!.isBefore(DateTime.now())).length;
-    final outOfStockVouchers = _mockVouchers
+        vouchers.where((v) => v.endDate!.isBefore(DateTime.now())).length;
+    final outOfStockVouchers = vouchers
         .where((v) => v.quantity! <= 0 && v.endDate!.isAfter(DateTime.now()))
         .length;
 
@@ -367,6 +319,7 @@ class _ListVoucherState extends State<ListVoucher>
             ),
           ),
           const Gap(12),
+          // First row: Total, Active, Pending
           Row(
             children: [
               Expanded(
@@ -389,6 +342,20 @@ class _ListVoucherState extends State<ListVoucher>
               const Gap(8),
               Expanded(
                 child: _buildStatCard(
+                  'Chưa bắt đầu',
+                  pendingVouchers.toString(),
+                  Colors.amber,
+                  Icons.schedule_send,
+                ),
+              ),
+            ],
+          ),
+          const Gap(8),
+          // Second row: Expired, Out of stock
+          Row(
+            children: [
+              Expanded(
+                child: _buildStatCard(
                   'Hết hạn',
                   expiredVouchers.toString(),
                   Colors.red,
@@ -404,6 +371,9 @@ class _ListVoucherState extends State<ListVoucher>
                   Icons.inventory,
                 ),
               ),
+              const Gap(8),
+              // Empty space to balance the row
+              const Expanded(child: SizedBox()),
             ],
           ),
         ],
@@ -449,29 +419,6 @@ class _ListVoucherState extends State<ListVoucher>
     );
   }
 
-  Widget _buildVoucherList() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-      child: ListView.builder(
-        itemCount: _filteredVouchers.length,
-        itemBuilder: (context, index) {
-          final voucher = _filteredVouchers[index];
-          return Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            child: VoucherItem(
-              voucher: voucher,
-              isShop: isShop,
-              onTap: () => _presenter!.handleViewVoucher(voucher),
-              onEdit:
-                  isShop ? () => _presenter!.handleEditVoucher(voucher) : null,
-              onDelete: isShop ? () => _showDeleteVoucherDialog(voucher) : null,
-            ),
-          );
-        },
-      ),
-    );
-  }
-
   Widget _buildEmptyState() {
     String message;
     IconData icon;
@@ -486,6 +433,10 @@ class _ListVoucherState extends State<ListVoucher>
         case 'active':
           message = 'Không có voucher nào đang hoạt động';
           icon = Icons.check_circle_outline;
+          break;
+        case 'pending':
+          message = 'Không có voucher nào chưa bắt đầu';
+          icon = Icons.schedule_send;
           break;
         case 'expired':
           message = 'Không có voucher nào hết hạn';

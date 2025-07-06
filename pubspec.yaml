@@ -82,6 +82,8 @@ flutter:
   #  - assets/icons/
     - assets/images/
     - lib/sample/test_samples/
+    - address.json
+    - property.json
   #  - assets/fonts/
  # fonts:
   #  - family: Lexend

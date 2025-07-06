@@ -144,6 +144,25 @@ class _ShopInformationScreenState extends State<ShopInformationScreen>
                   onTapOutside: (event) {
                     FocusScope.of(context).unfocus();
                   },
+                  controller: _phoneNumberController,
+                  style: TextDecor.robo16Medi,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    label: Text(
+                      'Số điện thoại',
+                      style: TextDecor.profileHintText,
+                    ),
+                    hintStyle: TextDecor.profileHintText,
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.all(0),
+                  ),
+                ),
+              ),
+              BackgroundContainer(
+                child: TextField(
+                  onTapOutside: (event) {
+                    FocusScope.of(context).unfocus();
+                  },
                   readOnly: true,
                   onTap: _showLocationPicker,
                   controller: _locationController,
@@ -160,33 +179,14 @@ class _ShopInformationScreenState extends State<ShopInformationScreen>
                   ),
                 ),
               ),
-              BackgroundContainer(
-                child: TextField(
-                  onTapOutside: (event) {
-                    FocusScope.of(context).unfocus();
-                  },
-                  controller: _phoneNumberController,
-                  style: TextDecor.robo16Medi,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    label: Text(
-                      'Số điện thoại',
-                      style: TextDecor.profileHintText,
-                    ),
-                    hintStyle: TextDecor.profileHintText,
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.all(0),
-                  ),
-                ),
-              ),
               const Gap(30),
               ButtonProfile(
                 name: 'HOÀN TẤT',
                 onPressed: () {
                   _presenter?.handleConfirm(
-                      name: _shopNameController.text.trim(),
-                      location: _locationController.text.trim(),
-                      phone: _phoneNumberController.text.trim(),
+                    name: _shopNameController.text.trim(),
+                    location: _locationController.text.trim(),
+                    phone: _phoneNumberController.text.trim(),
                   );
                 },
               ),

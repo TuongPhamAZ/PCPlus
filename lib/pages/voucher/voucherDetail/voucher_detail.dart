@@ -68,6 +68,10 @@ class _VoucherDetailState extends State<VoucherDetail>
     return DateFormat('dd/MM/yyyy').format(date);
   }
 
+  String _formatStartDate(DateTime date) {
+    return DateFormat('dd/MM/yyyy HH:mm').format(date);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -135,7 +139,10 @@ class _VoucherDetailState extends State<VoucherDetail>
   }
 
   Widget _buildVoucherCard() {
-    final isExpired = _voucher!.endDate!.isBefore(DateTime.now());
+    final now = DateTime.now();
+    final isExpired = _voucher!.endDate!.isBefore(now);
+    final isNotStarted =
+        _voucher!.startDate != null && _voucher!.startDate!.isAfter(now);
     final isOutOfStock = _voucher!.quantity! <= 0;
 
     return Container(
@@ -158,10 +165,12 @@ class _VoucherDetailState extends State<VoucherDetail>
             gradient: LinearGradient(
               colors: isExpired || isOutOfStock
                   ? [Colors.grey.shade400, Colors.grey.shade500]
-                  : [
-                      Palette.primaryColor,
-                      Palette.main1,
-                    ],
+                  : isNotStarted
+                      ? [Colors.orange.shade400, Colors.orange.shade600]
+                      : [
+                          Palette.primaryColor,
+                          Palette.main1,
+                        ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -231,45 +240,79 @@ class _VoucherDetailState extends State<VoucherDetail>
                     const Spacer(),
 
                     // Bottom info
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Column(
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              'Số lượng còn lại',
-                              style: TextDecor.robo12.copyWith(
-                                color: Colors.white.withOpacity(0.8),
-                              ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Số lượng còn lại',
+                                  style: TextDecor.robo12.copyWith(
+                                    color: Colors.white.withOpacity(0.8),
+                                  ),
+                                ),
+                                Text(
+                                  '${_voucher!.quantity}',
+                                  style: TextDecor.robo16Medi.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
-                            Text(
-                              '${_voucher!.quantity}',
-                              style: TextDecor.robo16Medi.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  'Hạn sử dụng',
+                                  style: TextDecor.robo12.copyWith(
+                                    color: Colors.white.withOpacity(0.8),
+                                  ),
+                                ),
+                                Text(
+                                  _formatDate(_voucher!.endDate!),
+                                  style: TextDecor.robo16Medi.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              'Hạn sử dụng',
-                              style: TextDecor.robo12.copyWith(
+                        if (_voucher!.startDate != null) ...[
+                          const Gap(12),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.access_time,
                                 color: Colors.white.withOpacity(0.8),
+                                size: 16,
                               ),
-                            ),
-                            Text(
-                              _formatDate(_voucher!.endDate!),
-                              style: TextDecor.robo16Medi.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                              const Gap(8),
+                              Row(
+                                children: [
+                                  Text(
+                                    'Hiệu lực từ: ',
+                                    style: TextDecor.robo14.copyWith(
+                                      color: Colors.white.withOpacity(0.9),
+                                    ),
+                                  ),
+                                  Text(
+                                    _formatStartDate(_voucher!.startDate!),
+                                    style: TextDecor.robo16Medi.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
-                        ),
+                            ],
+                          ),
+                        ],
                       ],
                     ),
                   ],
@@ -290,11 +333,11 @@ class _VoucherDetailState extends State<VoucherDetail>
                         vertical: 10,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.red,
+                        color: isNotStarted ? Colors.orange : Colors.red,
                         borderRadius: BorderRadius.circular(25),
                       ),
                       child: Text(
-                        isExpired ? 'HẾT HẠN' : 'HẾT LƯỢT',
+                        'HẾT HẠN',
                         style: TextDecor.robo16Medi.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -339,6 +382,20 @@ class _VoucherDetailState extends State<VoucherDetail>
             icon: Icons.description,
             title: 'Mô tả',
             content: _voucher!.description ?? '',
+          ),
+          if (_voucher!.startDate != null) ...[
+            const Gap(16),
+            _buildInfoRow(
+              icon: Icons.access_time,
+              title: 'Thời gian bắt đầu',
+              content: _formatStartDate(_voucher!.startDate!),
+            ),
+          ],
+          const Gap(16),
+          _buildInfoRow(
+            icon: Icons.event,
+            title: 'Thời gian kết thúc',
+            content: _formatDate(_voucher!.endDate!),
           ),
           const Gap(16),
           _buildInfoRow(
@@ -405,134 +462,11 @@ class _VoucherDetailState extends State<VoucherDetail>
     );
   }
 
-  // Widget _buildShopStatistics() {
-  //   // Mock statistics data - replace with actual data
-  //   const int totalUsed = 25;
-  //   const int totalRevenue = 2500000;
-  //   final double usageRate =
-  //       (totalUsed / (_voucher!.quantity! + totalUsed)) * 100;
-
-  //   return Container(
-  //     margin: const EdgeInsets.symmetric(horizontal: 16),
-  //     padding: const EdgeInsets.all(20),
-  //     decoration: BoxDecoration(
-  //       color: Colors.white,
-  //       borderRadius: BorderRadius.circular(16),
-  //       boxShadow: [
-  //         BoxShadow(
-  //           color: Colors.black.withOpacity(0.05),
-  //           blurRadius: 8,
-  //           offset: const Offset(0, 2),
-  //         ),
-  //       ],
-  //     ),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         Text(
-  //           'Thống kê voucher',
-  //           style: TextDecor.robo18Bold.copyWith(
-  //             color: Colors.black87,
-  //           ),
-  //         ),
-  //         const Gap(16),
-  //         Row(
-  //           children: [
-  //             Expanded(
-  //               child: _buildStatCard(
-  //                 icon: Icons.redeem,
-  //                 title: 'Đã sử dụng',
-  //                 value: '$totalUsed',
-  //                 color: Colors.blue,
-  //               ),
-  //             ),
-  //             const Gap(12),
-  //             Expanded(
-  //               child: _buildStatCard(
-  //                 icon: Icons.inventory,
-  //                 title: 'Còn lại',
-  //                 value: '${_voucher!.quantity}',
-  //                 color: Colors.green,
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //         const Gap(12),
-  //         Row(
-  //           children: [
-  //             Expanded(
-  //               child: _buildStatCard(
-  //                 icon: Icons.percent,
-  //                 title: 'Tỷ lệ sử dụng',
-  //                 value: '${usageRate.toStringAsFixed(1)}%',
-  //                 color: Colors.orange,
-  //               ),
-  //             ),
-  //             const Gap(12),
-  //             Expanded(
-  //               child: _buildStatCard(
-  //                 icon: Icons.attach_money,
-  //                 title: 'Doanh thu',
-  //                 value: _formatCurrency(totalRevenue),
-  //                 color: Colors.red,
-  //                 isSmallText: true,
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // Widget _buildStatCard({
-  //   required IconData icon,
-  //   required String title,
-  //   required String value,
-  //   required Color color,
-  //   bool isSmallText = false,
-  // }) {
-  //   return Container(
-  //     padding: const EdgeInsets.all(16),
-  //     decoration: BoxDecoration(
-  //       color: color.withOpacity(0.1),
-  //       borderRadius: BorderRadius.circular(12),
-  //       border: Border.all(
-  //         color: color.withOpacity(0.3),
-  //       ),
-  //     ),
-  //     child: Column(
-  //       children: [
-  //         Icon(
-  //           icon,
-  //           color: color,
-  //           size: 24,
-  //         ),
-  //         const Gap(8),
-  //         Text(
-  //           title,
-  //           style: TextDecor.robo12.copyWith(
-  //             color: Colors.grey[600],
-  //           ),
-  //           textAlign: TextAlign.center,
-  //         ),
-  //         const Gap(4),
-  //         Text(
-  //           value,
-  //           style: (isSmallText ? TextDecor.robo14 : TextDecor.robo16Medi)
-  //               .copyWith(
-  //             color: color,
-  //             fontWeight: FontWeight.bold,
-  //           ),
-  //           textAlign: TextAlign.center,
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
   Widget _buildShopManagement() {
-    final isExpired = _voucher!.endDate!.isBefore(DateTime.now());
+    final now = DateTime.now();
+    final isExpired = _voucher!.endDate!.isBefore(now);
+    final isNotStarted =
+        _voucher!.startDate != null && _voucher!.startDate!.isAfter(now);
     final isOutOfStock = _voucher!.quantity! <= 0;
 
     return Container(
@@ -567,12 +501,16 @@ class _VoucherDetailState extends State<VoucherDetail>
             decoration: BoxDecoration(
               color: (isExpired || isOutOfStock)
                   ? Colors.red.withOpacity(0.1)
-                  : Colors.green.withOpacity(0.1),
+                  : isNotStarted
+                      ? Colors.orange.withOpacity(0.1)
+                      : Colors.green.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: (isExpired || isOutOfStock)
                     ? Colors.red.withOpacity(0.3)
-                    : Colors.green.withOpacity(0.3),
+                    : isNotStarted
+                        ? Colors.orange.withOpacity(0.3)
+                        : Colors.green.withOpacity(0.3),
               ),
             ),
             child: Row(
@@ -580,9 +518,14 @@ class _VoucherDetailState extends State<VoucherDetail>
                 Icon(
                   (isExpired || isOutOfStock)
                       ? Icons.warning
-                      : Icons.check_circle,
-                  color:
-                      (isExpired || isOutOfStock) ? Colors.red : Colors.green,
+                      : isNotStarted
+                          ? Icons.schedule
+                          : Icons.check_circle,
+                  color: (isExpired || isOutOfStock)
+                      ? Colors.red
+                      : isNotStarted
+                          ? Colors.orange
+                          : Colors.green,
                   size: 24,
                 ),
                 const Gap(12),
@@ -602,11 +545,15 @@ class _VoucherDetailState extends State<VoucherDetail>
                             ? 'Đã hết hạn'
                             : (isOutOfStock
                                 ? 'Hết lượt sử dụng'
-                                : 'Đang hoạt động'),
+                                : isNotStarted
+                                    ? 'Chưa bắt đầu'
+                                    : 'Đang hoạt động'),
                         style: TextDecor.robo16Medi.copyWith(
                           color: (isExpired || isOutOfStock)
                               ? Colors.red
-                              : Colors.green,
+                              : isNotStarted
+                                  ? Colors.orange
+                                  : Colors.green,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
