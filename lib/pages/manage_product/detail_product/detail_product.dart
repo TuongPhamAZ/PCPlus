@@ -713,7 +713,7 @@ class _DetailProductState extends State<DetailProduct>
                               ),
                               const Gap(6),
                               Text(
-                                '$rating/5',
+                                '${rating.toStringAsFixed(1)}/5',
                                 style: TextDecor.robo16.copyWith(
                                   color: Colors.red,
                                 ),

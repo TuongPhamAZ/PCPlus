@@ -58,9 +58,37 @@ class _ListVoucherChoiceState extends State<ListVoucherChoice>
   }
 
   bool _isVoucherEligible(VoucherModel voucher) {
-    return voucher.quantity! > 0 &&
-        voucher.endDate!.isAfter(DateTime.now()) &&
-        widget.orderAmount >= voucher.condition!;
+    final now = DateTime.now();
+    final isNotExpired = voucher.endDate!.isAfter(now);
+    final hasQuantity = voucher.quantity! > 0;
+    final meetsCondition = widget.orderAmount >= voucher.condition!;
+    final hasStarted = voucher.startDate == null ||
+        voucher.startDate!.isBefore(now) ||
+        voucher.startDate!.isAtSameMomentAs(now);
+
+    return hasQuantity && isNotExpired && meetsCondition && hasStarted;
+  }
+
+  String _getVoucherUnavailableReason(VoucherModel voucher) {
+    final now = DateTime.now();
+
+    if (voucher.quantity! <= 0) {
+      return 'Hết lượt sử dụng';
+    }
+
+    if (voucher.endDate!.isBefore(now)) {
+      return 'Đã hết hạn';
+    }
+
+    if (voucher.startDate != null && voucher.startDate!.isAfter(now)) {
+      return 'Chưa bắt đầu';
+    }
+
+    if (widget.orderAmount < voucher.condition!) {
+      return 'Không đủ điều kiện';
+    }
+
+    return 'Không khả dụng';
   }
 
   @override
@@ -333,14 +361,14 @@ class _ListVoucherChoiceState extends State<ListVoucherChoice>
                     Positioned.fill(
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.7),
+                          color: Colors.white.withOpacity(0.05),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Center(
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
+                              horizontal: 20,
+                              vertical: 10,
                             ),
                             decoration: BoxDecoration(
                               color: Colors.red.shade100,
@@ -350,13 +378,9 @@ class _ListVoucherChoiceState extends State<ListVoucherChoice>
                               ),
                             ),
                             child: Text(
-                              voucher.quantity! <= 0
-                                  ? 'Hết lượt sử dụng'
-                                  : voucher.endDate!.isBefore(DateTime.now())
-                                      ? 'Đã hết hạn'
-                                      : 'Không đủ điều kiện',
-                              style: TextDecor.robo12.copyWith(
-                                color: Colors.red.shade700,
+                              _getVoucherUnavailableReason(voucher),
+                              style: TextDecor.robo14.copyWith(
+                                color: Colors.red.shade900,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -394,6 +418,7 @@ class _ListVoucherChoiceState extends State<ListVoucherChoice>
             name: '',
             description: '',
             condition: 0,
+            startDate: DateTime.now(),
             endDate: DateTime.now(),
             discount: 0,
             quantity: 0),

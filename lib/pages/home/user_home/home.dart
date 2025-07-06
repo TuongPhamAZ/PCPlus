@@ -14,6 +14,7 @@ import 'package:pcplus/models/items/item_with_seller.dart';
 import 'package:pcplus/pages/home/user_home/home_contract.dart';
 import 'package:pcplus/pages/conversations/conversations.dart';
 import 'package:pcplus/pages/image_search_result/image_search_result.dart';
+import 'package:pcplus/pages/image_crop/image_crop_screen.dart';
 import 'package:pcplus/services/image_storage_service.dart';
 import 'package:pcplus/services/vector_api_service.dart';
 import 'package:pcplus/themes/palette/palette.dart';
@@ -424,7 +425,7 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
       );
 
       if (pickedFile != null) {
-        await _processSelectedImage(File(pickedFile.path));
+        _openImageCropScreen(File(pickedFile.path));
       }
     } catch (e) {
       UtilWidgets.createSnackBar(
@@ -461,7 +462,7 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
       );
 
       if (pickedFile != null) {
-        await _processSelectedImage(File(pickedFile.path));
+        _openImageCropScreen(File(pickedFile.path));
       }
     } catch (e) {
       UtilWidgets.createSnackBar(
@@ -470,6 +471,20 @@ class _HomeScreenState extends State<HomeScreen> implements HomeContract {
         backgroundColor: Colors.red,
       );
     }
+  }
+
+  void _openImageCropScreen(File imageFile) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ImageCropScreen(
+          imageFile: imageFile,
+          onImageCropped: (croppedFile) {
+            _processSelectedImage(croppedFile);
+          },
+        ),
+      ),
+    );
   }
 
   Future<void> _processSelectedImage(File imageFile) async {

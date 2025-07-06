@@ -5,7 +5,12 @@ import 'package:pcplus/themes/text_decor.dart';
 class ButtonProfile extends StatefulWidget {
   final String name;
   final Function onPressed;
-  const ButtonProfile({super.key, required this.name, required this.onPressed});
+  final Color color;
+  const ButtonProfile(
+      {super.key,
+      required this.name,
+      required this.onPressed,
+      this.color = Colors.black});
 
   @override
   State<ButtonProfile> createState() => _ButtonProfileState();
@@ -28,7 +33,7 @@ class _ButtonProfileState extends State<ButtonProfile> {
       },
       child: Text(
         widget.name,
-        style: TextDecor.profileButtonText,
+        style: TextDecor.profileButtonText.copyWith(color: widget.color),
       ),
     );
   }

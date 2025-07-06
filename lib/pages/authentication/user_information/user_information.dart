@@ -98,7 +98,7 @@ class _UserInformationState extends State<UserInformation>
             children: [
               const Gap(30),
               Text(
-                'Hoàn thiện hồ sơ của bạn',
+                'Thông tin cá nhân',
                 style: TextDecor.profileTitle,
               ),
               const Gap(10),
@@ -358,10 +358,9 @@ class _UserInformationState extends State<UserInformation>
                       birthDate: _birthDate,
                       password: _passwordController.text.trim(),
                       rePassword: _rePasswordController.text.trim(),
-                      isSeller: _isShopOwner
-                  );
-                      // shopName: _shopNameController.text.trim(),
-                      // location: _locationController.text);
+                      isSeller: _isShopOwner);
+                  // shopName: _shopNameController.text.trim(),
+                  // location: _locationController.text);
                 },
               ),
               const Gap(30),
