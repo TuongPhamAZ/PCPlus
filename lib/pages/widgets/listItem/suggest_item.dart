@@ -118,6 +118,7 @@ class SuggestItem extends StatelessWidget {
                       ),
                       const Gap(4),
                       Flexible(
+                        flex: 2,
                         child: Text(
                           Utility.formatCurrency(price),
                           overflow: TextOverflow.ellipsis,

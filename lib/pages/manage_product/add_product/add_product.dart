@@ -2,11 +2,16 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pcplus/const/item_type.dart';
+import 'package:pcplus/extensions/money_format_extension.dart';
 import 'package:pcplus/pages/manage_product/add_product/add_product_contract.dart';
 import 'package:pcplus/pages/manage_product/add_product/add_product_presenter.dart';
+import 'package:pcplus/pages/manage_product/widget/bottom_data_sheet.dart';
+import 'package:pcplus/services/compress_service.dart';
+import 'package:pcplus/services/property_service.dart';
 import 'package:pcplus/themes/palette/palette.dart';
 import 'package:pcplus/themes/text_decor.dart';
 
@@ -28,8 +33,10 @@ class CustomTextField extends StatelessWidget {
   final String? Function(String?)? validator;
   final int? maxLines;
   final int? minLines;
+  final Widget? suffixIcon;
   final TextInputType? keyboardType;
   final Function(String)? onChanged;
+  final List<TextInputFormatter>? inputFormatters;
 
   const CustomTextField({
     super.key,
@@ -39,8 +46,10 @@ class CustomTextField extends StatelessWidget {
     this.validator,
     this.maxLines,
     this.minLines,
+    this.suffixIcon,
     this.keyboardType,
     this.onChanged,
+    this.inputFormatters,
   });
 
   @override
@@ -53,6 +62,7 @@ class CustomTextField extends StatelessWidget {
       minLines: minLines,
       keyboardType: keyboardType,
       onChanged: onChanged,
+      inputFormatters: inputFormatters,
       onTapOutside: (event) {
         FocusScope.of(context).unfocus();
       },
@@ -65,6 +75,13 @@ class CustomTextField extends StatelessWidget {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
         ),
+        suffixIcon: suffixIcon != null
+            ? Container(
+                width: 30,
+                alignment: Alignment.center,
+                child: suffixIcon,
+              )
+            : null,
       ),
     );
   }
@@ -80,6 +97,14 @@ class AddProduct extends StatefulWidget {
 
 class _AddProductState extends State<AddProduct> implements AddProductContract {
   AddProductPresenter? _presenter;
+
+  // Helper method để parse số an toàn
+  int _parseIntSafely(String text) {
+    // Loại bỏ tất cả ký tự không phải số
+    String digitsOnly = text.replaceAll(RegExp(r'[^\d]'), '');
+    if (digitsOnly.isEmpty) return 0;
+    return int.parse(digitsOnly);
+  }
 
   final _formKey = GlobalKey<FormState>();
 
@@ -97,10 +122,56 @@ class _AddProductState extends State<AddProduct> implements AddProductContract {
 
   String? _selectedProductType;
 
+  // Thuộc tính sản phẩm
+  String? _selectedTinhTrang;
+  String? _selectedNhaSanXuat;
+  List<String> _selectedKetNoi = [];
+  List<String> _selectedHDH = [];
+  String? _selectedBaoHanhThoiGian;
+  String? _selectedBaoHanhLoai;
+  List<String> _selectedChungChi = [];
+  String? _selectedVatLieu;
+  final TextEditingController _kichThuocController = TextEditingController();
+  String? _selectedKichThuocDonVi;
+  final TextEditingController _khoiLuongController = TextEditingController();
+  String? _selectedKhoiLuongDonVi;
+  final TextEditingController _thongTinKhacController = TextEditingController();
+
+  // Property data
+  bool _isPropertyDataLoaded = false;
+  bool _isFormSubmitted = false;
+
   @override
   void initState() {
     _presenter = AddProductPresenter(this);
+    _loadPropertyData();
     super.initState();
+  }
+
+  Future<void> _loadPropertyData() async {
+    await PropertyService.loadPropertyData();
+    setState(() {
+      _isPropertyDataLoaded = true;
+    });
+  }
+
+  void _showMultiSelectBottomSheet({
+    required String title,
+    required List<String> allItems,
+    required List<String> selectedItems,
+    required Function(List<String>) onSelectionChanged,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => BottomDataSheet(
+        title: title,
+        allItems: allItems,
+        selectedItems: selectedItems,
+        onSelectionChanged: onSelectionChanged,
+      ),
+    );
   }
 
   // Hàm chọn ảnh từ thiết bị
@@ -182,7 +253,7 @@ class _AddProductState extends State<AddProduct> implements AddProductContract {
                 const SizedBox(height: 16),
                 _buildDescriptionField(),
                 const SizedBox(height: 16),
-                _buildDetailField(),
+                _buildProductProperties(),
                 const SizedBox(height: 16),
                 _buildPriceFields(),
                 const SizedBox(height: 16),
@@ -203,16 +274,22 @@ class _AddProductState extends State<AddProduct> implements AddProductContract {
   }
 
   Widget _buildProductNameField() {
-    return CustomTextField(
-      labelText: "Tên sản phẩm",
-      controller: _nameController,
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Vui lòng nhập tên sản phẩm';
-        }
-        return null;
-      },
-    );
+    return Container(
+        constraints: const BoxConstraints(
+          minHeight: 70,
+        ),
+        padding: const EdgeInsets.only(top: 10),
+        alignment: Alignment.bottomCenter,
+        child: CustomTextField(
+          labelText: "Tên sản phẩm",
+          controller: _nameController,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Vui lòng nhập tên sản phẩm';
+            }
+            return null;
+          },
+        ));
   }
 
   Widget _buildProductTypeDropdown() {
@@ -257,11 +334,664 @@ class _AddProductState extends State<AddProduct> implements AddProductContract {
     );
   }
 
-  Widget _buildDetailField() {
+  Widget _buildProductProperties() {
+    if (!_isPropertyDataLoaded) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Thông số kỹ thuật:",
+            style: TextDecor.robo16.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          _buildTinhTrangField(),
+          const SizedBox(height: 16),
+          _buildNhaSanXuatField(),
+          const SizedBox(height: 16),
+          _buildKetNoiField(),
+          const SizedBox(height: 16),
+          _buildHDHField(),
+          const SizedBox(height: 16),
+          _buildBaoHanhField(),
+          const SizedBox(height: 16),
+          _buildChungChiField(),
+          const SizedBox(height: 16),
+          _buildVatLieuField(),
+          const SizedBox(height: 16),
+          _buildKichThuocField(),
+          const SizedBox(height: 16),
+          _buildKhoiLuongField(),
+          const SizedBox(height: 16),
+          _buildThongTinKhacField(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTinhTrangField() {
+    final tinhTrangList = PropertyService.getTinhTrangWithVietnamese();
+    return DropdownButtonFormField<String>(
+      decoration: InputDecoration(
+        labelText: "Tình trạng",
+        labelStyle: TextDecor.robo16,
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+      value: _selectedTinhTrang,
+      items: tinhTrangList.map((item) {
+        return DropdownMenuItem<String>(
+          value: item['value'],
+          child: Text(item['label']!),
+        );
+      }).toList(),
+      onChanged: (String? newValue) {
+        setState(() {
+          _selectedTinhTrang = newValue;
+        });
+      },
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Vui lòng chọn tình trạng';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildNhaSanXuatField() {
+    final nhaSanXuatList = PropertyService.getNhaSanXuat();
+    return DropdownButtonFormField<String>(
+      decoration: InputDecoration(
+        labelText: "Nhà sản xuất",
+        labelStyle: TextDecor.robo16,
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+      value: _selectedNhaSanXuat,
+      items: nhaSanXuatList.map((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+      onChanged: (String? newValue) {
+        setState(() {
+          _selectedNhaSanXuat = newValue;
+        });
+      },
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Vui lòng chọn nhà sản xuất';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildKetNoiField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Loại kết nối (có thể chọn nhiều):",
+          style: TextDecor.robo16.copyWith(fontWeight: FontWeight.w500),
+        ),
+        const SizedBox(height: 8),
+        GestureDetector(
+          onTap: () {
+            _showMultiSelectBottomSheet(
+              title: "Chọn loại kết nối",
+              allItems: PropertyService.getKetNoi(),
+              selectedItems: _selectedKetNoi,
+              onSelectionChanged: (selectedItems) {
+                setState(() {
+                  _selectedKetNoi = selectedItems;
+                });
+              },
+            );
+          },
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: (_isFormSubmitted && _selectedKetNoi.isEmpty)
+                    ? Colors.red.shade300
+                    : Colors.grey.shade300,
+              ),
+              borderRadius: BorderRadius.circular(8),
+              color: Colors.white,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      _selectedKetNoi.isEmpty
+                          ? "Chọn loại kết nối"
+                          : "${_selectedKetNoi.length} kết nối đã chọn",
+                      style: TextDecor.robo16.copyWith(
+                        color: _selectedKetNoi.isEmpty
+                            ? Colors.grey.shade600
+                            : Colors.black,
+                        fontWeight: _selectedKetNoi.isEmpty
+                            ? FontWeight.normal
+                            : FontWeight.w500,
+                      ),
+                    ),
+                    Icon(
+                      Icons.arrow_drop_down,
+                      color: Colors.grey.shade600,
+                    ),
+                  ],
+                ),
+                if (_selectedKetNoi.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: _selectedKetNoi.take(3).map((ketNoi) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Palette.main1.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border:
+                              Border.all(color: Palette.main1.withOpacity(0.3)),
+                        ),
+                        child: Text(
+                          ketNoi,
+                          style:
+                              TextDecor.robo12.copyWith(color: Palette.main1),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  if (_selectedKetNoi.length > 3)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Text(
+                        "+ ${_selectedKetNoi.length - 3} kết nối khác",
+                        style: TextDecor.robo12
+                            .copyWith(color: Colors.grey.shade600),
+                      ),
+                    ),
+                ],
+              ],
+            ),
+          ),
+        ),
+        if (_isFormSubmitted && _selectedKetNoi.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              'Vui lòng chọn ít nhất một loại kết nối',
+              style: TextDecor.robo12.copyWith(color: Colors.red),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildHDHField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Hệ điều hành tương thích (có thể chọn nhiều):",
+          style: TextDecor.robo16.copyWith(fontWeight: FontWeight.w500),
+        ),
+        const SizedBox(height: 8),
+        GestureDetector(
+          onTap: () {
+            _showMultiSelectBottomSheet(
+              title: "Chọn hệ điều hành",
+              allItems: PropertyService.getHDH(),
+              selectedItems: _selectedHDH,
+              onSelectionChanged: (selectedItems) {
+                setState(() {
+                  _selectedHDH = selectedItems;
+                });
+              },
+            );
+          },
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: (_isFormSubmitted && _selectedHDH.isEmpty)
+                    ? Colors.red.shade300
+                    : Colors.grey.shade300,
+              ),
+              borderRadius: BorderRadius.circular(8),
+              color: Colors.white,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      _selectedHDH.isEmpty
+                          ? "Chọn hệ điều hành"
+                          : "${_selectedHDH.length} hệ điều hành đã chọn",
+                      style: TextDecor.robo16.copyWith(
+                        color: _selectedHDH.isEmpty
+                            ? Colors.grey.shade600
+                            : Colors.black,
+                        fontWeight: _selectedHDH.isEmpty
+                            ? FontWeight.normal
+                            : FontWeight.w500,
+                      ),
+                    ),
+                    Icon(
+                      Icons.arrow_drop_down,
+                      color: Colors.grey.shade600,
+                    ),
+                  ],
+                ),
+                if (_selectedHDH.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: _selectedHDH.take(3).map((hdh) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Palette.main1.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border:
+                              Border.all(color: Palette.main1.withOpacity(0.3)),
+                        ),
+                        child: Text(
+                          hdh,
+                          style:
+                              TextDecor.robo12.copyWith(color: Palette.main1),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  if (_selectedHDH.length > 3)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Text(
+                        "+ ${_selectedHDH.length - 3} hệ điều hành khác",
+                        style: TextDecor.robo12
+                            .copyWith(color: Colors.grey.shade600),
+                      ),
+                    ),
+                ],
+              ],
+            ),
+          ),
+        ),
+        if (_isFormSubmitted && _selectedHDH.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              'Vui lòng chọn ít nhất một hệ điều hành',
+              style: TextDecor.robo12.copyWith(color: Colors.red),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildBaoHanhField() {
+    final baoHanhThoiGianList = PropertyService.getBaoHanhThoiGian();
+    final baoHanhLoaiList = PropertyService.getBaoHanhLoai();
+
+    return Column(
+      children: [
+        DropdownButtonFormField<String>(
+          decoration: InputDecoration(
+            labelText: "Thời gian bảo hành",
+            labelStyle: TextDecor.robo16,
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          value: _selectedBaoHanhThoiGian,
+          items: baoHanhThoiGianList.map((item) {
+            return DropdownMenuItem<String>(
+              value: item['label'],
+              child: Text(item['label']),
+            );
+          }).toList(),
+          onChanged: (String? newValue) {
+            setState(() {
+              _selectedBaoHanhThoiGian = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Vui lòng chọn thời gian bảo hành';
+            }
+            return null;
+          },
+        ),
+        const SizedBox(height: 16),
+        DropdownButtonFormField<String>(
+          decoration: InputDecoration(
+            labelText: "Loại bảo hành",
+            labelStyle: TextDecor.robo16,
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          value: _selectedBaoHanhLoai,
+          items: baoHanhLoaiList.map((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+          onChanged: (String? newValue) {
+            setState(() {
+              _selectedBaoHanhLoai = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Vui lòng chọn loại bảo hành';
+            }
+            return null;
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildChungChiField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Chứng chỉ (có thể chọn nhiều):",
+          style: TextDecor.robo16.copyWith(fontWeight: FontWeight.w500),
+        ),
+        const SizedBox(height: 8),
+        GestureDetector(
+          onTap: () {
+            _showMultiSelectBottomSheet(
+              title: "Chọn chứng chỉ",
+              allItems: PropertyService.getChungChi(),
+              selectedItems: _selectedChungChi,
+              onSelectionChanged: (selectedItems) {
+                setState(() {
+                  _selectedChungChi = selectedItems;
+                });
+              },
+            );
+          },
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: (_isFormSubmitted && _selectedChungChi.isEmpty)
+                    ? Colors.red.shade300
+                    : Colors.grey.shade300,
+              ),
+              borderRadius: BorderRadius.circular(8),
+              color: Colors.white,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      _selectedChungChi.isEmpty
+                          ? "Chọn chứng chỉ"
+                          : "${_selectedChungChi.length} chứng chỉ đã chọn",
+                      style: TextDecor.robo16.copyWith(
+                        color: _selectedChungChi.isEmpty
+                            ? Colors.grey.shade600
+                            : Colors.black,
+                        fontWeight: _selectedChungChi.isEmpty
+                            ? FontWeight.normal
+                            : FontWeight.w500,
+                      ),
+                    ),
+                    Icon(
+                      Icons.arrow_drop_down,
+                      color: Colors.grey.shade600,
+                    ),
+                  ],
+                ),
+                if (_selectedChungChi.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: _selectedChungChi.take(3).map((chungChi) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Palette.main1.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border:
+                              Border.all(color: Palette.main1.withOpacity(0.3)),
+                        ),
+                        child: Text(
+                          chungChi,
+                          style:
+                              TextDecor.robo12.copyWith(color: Palette.main1),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  if (_selectedChungChi.length > 3)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Text(
+                        "+ ${_selectedChungChi.length - 3} chứng chỉ khác",
+                        style: TextDecor.robo12
+                            .copyWith(color: Colors.grey.shade600),
+                      ),
+                    ),
+                ],
+              ],
+            ),
+          ),
+        ),
+        if (_isFormSubmitted && _selectedChungChi.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              'Vui lòng chọn ít nhất một chứng chỉ',
+              style: TextDecor.robo12.copyWith(color: Colors.red),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildVatLieuField() {
+    final vatLieuList = PropertyService.getVatLieu();
+    return DropdownButtonFormField<String>(
+      decoration: InputDecoration(
+        labelText: "Vật liệu",
+        labelStyle: TextDecor.robo16,
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+      value: _selectedVatLieu,
+      items: vatLieuList.map((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+      onChanged: (String? newValue) {
+        setState(() {
+          _selectedVatLieu = newValue;
+        });
+      },
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Vui lòng chọn vật liệu';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildKichThuocField() {
+    final donViList = PropertyService.getKichThuocDonVi();
+    return Row(
+      children: [
+        Expanded(
+          flex: 7,
+          child: CustomTextField(
+            labelText: "Kích thước",
+            controller: _kichThuocController,
+            keyboardType: TextInputType.text,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Vui lòng nhập kích thước';
+              }
+              return null;
+            },
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          flex: 3,
+          child: DropdownButtonFormField<String>(
+            decoration: InputDecoration(
+              labelText: "Đơn vị",
+              labelStyle: TextDecor.robo16,
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            value: _selectedKichThuocDonVi,
+            items: donViList.map((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+            onChanged: (String? newValue) {
+              setState(() {
+                _selectedKichThuocDonVi = newValue;
+              });
+            },
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Chọn đơn vị';
+              }
+              return null;
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildKhoiLuongField() {
+    final donViList = PropertyService.getKhoiLuongDonVi();
+    return Row(
+      children: [
+        Expanded(
+          flex: 7,
+          child: CustomTextField(
+            labelText: "Khối lượng",
+            controller: _khoiLuongController,
+            keyboardType: TextInputType.text,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Vui lòng nhập khối lượng';
+              }
+              return null;
+            },
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          flex: 3,
+          child: DropdownButtonFormField<String>(
+            decoration: InputDecoration(
+              labelText: "Đơn vị",
+              labelStyle: TextDecor.robo16,
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            value: _selectedKhoiLuongDonVi,
+            items: donViList.map((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+            onChanged: (String? newValue) {
+              setState(() {
+                _selectedKhoiLuongDonVi = newValue;
+              });
+            },
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Chọn đơn vị';
+              }
+              return null;
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildThongTinKhacField() {
     return CustomTextField(
-      labelText: "Giới thiệu chi tiết",
-      controller: _detailController,
-      maxLines: 200,
+      labelText: "Thông tin khác (không bắt buộc)",
+      controller: _thongTinKhacController,
+      maxLines: 3,
       minLines: 1,
     );
   }
@@ -273,12 +1003,28 @@ class _AddProductState extends State<AddProduct> implements AddProductContract {
           labelText: "Giá gốc",
           controller: _priceOriginalController,
           keyboardType: TextInputType.number,
+          inputFormatters: [CurrencyInputFormatter()],
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Vui lòng nhập giá gốc';
+            }
+            return null;
+          },
+          suffixIcon: const Text("VNĐ"),
         ),
         const SizedBox(height: 16),
         CustomTextField(
           labelText: "Giá bán",
           controller: _priceSaleController,
           keyboardType: TextInputType.number,
+          inputFormatters: [CurrencyInputFormatter()],
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Vui lòng nhập giá bán';
+            }
+            return null;
+          },
+          suffixIcon: const Text("VNĐ"),
         ),
       ],
     );
@@ -289,6 +1035,13 @@ class _AddProductState extends State<AddProduct> implements AddProductContract {
       labelText: "Số lượng",
       controller: _amountController,
       keyboardType: TextInputType.number,
+      inputFormatters: [CurrencyInputFormatter()],
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Vui lòng nhập số lượng';
+        }
+        return null;
+      },
     );
   }
 
@@ -533,16 +1286,82 @@ class _AddProductState extends State<AddProduct> implements AddProductContract {
   Widget _buildAddButton() {
     return ElevatedButton(
       onPressed: () {
+        setState(() {
+          _isFormSubmitted = true;
+        });
+
         if (_formKey.currentState?.validate() ?? false) {
+          // Validate các trường bắt buộc
+          bool isValid = true;
+          String errorMessage = '';
+
+          if (_selectedTinhTrang == null) {
+            isValid = false;
+            errorMessage = 'Vui lòng chọn tình trạng';
+          } else if (_selectedNhaSanXuat == null) {
+            isValid = false;
+            errorMessage = 'Vui lòng chọn nhà sản xuất';
+          } else if (_selectedKetNoi.isEmpty) {
+            isValid = false;
+            errorMessage = 'Vui lòng chọn ít nhất một loại kết nối';
+          } else if (_selectedHDH.isEmpty) {
+            isValid = false;
+            errorMessage = 'Vui lòng chọn ít nhất một hệ điều hành';
+          } else if (_selectedBaoHanhThoiGian == null ||
+              _selectedBaoHanhLoai == null) {
+            isValid = false;
+            errorMessage = 'Vui lòng chọn đầy đủ thông tin bảo hành';
+          } else if (_selectedChungChi.isEmpty) {
+            isValid = false;
+            errorMessage = 'Vui lòng chọn ít nhất một chứng chỉ';
+          } else if (_selectedVatLieu == null) {
+            isValid = false;
+            errorMessage = 'Vui lòng chọn vật liệu';
+          } else if (_kichThuocController.text.trim().isEmpty ||
+              _selectedKichThuocDonVi == null) {
+            isValid = false;
+            errorMessage = 'Vui lòng nhập đầy đủ thông tin kích thước';
+          } else if (_khoiLuongController.text.trim().isEmpty ||
+              _selectedKhoiLuongDonVi == null) {
+            isValid = false;
+            errorMessage = 'Vui lòng nhập đầy đủ thông tin khối lượng';
+          }
+
+          if (!isValid) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(errorMessage),
+                backgroundColor: Colors.red,
+              ),
+            );
+            return;
+          }
+
+          // Nén dữ liệu thuộc tính thành chuỗi
+          final String compressedDetail = CompressService.compressProperties(
+            tinhTrang: _selectedTinhTrang!,
+            nhaSanXuat: _selectedNhaSanXuat!,
+            ketNoi: _selectedKetNoi,
+            hdh: _selectedHDH,
+            baoHanh: '$_selectedBaoHanhThoiGian - $_selectedBaoHanhLoai',
+            chungChi: _selectedChungChi,
+            vatLieu: _selectedVatLieu!,
+            kichThuoc:
+                '${_kichThuocController.text.trim()} $_selectedKichThuocDonVi',
+            khoiLuong:
+                '${_khoiLuongController.text.trim()} $_selectedKhoiLuongDonVi',
+            thongTinKhac: _thongTinKhacController.text.trim(),
+          );
+
           // Xử lý logic thêm sản phẩm tại đây
           _presenter?.handleAddProduct(
             name: _nameController.text.trim(),
             itemType: _selectedProductType!,
             description: _descriptionController.text.trim(),
-            detail: _detailController.text.trim(),
-            price: int.parse(_priceOriginalController.text.trim()),
-            amount: int.parse(_amountController.text.trim()),
-            discountPrice: int.parse(_priceSaleController.text.trim()),
+            detail: compressedDetail,
+            price: _parseIntSafely(_priceOriginalController.text.trim()),
+            amount: _parseIntSafely(_amountController.text.trim()),
+            discountPrice: _parseIntSafely(_priceSaleController.text.trim()),
             images: _images,
             colors: _colors,
           );
@@ -669,6 +1488,24 @@ class _AddProductState extends State<AddProduct> implements AddProductContract {
       _images.clear();
       _colors.clear();
       _selectedProductType = null;
+
+      // Reset thuộc tính sản phẩm
+      _selectedTinhTrang = null;
+      _selectedNhaSanXuat = null;
+      _selectedKetNoi.clear();
+      _selectedHDH.clear();
+      _selectedBaoHanhThoiGian = null;
+      _selectedBaoHanhLoai = null;
+      _selectedChungChi.clear();
+      _selectedVatLieu = null;
+      _kichThuocController.clear();
+      _selectedKichThuocDonVi = null;
+      _khoiLuongController.clear();
+      _selectedKhoiLuongDonVi = null;
+      _thongTinKhacController.clear();
+
+      // Reset form state
+      _isFormSubmitted = false;
     });
   }
 }
