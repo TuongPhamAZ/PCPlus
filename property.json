@@ -1,4 +1,13 @@
 {
+    "TinhTrang": [
+        "brandNew",
+        "likeNew",
+        "excellent",
+        "good",
+        "fair",
+        "poor",
+        "refurbished"
+    ],
     "NhaSanXuat": [
         "Apple",
         "Samsung",
@@ -37,165 +46,6 @@
         "Seasonic",
         "EVGA",
         "Antec"
-    ],
-    "KichThuoc": {
-        "DonVi": [
-            "mm",
-            "cm",
-            "inch"
-        ]
-    },
-    "KhoiLuong": {
-        "DonVi": [
-            "g",
-            "kg",
-            "lbs"
-        ]
-    },
-    "BaoHanh": {
-        "ThoiGian": [
-            {
-                "value": 3,
-                "label": "3 tháng"
-            },
-            {
-                "value": 6,
-                "label": "6 tháng"
-            },
-            {
-                "value": 12,
-                "label": "1 năm"
-            },
-            {
-                "value": 18,
-                "label": "18 tháng"
-            },
-            {
-                "value": 24,
-                "label": "2 năm"
-            },
-            {
-                "value": 36,
-                "label": "3 năm"
-            },
-            {
-                "value": 48,
-                "label": "4 năm"
-            },
-            {
-                "value": 60,
-                "label": "5 năm"
-            }
-        ],
-        "DonVi": [
-            "tháng",
-            "năm"
-        ],
-        "LoaiBaoHanh": [
-            "Chính hãng",
-            "Đại lý",
-            "Quốc tế",
-            "Bảo hành điện tử",
-            "Bảo hành tại nhà",
-            "Bảo hành đổi mới"
-        ]
-    },
-    "VatLieu": [
-        "Nhôm",
-        "Nhôm anodized",
-        "Thép không gỉ",
-        "Titanium",
-        "Carbon fiber",
-        "Nhựa ABS",
-        "Nhựa PC (Polycarbonate)",
-        "Nhựa PVC",
-        "Kính cường lực",
-        "Kính Gorilla Glass",
-        "Kính Ceramic Shield",
-        "Da thật",
-        "Da tổng hợp",
-        "Vải",
-        "Silicon",
-        "Cao su",
-        "Gỗ",
-        "Ceramic",
-        "Hợp kim magie",
-        "Đồng",
-        "Kẽm",
-        "Niken"
-    ],
-    "ChungChi": [
-        "CE",
-        "FCC",
-        "IC",
-        "RoHS",
-        "WEEE",
-        "Energy Star",
-        "EPEAT",
-        "TCO",
-        "ISO 9001",
-        "ISO 14001",
-        "IP54",
-        "IP65",
-        "IP67",
-        "IP68",
-        "MIL-STD-810G",
-        "MIL-STD-810H",
-        "USB-IF",
-        "Qi Certified",
-        "Made for iPhone (MFi)",
-        "Works with Chromebook",
-        "Intel Evo",
-        "NVIDIA RTX",
-        "AMD Ryzen",
-        "Bluetooth SIG",
-        "Wi-Fi Alliance",
-        "VESA",
-        "THX",
-        "Dolby Atmos",
-        "DTS:X",
-        "Hi-Res Audio"
-    ],
-    "HDH": [
-        "Mọi hệ điều hành",
-        "iOS",
-        "iPadOS",
-        "Android",
-        "Windows",
-        "Windows 11",
-        "Windows 10",
-        "Windows 8/8.1",
-        "Windows 7",
-        "macOS",
-        "macOS Monterey trở lên",
-        "macOS Big Sur trở lên",
-        "macOS Catalina trở lên",
-        "Linux",
-        "Ubuntu",
-        "Fedora",
-        "CentOS",
-        "Debian",
-        "Red Hat",
-        "SUSE",
-        "Chrome OS",
-        "HarmonyOS",
-        "MIUI",
-        "One UI",
-        "OxygenOS",
-        "ColorOS",
-        "Funtouch OS",
-        "EMUI",
-        "Magic UI",
-        "Realme UI",
-        "Stock Android",
-        "Fire OS",
-        "Tizen",
-        "watchOS",
-        "Wear OS",
-        "FreeBSD",
-        "OpenBSD",
-        "Solaris",
-        "Unix"
     ],
     "KetNoi": [
         "USB Type-C",
@@ -263,5 +113,164 @@
         "Docking Station",
         "Không dây (Generic)",
         "Có dây (Generic)"
-    ]
+    ],
+    "HDH": [
+        "Mọi hệ điều hành",
+        "iOS",
+        "iPadOS",
+        "Android",
+        "Windows",
+        "Windows 11",
+        "Windows 10",
+        "Windows 8/8.1",
+        "Windows 7",
+        "macOS",
+        "macOS Monterey trở lên",
+        "macOS Big Sur trở lên",
+        "macOS Catalina trở lên",
+        "Linux",
+        "Ubuntu",
+        "Fedora",
+        "CentOS",
+        "Debian",
+        "Red Hat",
+        "SUSE",
+        "Chrome OS",
+        "HarmonyOS",
+        "MIUI",
+        "One UI",
+        "OxygenOS",
+        "ColorOS",
+        "Funtouch OS",
+        "EMUI",
+        "Magic UI",
+        "Realme UI",
+        "Stock Android",
+        "Fire OS",
+        "Tizen",
+        "watchOS",
+        "Wear OS",
+        "FreeBSD",
+        "OpenBSD",
+        "Solaris",
+        "Unix"
+    ],
+    "BaoHanh": {
+        "ThoiGian": [
+            {
+                "value": 3,
+                "label": "3 tháng"
+            },
+            {
+                "value": 6,
+                "label": "6 tháng"
+            },
+            {
+                "value": 12,
+                "label": "1 năm"
+            },
+            {
+                "value": 18,
+                "label": "18 tháng"
+            },
+            {
+                "value": 24,
+                "label": "2 năm"
+            },
+            {
+                "value": 36,
+                "label": "3 năm"
+            },
+            {
+                "value": 48,
+                "label": "4 năm"
+            },
+            {
+                "value": 60,
+                "label": "5 năm"
+            }
+        ],
+        "DonVi": [
+            "tháng",
+            "năm"
+        ],
+        "LoaiBaoHanh": [
+            "Chính hãng",
+            "Đại lý",
+            "Quốc tế",
+            "Bảo hành điện tử",
+            "Bảo hành tại nhà",
+            "Bảo hành đổi mới"
+        ]
+    },
+    "ChungChi": [
+        "CE",
+        "FCC",
+        "IC",
+        "RoHS",
+        "WEEE",
+        "Energy Star",
+        "EPEAT",
+        "TCO",
+        "ISO 9001",
+        "ISO 14001",
+        "IP54",
+        "IP65",
+        "IP67",
+        "IP68",
+        "MIL-STD-810G",
+        "MIL-STD-810H",
+        "USB-IF",
+        "Qi Certified",
+        "Made for iPhone (MFi)",
+        "Works with Chromebook",
+        "Intel Evo",
+        "NVIDIA RTX",
+        "AMD Ryzen",
+        "Bluetooth SIG",
+        "Wi-Fi Alliance",
+        "VESA",
+        "THX",
+        "Dolby Atmos",
+        "DTS:X",
+        "Hi-Res Audio"
+    ],
+    "VatLieu": [
+        "Nhôm",
+        "Nhôm anodized",
+        "Thép không gỉ",
+        "Titanium",
+        "Carbon fiber",
+        "Nhựa ABS",
+        "Nhựa PC (Polycarbonate)",
+        "Nhựa PVC",
+        "Kính cường lực",
+        "Kính Gorilla Glass",
+        "Kính Ceramic Shield",
+        "Da thật",
+        "Da tổng hợp",
+        "Vải",
+        "Silicon",
+        "Cao su",
+        "Gỗ",
+        "Ceramic",
+        "Hợp kim magie",
+        "Đồng",
+        "Kẽm",
+        "Niken"
+    ],
+    "KichThuoc": {
+        "DonVi": [
+            "mm",
+            "cm",
+            "inch"
+        ]
+    },
+    "KhoiLuong": {
+        "DonVi": [
+            "g",
+            "kg",
+            "lbs"
+        ]
+    }
 }

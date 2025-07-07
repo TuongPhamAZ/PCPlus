@@ -26,6 +26,8 @@ import '../../../models/shops/shop_model.dart';
 import '../../../objects/review_data.dart';
 import '../../home/shop_home/shop_home.dart';
 import '../../widgets/util_widgets.dart';
+import '../../../services/extract_service.dart';
+import '../../../services/property_service.dart';
 
 class DetailProduct extends StatefulWidget {
   const DetailProduct({super.key});
@@ -78,7 +80,12 @@ class _DetailProductState extends State<DetailProduct>
   @override
   void initState() {
     _presenter = DetailProductPresenter(this);
+    _loadPropertyData();
     super.initState();
+  }
+
+  Future<void> _loadPropertyData() async {
+    await PropertyService.loadPropertyData();
   }
 
   bool _isFirstLoad = true;
@@ -158,6 +165,223 @@ class _DetailProductState extends State<DetailProduct>
           backgroundColor: Colors.black.withOpacity(0.45),
         );
       },
+    );
+  }
+
+  // Widget hiển thị thông số kỹ thuật chuyên nghiệp
+  Widget _buildTechnicalSpecifications() {
+    if (detail.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final properties = ExtractService.extractProperties(detail);
+    final bool isOldFormat = properties['isOldFormat'] ?? false;
+
+    return Container(
+      margin: const EdgeInsets.only(top: 6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Nội dung
+          if (isOldFormat)
+            _buildOldFormatDetail(properties['thongTinKhac'] ?? '')
+          else
+            _buildNewFormatSpecs(properties),
+        ],
+      ),
+    );
+  }
+
+  // Hiển thị format cũ
+  Widget _buildOldFormatDetail(String content) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Text(
+        content,
+        style: TextDecor.robo15.copyWith(
+          wordSpacing: 1.5,
+          height: 1.6,
+        ),
+      ),
+    );
+  }
+
+  // Hiển thị format mới với thông số có cấu trúc
+  Widget _buildNewFormatSpecs(Map<String, dynamic> properties) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          _buildSpecItem('Tình trạng', properties['tinhTrang'], Icons.info),
+          _buildSpecItem(
+              'Nhà sản xuất', properties['nhaSanXuat'], Icons.business),
+          _buildMultiValueSpecItem(
+              'Loại kết nối', properties['ketNoi'], Icons.cable),
+          _buildMultiValueSpecItem(
+              'Hệ điều hành tương thích', properties['hdh'], Icons.computer),
+          _buildSpecItem(
+              'Bảo hành', properties['baoHanh'], Icons.verified_user),
+          _buildMultiValueSpecItem(
+              'Chứng chỉ', properties['chungChi'], Icons.verified),
+          _buildSpecItem('Vật liệu', properties['vatLieu'], Icons.category),
+          _buildSpecItem(
+              'Kích thước', properties['kichThuoc'], Icons.straighten),
+          _buildSpecItem(
+              'Khối lượng', properties['khoiLuong'], Icons.fitness_center),
+          if (properties['thongTinKhac']?.isNotEmpty == true)
+            _buildSpecItem(
+                'Thông tin khác', properties['thongTinKhac'], Icons.notes),
+        ].where((widget) => widget != null).cast<Widget>().toList(),
+      ),
+    );
+  }
+
+  // Widget cho một thông số đơn giá trị
+  Widget? _buildSpecItem(String label, dynamic value, IconData icon) {
+    if (value == null || value.toString().isEmpty) return null;
+
+    // Dịch giá trị tình trạng sang tiếng Việt
+    String displayValue = value.toString();
+    if (label == 'Tình trạng') {
+      final tinhTrangList = PropertyService.getTinhTrangWithVietnamese();
+      final found = tinhTrangList.firstWhere(
+        (item) => item['value'] == value,
+        orElse: () => {'label': value.toString()},
+      );
+      displayValue = found['label']!;
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: Palette.main1.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Icon(
+              icon,
+              size: 16,
+              color: Palette.main1,
+            ),
+          ),
+          const Gap(12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextDecor.robo14.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[700],
+                  ),
+                ),
+                const Gap(4),
+                Text(
+                  displayValue,
+                  style: TextDecor.robo15.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Widget cho thông số đa giá trị (List)
+  Widget? _buildMultiValueSpecItem(
+      String label, List<dynamic>? values, IconData icon) {
+    if (values == null || values.isEmpty) return null;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: Palette.main1.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Icon(
+              icon,
+              size: 16,
+              color: Palette.main1,
+            ),
+          ),
+          const Gap(12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextDecor.robo14.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[700],
+                  ),
+                ),
+                const Gap(8),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: values.map<Widget>((value) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Palette.main1.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border:
+                            Border.all(color: Palette.main1.withOpacity(0.3)),
+                      ),
+                      child: Text(
+                        value.toString(),
+                        style: TextDecor.robo12.copyWith(
+                          color: Palette.main1,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -360,7 +584,7 @@ class _DetailProductState extends State<DetailProduct>
                             ),
                             const Gap(10),
                             Text(
-                              'Chi tiết sản phẩm',
+                              'Thông số kỹ thuật',
                               style: TextDecor.robo16,
                             ),
                             Expanded(child: Container()),
@@ -380,15 +604,7 @@ class _DetailProductState extends State<DetailProduct>
                             ),
                           ],
                         ),
-                        if (_detailInfor)
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              detail,
-                              style:
-                                  TextDecor.robo15.copyWith(wordSpacing: 1.5),
-                            ),
-                          ),
+                        if (_detailInfor) _buildTechnicalSpecifications(),
                         Padding(
                           padding: const EdgeInsets.all(16),
                           child: Container(
